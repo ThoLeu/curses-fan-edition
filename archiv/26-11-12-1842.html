@@ -106,7 +106,10 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);min-he
 #transcript .say{float:right;margin:2px -6px 0 10px;padding:2px 7px;font-size:13px;line-height:1.3;opacity:.3;background:transparent;border-color:transparent;white-space:normal}
 #transcript .out:hover .say,#transcript .say:focus-visible{opacity:.85;border-color:var(--line)}
 #transcript .out.speaking .say{opacity:1;border-color:var(--acc);background:#3a2c18}
-#voiceSel{max-width:220px}
+#trList .trSay{float:right;margin:0 0 0 8px;padding:2px 7px;font-size:13px;line-height:1.3;opacity:.3;background:transparent;border-color:transparent}
+#trList .trBlock:hover .trSay,#trList .trSay:focus-visible{opacity:.85;border-color:var(--line)}
+#trList .trBlock.speaking{background:rgba(210,168,90,.07)}#trList .trBlock.speaking .trSay{opacity:1;border-color:var(--acc);background:#3a2c18}
+#voiceSel,#voiceTrSel{max-width:220px}
 :root{--fs:17px;--tw:72ch}
 #transcript{font-size:var(--fs)!important;max-width:var(--tw)!important}
 .sys,#cmdForm,#keyHint,.exitBar{max-width:var(--tw)!important}
@@ -214,7 +217,9 @@ body.wordclick #transcript .out span:not(.cmdEcho){cursor:pointer}
 .saveRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a2219}
 .saveRow b{display:block;font-weight:normal}.saveRow small{color:var(--dim);font-size:12px}
 .sbtn{display:flex;gap:4px;flex:none}.sbtn button{font-size:12.5px;padding:3px 8px}
+button.danger{border-color:#8a3a2a;color:#f0b0a0}button.danger[data-armed]{background:#6a2418;color:#fff}
 .xferBtns{display:flex;gap:8px;margin:8px 0;align-items:center}
+.saveWhere{margin:10px 0 4px;font-size:.88em;color:var(--dim)}.saveWhere summary{cursor:pointer;color:var(--acc)}.saveWhere p{margin:6px 0}
 .btnlike{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13.5px;color:var(--ink);text-decoration:none}
 /* light paper theme */
 body[data-theme="paper"]{--bg:#efe6d2;--panel:#f6efe0;--panel2:#e8dcc4;--ink:#2a2016;--dim:#6a5a44;--line:#cdbb9a;background:#efe6d2}
@@ -362,7 +367,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>Fan-Edition</em></h1><div class="ver startVer" title="Version">26-11-12-1828</div>
+    <h1>Curses<em>Fan-Edition</em></h1><div class="ver startVer" title="Version">26-11-12-1842</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -401,7 +406,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· Fan-Edition</em><span class="ver" title="Version">26-11-12-1828</span></div>
+    <div class="t">Curses <em>· Fan-Edition</em><span class="ver" title="Version">26-11-12-1842</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -434,6 +439,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
         <span class="trTitle">Übersetzung</span>
         <select id="trTarget" aria-label="Zielsprache"><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pl">Polski</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="uk">Українська</option><option value="ru">Русский</option></select>
         <button id="trAutoBtn">Automatisch übersetzen</button>
+        <button id="trSayBtn" title="Letzte Übersetzung vorlesen">🔊 Vorlesen</button>
         <span id="trStatus" class="trStatus"></span>
         <details class="trHelp"><summary title="Wie übersetze ich?">?</summary><p>Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur diese Spalte, das Original bleibt englisch.</p></details>
       </div>
@@ -489,11 +495,13 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
       <label class="row"><span>Geräusche <small>Luken, Gegenstände, Regen, Glocken, Brandung</small></span><input type="checkbox" data-p="sfx"></label>
       <label class="row"><span>Geräusch-Lautstärke</span><input type="range" min="0" max="1" step="0.05" data-p="sfxVol"></label>
       <div class="ttsOnly">
-        <label class="row"><span>Vorlese-Stimme</span><select id="voiceSel" aria-label="Stimme"></select></label>
+        <label class="row"><span>Vorlese-Stimme <small>für den englischen Spieltext</small></span><select id="voiceSel" aria-label="Stimme"></select></label>
+        <label class="row"><span>Stimme für die Übersetzung <small>passend zur Zielsprache der Übersetzungsspalte</small></span><select id="voiceTrSel" aria-label="Stimme für die Übersetzung"></select></label>
         <label class="row"><span>Sprechtempo</span><select id="rateSel" aria-label="Sprechtempo"><option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option></select></label>
       </div>
       <h3>Spiel</h3>
       <div class="row"><span>Von vorn beginnen oder andere Story-Datei laden</span><span><button id="restartBtn">Neu starten</button> <button id="changeStory">Datei…</button></span></div>
+      <div class="row"><span>Alles zurücksetzen <small>löscht in diesem Browser alle Einstellungen, Spielstände, Karte, Notizen und die gespeicherte Spieldatei – danach startet die Seite wie beim ersten Besuch</small></span><span><button id="resetAllBtn" class="danger">Alles zurücksetzen</button></span></div>
     </div>
   </div>
 </div>
@@ -504,6 +512,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
       <p id="saveMsg" class="hm-intro"></p>
       <div class="saveNew"><input id="saveName" placeholder="Name des Spielstands"><button id="saveNow">Jetzt speichern</button></div>
       <div id="saveList"></div>
+      <details class="saveWhere"><summary>Wo werden die Spielstände gespeichert?</summary><p>Nur hier im Browser, auf diesem Gerät (im lokalen Speicher des Browsers) – nichts geht an einen Server. Dazu gehören auch der automatische Spielstand nach jedem Zug, die Karte und deine Notizen.</p><p>Jede Adresse hat ihren eigenen Speicher: Auf GitHub Pages, in der Ansicht bei Claude und in einer heruntergeladenen Datei siehst du jeweils andere Spielstände, ebenso in einem anderen Browser oder auf einem anderen Gerät.</p><p>Verloren gehen sie, wenn du die Browserdaten für die Seite löschst; in einem privaten Fenster bleiben sie nur bis zum Schließen. Zum Sichern oder Mitnehmen: einen Spielstand exportieren und den Text oder die Datei aufheben.</p></details>
       <div id="xferBox" hidden>
         <h3 id="xferTitle">Export</h3>
         <textarea id="xferText" rows="5" readonly></textarea>
@@ -649,7 +658,7 @@ const EN = {
   'von sphärisch bis düster': 'from ethereal to dark',
   'sphärisch': 'ethereal',
   'düster': 'dark',
-  'von dir hierher gebracht': 'brought here by you', 'Hier abgelegt:': 'Left here:', 'README des Autors': "author's README", 'direkt von dort laden': 'load it straight from there', 'Lade aus dem IF Archive …': 'Loading from the IF Archive …', 'Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link in Schritt 1 herunter und leg sie hier ab.': 'Loading it directly did not work here – the browser or the IF Archive does not allow it from this page. Download the file with the link in step 1 and drop it here.', 'Zum Schließen klicken': 'Click to close',
+  'von dir hierher gebracht': 'brought here by you', 'Hier abgelegt:': 'Left here:', 'Alles zurücksetzen': 'Reset everything', 'löscht in diesem Browser alle Einstellungen, Spielstände, Karte, Notizen und die gespeicherte Spieldatei – danach startet die Seite wie beim ersten Besuch': 'deletes all settings, saved games, the map, notes and the stored story file in this browser – the page then starts as on a first visit', 'Wirklich alles löschen?': 'Really delete everything?', 'für den englischen Spieltext': 'for the English game text', 'Stimme für die Übersetzung': 'Voice for the translation', 'passend zur Zielsprache der Übersetzungsspalte': 'matching the language of the translation column', 'automatisch': 'automatic', 'keine Stimme für diese Sprache': 'no voice for this language', 'Übersetzung vorlesen': 'Read the translation aloud', 'Letzte Übersetzung vorlesen': 'Read the latest translation aloud', 'Keine passende Stimme für diese Sprache gefunden – es liest die Standardstimme.': 'No voice for this language found – the default voice is reading.', 'Wo werden die Spielstände gespeichert?': 'Where are the saved games kept?', 'Nur hier im Browser, auf diesem Gerät (im lokalen Speicher des Browsers) – nichts geht an einen Server. Dazu gehören auch der automatische Spielstand nach jedem Zug, die Karte und deine Notizen.': 'Only here in the browser, on this device (in the browser’s local storage) – nothing is sent to a server. That includes the automatic save after every move, the map and your notes.', 'Jede Adresse hat ihren eigenen Speicher: Auf GitHub Pages, in der Ansicht bei Claude und in einer heruntergeladenen Datei siehst du jeweils andere Spielstände, ebenso in einem anderen Browser oder auf einem anderen Gerät.': 'Each address has its own storage: on GitHub Pages, in the view on Claude and in a downloaded file you see different saved games, and the same goes for another browser or device.', 'Verloren gehen sie, wenn du die Browserdaten für die Seite löschst; in einem privaten Fenster bleiben sie nur bis zum Schließen. Zum Sichern oder Mitnehmen: einen Spielstand exportieren und den Text oder die Datei aufheben.': 'They are lost if you clear the browser data for the page; in a private window they only last until you close it. To keep a copy or take it elsewhere: export a saved game and keep the text or the file.', 'README des Autors': "author's README", 'direkt von dort laden': 'load it straight from there', 'Lade aus dem IF Archive …': 'Loading from the IF Archive …', 'Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link in Schritt 1 herunter und leg sie hier ab.': 'Loading it directly did not work here – the browser or the IF Archive does not allow it from this page. Download the file with the link in step 1 and drop it here.', 'Zum Schließen klicken': 'Click to close',
   'Ziehen zum Verschieben': 'Drag to move',
   'Klick: untersuchen': 'Click: examine', 'Was tust du? (auf Deutsch)': 'What do you do? (in German)', 'Deutsche Eingabe': 'German input', 'Namen im Bild': 'Names in the picture', 'beim Darüberfahren mit der Maus; ein Klick untersucht den Gegenstand': 'when hovering with the mouse; a click examines the item', 'Übersetzung': 'Translation', '🌐 Übersetzung': '🌐 Translation', 'Spieltext in einer eigenen Spalte übersetzen lassen': 'Have the game text translated in a separate column', 'Wie übersetze ich?': 'How do I translate?', 'Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur diese Spalte, das Original bleibt englisch.': 'If your browser has no built-in translation: use its translate feature, for example right-click → “Translate”. Only this column is translated; the original stays in English.', 'Spieltext in einem eigenen Feld übersetzen lassen': 'Have the game text translated in a separate panel', 'Zielsprache': 'Target language', 'Automatisch übersetzen': 'Translate automatically', 'Übersetzung aus': 'Stop translating',
   'Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur dieses Feld, das Original bleibt englisch.': 'If your browser has no built-in translation: use its translate feature, for example right-click → “Translate”. Only this panel is translated; the original stays in English.',
@@ -6421,24 +6430,33 @@ function pickVoice() {
   const uri = $('#voiceSel') && $('#voiceSel').value;
   return TTS.voices.find(v => v.voiceURI === uri) || TTS.voices.find(v => /^en/i.test(v.lang)) || null;
 }
-function speakBlock(block) {
-  if (!TTS.ok) return;
-  if (TTS.cur === block) { stopSpeech(); return; }
+function speakBlock(block) { speakText(blockText(block), null, block); }
+// a voice for another language (the translation): a saved choice, else the best one the system has
+function pickVoiceFor(lang) {
+  const l = String(lang || '').slice(0, 2).toLowerCase();
+  const saved = LS.get('zp:voice:' + l);
+  const of = TTS.voices.filter(v => v.lang.toLowerCase().startsWith(l));
+  return TTS.voices.find(v => v.voiceURI === saved) || of.find(v => /natural|premium|enhanced|neural/i.test(v.name)) || of.find(v => /google/i.test(v.name)) || of[0] || null;
+}
+// read a text aloud; el is the element that is marked while it is read (a second click stops)
+function speakText(text, lang, el) {
+  if (!TTS.ok) return false;
+  if (el && TTS.cur === el) { stopSpeech(); return true; }
   stopSpeech();
-  const text = blockText(block);
-  if (!text) return;
+  if (!text) return false;
   const token = ++TTS.token;
   const chunks = chunkText(text);
-  const voice = pickVoice(), rate = parseFloat(($('#rateSel') || {}).value || '1');
-  TTS.cur = block; block.classList.add('speaking');
+  const voice = lang ? pickVoiceFor(lang) : pickVoice(), rate = parseFloat(($('#rateSel') || {}).value || '1');
+  TTS.cur = el || document.body; if (el) el.classList.add('speaking');
   updateSayUI(true); S.music.duck(true);
   chunks.forEach((c, i) => {
     const u = new SpeechSynthesisUtterance(c);
-    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-GB';
+    if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = lang || 'en-GB';
     u.rate = rate;
     if (i === chunks.length - 1) u.onend = u.onerror = () => { if (token === TTS.token) finishSpeech(); };
     speechSynthesis.speak(u);
   });
+  return !!voice || !lang;
 }
 function finishSpeech() {
   if (TTS.cur) TTS.cur.classList.remove('speaking');
@@ -6462,6 +6480,7 @@ function updateSayUI(on) {
 function loadVoices() {
   if (!TTS.ok) return;
   TTS.voices = speechSynthesis.getVoices();
+  setTimeout(loadTrVoices, 0);
   const sel = $('#voiceSel'); if (!sel) return;
   const saved = LS.get('zp:voice');
   const sorted = TTS.voices.slice().sort((a, b) => (/^en/i.test(b.lang) - /^en/i.test(a.lang)) || a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
@@ -6470,6 +6489,17 @@ function loadVoices() {
   for (const v of sorted) { const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name.replace(/^(Microsoft|Google)\s+/, '') + ' (' + v.lang + ')'; sel.appendChild(o); }
   const def = sorted.find(v => v.voiceURI === saved) || sorted.find(v => /^en-GB/i.test(v.lang)) || sorted.find(v => /^en/i.test(v.lang)) || sorted[0];
   sel.value = def.voiceURI;
+}
+// the voice list for the translation, for the language the translation column is set to
+function loadTrVoices() {
+  const sel = $('#voiceTrSel'); if (!sel || !TTS.ok) return;
+  const P = window.ZFeat ? ZFeat.prefs() : {}; const l = (P.trTarget || 'de').slice(0, 2);
+  const of = TTS.voices.filter(v => v.lang.toLowerCase().startsWith(l));
+  sel.innerHTML = '';
+  const auto = document.createElement('option'); auto.value = ''; auto.textContent = of.length ? T('automatisch') : T('keine Stimme für diese Sprache'); sel.appendChild(auto);
+  for (const v of of) { const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name.replace(/^(Microsoft|Google)\s+/, '') + ' (' + v.lang + ')'; sel.appendChild(o); }
+  sel.value = LS.get('zp:voice:' + l) || '';
+  sel.onchange = () => LS.set('zp:voice:' + l, sel.value);
 }
 function initSpeech() {
   if (!TTS.ok) { document.querySelectorAll('.ttsOnly').forEach(e => e.hidden = true); return; }
@@ -6746,6 +6776,19 @@ function initControls() {
     } else { b.dataset.armed = '1'; b.textContent = 'Sicher?'; setTimeout(() => { delete b.dataset.armed; b.textContent = T('Neu starten'); }, 3000); }
   };
   $('#changeStory').onclick = () => { location.reload(); };
+  // total reset: everything this page keeps in the browser goes, then the page starts as on a first visit
+  $('#resetAllBtn').onclick = () => {
+    const b = $('#resetAllBtn');
+    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = T('Wirklich alles löschen?'); setTimeout(() => { delete b.dataset.armed; b.textContent = T('Alles zurücksetzen'); }, 4000); return; }
+    try { S.music.setEnabled(false); } catch (e) {}
+    try { if (TTS.ok) speechSynthesis.cancel(); } catch (e) {}
+    try { const keys = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('zp:')) keys.push(k); } keys.forEach(k => localStorage.removeItem(k)); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    // nothing may write again before the page has reloaded (pending autosaves, map, notes)
+    try { Storage.prototype.setItem = function () {}; } catch (e) {}
+    S.resetting = true;
+    if (!window.__noReload) location.reload();
+  };
   // music
   const mb = $('#musicBtn'), vol = $('#vol');
   const savedVol = parseFloat(LS.get('zp:vol') || '0.6'); vol.value = savedVol; S.music.volume = savedVol;
@@ -6783,7 +6826,7 @@ function relang() {
   const mb = $('#musicBtn'); mb.textContent = S.music.enabled ? T('♫ Musik an') : T('♫ Musik aus');
   const inp = $('#cmd'); if (S.zm) inp.placeholder = S.zm.state === 'char' ? T('Drück eine Taste …') : T('Was tust du?');
 }
-window.__zp = { S, startGame, sendCommand, sendKey, roomState, statusRoom, statusRegion, findLocation, renderMap, appendSys, contentsVisible, ATTR, relang, refreshPicture, mentioned, mentionedIn, roomItems, renderRoomItems, nounFor };
+window.__zp = { loadTrVoices, speakText, stopSpeech, ttsOk: () => TTS.ok, speaking: () => TTS.cur, S, startGame, sendCommand, sendKey, roomState, statusRoom, statusRegion, findLocation, renderMap, appendSys, contentsVisible, ATTR, relang, refreshPicture, mentioned, mentionedIn, roomItems, renderRoomItems, nounFor };
 })();
 </script>
 <script>// Comfort features: settings, inventory, notebook, named saves, transcript, word taps, exits,
@@ -7180,7 +7223,8 @@ function trAdd(cmd, text) {
 function renderTr() {
   const box = $('#trList'); if (!box) return;
   if (!TR.blocks.length) { box.innerHTML = `<p class="paneEmpty notranslate" translate="no">${esc(T('Hier erscheinen die Antworten des Spiels zum Übersetzen.'))}</p>`; return; }
-  box.innerHTML = TR.blocks.map((b, i) => `<div class="trBlock" data-turn="${b.id}">${b.cmd ? `<span class="trCmd${b.de ? ' de' : ''}" translate="no">&gt; ${esc(b.cmd)}</span>` : ''}<span class="trText${TR.auto && !b.out ? ' pending' : ''}"${TR.auto ? ' translate="no"' : ''}>${esc(b.out || b.text)}</span></div>`).join('');
+  const say = Z().ttsOk && Z().ttsOk();
+  box.innerHTML = TR.blocks.map((b, i) => `<div class="trBlock" data-turn="${b.id}" data-i="${i}">${say && (b.out || b.text || '').trim() ? `<button type="button" class="say trSay" translate="no" title="${T('Übersetzung vorlesen')}" aria-label="${T('Übersetzung vorlesen')}">🔊</button>` : ''}${b.cmd ? `<span class="trCmd${b.de ? ' de' : ''}" translate="no">&gt; ${esc(b.cmd)}</span>` : ''}<span class="trText${TR.auto && !b.out ? ' pending' : ''}"${TR.auto ? ' translate="no"' : ''}>${esc(b.out || b.text)}</span></div>`).join('');
   if (!TR.userScrolled) { const sc = $('#trScroll'); sc.scrollTop = sc.scrollHeight; }
 }
 function trTranslate(b) {
@@ -7255,15 +7299,27 @@ function initTrInput() {
     else if (e.key === 'ArrowDown' && hi >= 0) { e.preventDefault(); hi++; if (hi >= hist.length) { hi = -1; inp.value = ''; } else inp.value = hist[hi]; }
   });
 }
+// reading the translation aloud, in a voice for the target language
+function trSpeak(blockEl) {
+  const zp = Z(); if (!zp || !zp.speakText || !blockEl) return;
+  const b = TR.blocks[+blockEl.dataset.i]; const te = blockEl.querySelector('.trText');
+  const text = (te ? te.textContent : '').trim();
+  // not translated yet (the browser's own translation has not run): read the original in the original voice
+  const translated = b && text && text !== (b.text || '').trim();
+  const ok = zp.speakText(text, translated ? TR.target : null, blockEl);
+  if (translated && !ok) $('#trStatus').textContent = T('Keine passende Stimme für diese Sprache gefunden – es liest die Standardstimme.');
+}
 function initTr() {
   initTrInput();
+  $('#trList').addEventListener('click', e => { const btn = e.target.closest('.trSay'); if (!btn) return; e.stopPropagation(); trSpeak(btn.closest('.trBlock')); });
+  { const sb = $('#trSayBtn'); if (sb) sb.onclick = () => { const zp = Z(); const blocks = [...document.querySelectorAll('#trList .trBlock')].filter(x => x.querySelector('.trText') && x.querySelector('.trText').textContent.trim()); const last = blocks.pop(); if (zp.speaking && zp.speaking()) zp.stopSpeech(); else if (last) trSpeak(last); }; if (!(Z().ttsOk && Z().ttsOk())) sb.hidden = true; }
   const sel = $('#trTarget');
   $('#trBtn').onclick = () => setTrCol(!P.trCol);
   initTrSync();
   TR.target = P.trTarget || (P.lang === 'en' ? 'de' : 'de'); sel.value = TR.target;
   const hasApi = ('Translator' in self) || !!(self.translation && self.translation.createTranslator);
   $('#trAutoBtn').hidden = !hasApi;
-  sel.addEventListener('change', () => { P.trTarget = TR.target = sel.value; saveP(); if (TR.auto) { TR.auto = false; $('#trAutoBtn').click(); } });
+  sel.addEventListener('change', () => { P.trTarget = TR.target = sel.value; saveP(); try { Z().loadTrVoices(); } catch (e) {} if (TR.auto) { TR.auto = false; $('#trAutoBtn').click(); } });
   $('#trAutoBtn').onclick = async () => {
     const btn = $('#trAutoBtn');
     if (TR.auto) { TR.auto = false; btn.textContent = T('Automatisch übersetzen'); $('#trStatus').textContent = ''; TR.blocks.forEach(b => b.out = null); renderTr(); return; }

@@ -1,27 +1,27 @@
-# Curses · Fan-Edition
+# Curses · a customized interpreter
 
-Browser fan edition of Graham Nelson’s 1993 text adventure *Curses*: a Z-machine player with original room illustrations, an automatic map, generative music, inventory icons, translation help and a smart parser. No game text included – load your own `curses.z5`. Everything in a single HTML file, ready to play.
+A customized Z-machine interpreter for Graham Nelson’s 1993 text adventure *Curses*, playable in the browser, with original room illustrations, an automatic map, generative music, inventory icons, translation help and a smart parser. No game text included – load your own `curses.z5`. Everything in a single HTML file, ready to play.
 
 **Spielen / Play:** [index.html](index.html) (über GitHub Pages: `https://tholeu.github.io/curses-fan-edition/`)
 
 Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Repository enthalten; du bekommst sie kostenlos im [IF Archive](https://ifarchive.org/if-archive/games/zcode/curses.z5) (siehe die [README des Autors](https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt)), oder du lässt die Startseite sie direkt von dort laden. / You need your own story file `curses.z5`; it is not part of this repository. Get it free from the [IF Archive](https://ifarchive.org/if-archive/games/zcode/curses.z5) (see the [author's README](https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt)), or let the start page load it from there.
 
-*Curses* © Graham Nelson. The game is free and may be distributed without profit, as its README says; this fan edition is a separate, unofficial player and does not include it.
+*Curses* © Graham Nelson. The game is free and may be distributed without profit, as its README says; this interpreter is a separate, unofficial player and does not include it.
 
 ## Aktuelle Version
 
-26-11-12-1842 – Knopf „Alles zurücksetzen“ in den Einstellungen
+26-11-12-1919 – Neuer Titel: Curses · a customized interpreter
 
 ## Ältere Versionen
 
+- [26-11-12-1842](archiv/26-11-12-1842.html) – Knopf „Alles zurücksetzen“ in den Einstellungen
 - [26-11-12-1835](archiv/26-11-12-1835.html) – Vorlesen in der Übersetzungsspalte
 - [26-11-12-1833](archiv/26-11-12-1833.html) – Hinweis zum Speicherort der Spielstände
-- [26-11-12-1828](archiv/26-11-12-1828.html) – Startseite: README des Autors und direktes Laden aus dem IF Archive
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
 
-Die Fan-Edition ist in einem langen Gespräch zwischen dem Projektinhaber und Claude (Anthropic) entstanden: Der Projektinhaber hat die Richtung vorgegeben, gespielt, Fehler gefunden und entschieden; Claude hat programmiert, gezeichnet, komponiert und getestet. Die Abschnitte folgen der Reihenfolge, in der die Teile entstanden sind.
+Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude (Anthropic) entstanden: Der Projektinhaber hat die Richtung vorgegeben, gespielt, Fehler gefunden und entschieden; Claude hat programmiert, gezeichnet, komponiert und getestet. Die Abschnitte folgen der Reihenfolge, in der die Teile entstanden sind.
 
 ### Grundsätze
 - **Kein Spieltext in der Seite.** Weder die Spieldatei noch Texte aus dem Spiel oder der Komplettlösung sind eingebettet. Jeder Spieler lädt seine eigene `curses.z5` (und auf Wunsch eine eigene Komplettlösung für die Vorführung).
@@ -109,6 +109,9 @@ Die Fan-Edition ist in einem langen Gespräch zwischen dem Projektinhaber und Cl
 
 ### 16. Alles zurücksetzen (12. November 2026)
 - In den Einstellungen unter „Spiel“: „Alles zurücksetzen“ löscht nach einer Rückfrage alles, was die Seite in diesem Browser gespeichert hat – Einstellungen, Spielstände, Karte, Notizen, gespeicherte Spieldatei – und lädt die Seite neu wie beim ersten Besuch.
+
+### 17. Neuer Titel (12. November 2026)
+- Aus „Curses · Fan-Edition“ wird „Curses · a customized interpreter“: Das Projekt ist ein eigener Interpreter, der das unveränderte Spiel abspielt, keine eigene Ausgabe des Spiels. Geändert auf der Startseite, in der Kopfleiste, im Browser-Tab und hier.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
