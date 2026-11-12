@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-12-1940 – Projektor wirft die ganze Tarotkarte, leicht durchscheinend
+26-11-12-1944 – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
 
 ## Ältere Versionen
 
+- [26-11-12-1940](archiv/26-11-12-1940.html) – Projektor wirft die ganze Tarotkarte, leicht durchscheinend
 - [26-11-12-1936](archiv/26-11-12-1936.html) – Diaprojektor zeigt das eingelegte Dia; Strahl im Observatorium
 - [26-11-12-1924](archiv/26-11-12-1924.html) – Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
-- [26-11-12-1919](archiv/26-11-12-1919.html) – Neuer Titel: Curses · a customized interpreter
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -118,7 +118,7 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 - Hinweise in eckigen Klammern (z. B. „[Your score has just gone up …]“) werden beim Vorlesen übersprungen; in den Einstellungen lässt sich das wieder einschalten.
 
 ### 19. Der Diaprojektor (12. November 2026)
-- Souvenirs Room: Die Südwand zeigt jetzt, was der Projektor tatsächlich wirft – dunkel, wenn er aus ist, weißes Licht ohne Dia, und sonst das Bild im Schlitz: die jeweilige Tarotkarte (ganz und hochkant, leicht durchscheinend wie ein Dia), die Miniatur der Folly oder die Skizze des Palasts von Alexandria. Nach dem Drehen am Rad schießt der Strahl rückwärts aus dem Projektor.
+- Souvenirs Room: Die Südwand zeigt jetzt, was der Projektor tatsächlich wirft – dunkel, wenn er aus ist, weißes Licht ohne Dia, und sonst das Bild im Schlitz: die jeweilige Tarotkarte (ganz und hochkant, leicht durchscheinend wie ein Dia), die Miniatur der Folly (hochkant, so groß wie eine Spielkarte) oder die Skizze des Palasts von Alexandria (quer), alle leicht durchscheinend. Nach dem Drehen am Rad schießt der Strahl rückwärts aus dem Projektor.
 - Disused Observatory: Der Strahl kommt von Süden, trifft die Glaskugel und fällt auf das Tierkreiszeichen, das der Text nennt.
 - Dafür kennen die Bilder jetzt auch, was eingeschaltet ist und was in einem Behälter steckt.
 

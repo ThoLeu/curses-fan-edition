@@ -368,7 +368,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1940</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1944</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1940</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1944</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2224,8 +2224,8 @@ B['Souvenirs Room'] = { cat: 'interior', draw(h) {
     const sl = slide.toLowerCase(), key = Object.keys(cardText).find(k => sl.startsWith(k));
     let pic = '';
     if (key && CU) { const c = CU.find(cardText[key]); if (c) pic = `<g opacity=".78"><svg x="167" y="56" width="66" height="100" viewBox="0 0 200 320">${c.svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '').replace(/filter="url\(#[^)]*\)"/g, '')}</svg></g><rect x="167" y="56" width="66" height="100" fill="#fff8e0" opacity=".14"/>`; }
-    else if (/miniature/.test(sl)) pic = `<rect x="128" y="58" width="144" height="96" fill="#a8c8e0"/><path d="M128,154 V120 Q170,100 200,112 L272,124 V154Z" fill="#6a8a4a"/><path d="M186,112 l26,-4 l12,10 l-44,6z" fill="#7a6a5a"/><rect x="196" y="70" width="16" height="42" fill="#9a8a78"/>${[196, 202, 208].map(x => `<rect x="${x}" y="66" width="4" height="5" fill="#9a8a78"/>`).join('')}`;
-    else if (/sketch/.test(sl)) pic = `<rect x="128" y="58" width="144" height="96" fill="#ece6d6"/><g stroke="#3a3430" stroke-width="1.4" fill="none"><path d="M140,140 h120 M146,140 V104 h108 V140 M140,104 h120 l-60,-24z"/>${Array.from({ length: 9 }, (_, k) => `<path d="M${152 + k * 12},106 v32"/>`).join('')}<path d="M194,140 v-18 h12 v18"/></g>`;
+    else if (/miniature/.test(sl)) pic = `<g opacity=".8"><rect x="171" y="56" width="58" height="100" fill="#a8803a"/><rect x="175" y="60" width="50" height="92" fill="#a8c8e0"/><path d="M175,152 V112 Q196,96 214,104 L225,108 V152Z" fill="#6a8a4a"/><path d="M182,112 l22,-6 l14,10 l-36,4z" fill="#7a6a5a"/><rect x="193" y="70" width="14" height="40" fill="#9a8a78"/>${[193, 198, 203].map(x => `<rect x="${x}" y="66" width="4" height="5" fill="#9a8a78"/>`).join('')}<path d="M197,80 l3,8 M201,92 l-3,6" stroke="#5a4a3a" stroke-width="1"/></g><rect x="171" y="56" width="58" height="100" fill="#fff8e0" opacity=".14"/>`;
+    else if (/sketch/.test(sl)) pic = `<g opacity=".8"><rect x="128" y="58" width="144" height="96" fill="#ece6d6"/><g stroke="#3a3430" stroke-width="1.4" fill="none"><path d="M140,140 h120 M146,140 V104 h108 V140 M140,104 h120 l-60,-24z"/>${Array.from({ length: 9 }, (_, k) => `<path d="M${152 + k * 12},106 v32"/>`).join('')}<path d="M194,140 v-18 h12 v18"/></g></g><rect x="128" y="58" width="144" height="96" fill="#fff8e0" opacity=".14"/>`;
     if (pic) add(st.mentioned && st.mentioned(slide) ? h.tag(slide, pic) : pic);
   } else add(`<rect x="120" y="54" width="160" height="104" fill="#000" opacity=".08"/>`);
 
