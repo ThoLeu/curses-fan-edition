@@ -1,4 +1,4 @@
+26-11-12-1924	Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
 26-11-12-1919	Neuer Titel: Curses · a customized interpreter
 26-11-12-1842	Knopf „Alles zurücksetzen“ in den Einstellungen
 26-11-12-1835	Vorlesen in der Übersetzungsspalte
-26-11-12-1833	Hinweis zum Speicherort der Spielstände

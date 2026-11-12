@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-12-1919 – Neuer Titel: Curses · a customized interpreter
+26-11-12-1924 – Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
 
 ## Ältere Versionen
 
+- [26-11-12-1919](archiv/26-11-12-1919.html) – Neuer Titel: Curses · a customized interpreter
 - [26-11-12-1842](archiv/26-11-12-1842.html) – Knopf „Alles zurücksetzen“ in den Einstellungen
 - [26-11-12-1835](archiv/26-11-12-1835.html) – Vorlesen in der Übersetzungsspalte
-- [26-11-12-1833](archiv/26-11-12-1833.html) – Hinweis zum Speicherort der Spielstände
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -112,6 +112,10 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 
 ### 17. Neuer Titel (12. November 2026)
 - Aus „Curses · Fan-Edition“ wird „Curses · a customized interpreter“: Das Projekt ist ein eigener Interpreter, der das unveränderte Spiel abspielt, keine eigene Ausgabe des Spiels. Geändert auf der Startseite, in der Kopfleiste, im Browser-Tab und hier.
+
+### 18. Titelbild und Vorlesen (12. November 2026)
+- Zeilen, die das Spiel mit Leerzeichen für einen Bildschirm fester Breite zentriert (etwa „Welcome to CURSES“), werden jetzt richtig zentriert; Zitatkästen verlieren die Einrückung aus dem Statusfenster. Zeichnungen und Tabellen aus Zeichen behalten ihre Spalten.
+- Hinweise in eckigen Klammern (z. B. „[Your score has just gone up …]“) werden beim Vorlesen übersprungen; in den Einstellungen lässt sich das wieder einschalten.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

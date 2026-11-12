@@ -306,6 +306,7 @@ body.piclabels #pic .zi:hover{filter:brightness(1.3) drop-shadow(0 0 3px rgba(25
 .demoTrack{height:4px;background:var(--line);border-radius:2px;margin:6px 0;overflow:hidden}#demoProg{height:100%;width:0;background:var(--accent,#e8c47a);transition:width .3s}
 .demoCtl{display:flex;gap:6px;align-items:center}.demoCtl button,.demoCtl select{font-size:13px;padding:3px 10px}#demoStop{margin-left:auto}
 body.demo #exitBar,body.demo #acBox{display:none!important}
+.centerLine{display:block;text-align:center}
 .quoteBox{display:block;margin:.6em auto .9em;padding:.7em 1.1em;max-width:34em;border:1px solid var(--line);border-left:3px solid var(--accent,#c8a060);background:rgba(255,255,255,.03);font-style:italic;white-space:pre-wrap;width:fit-content}
 #cap{display:flex;align-items:baseline;gap:8px;padding:12px 4px 6px}
 #roomName{font-size:20px;font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -367,7 +368,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1919</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1924</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -406,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1919</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1924</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -497,6 +498,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
       <div class="ttsOnly">
         <label class="row"><span>Vorlese-Stimme <small>für den englischen Spieltext</small></span><select id="voiceSel" aria-label="Stimme"></select></label>
         <label class="row"><span>Stimme für die Übersetzung <small>passend zur Zielsprache der Übersetzungsspalte</small></span><select id="voiceTrSel" aria-label="Stimme für die Übersetzung"></select></label>
+        <label class="row"><span>Hinweise in [eckigen Klammern] vorlesen <small>zum Beispiel „[Your score has just gone up …]“</small></span><input type="checkbox" data-p="sayBrackets"></label>
         <label class="row"><span>Sprechtempo</span><select id="rateSel" aria-label="Sprechtempo"><option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option></select></label>
       </div>
       <h3>Spiel</h3>
@@ -658,7 +660,7 @@ const EN = {
   'von sphärisch bis düster': 'from ethereal to dark',
   'sphärisch': 'ethereal',
   'düster': 'dark',
-  'von dir hierher gebracht': 'brought here by you', 'Hier abgelegt:': 'Left here:', 'Alles zurücksetzen': 'Reset everything', 'löscht in diesem Browser alle Einstellungen, Spielstände, Karte, Notizen und die gespeicherte Spieldatei – danach startet die Seite wie beim ersten Besuch': 'deletes all settings, saved games, the map, notes and the stored story file in this browser – the page then starts as on a first visit', 'Wirklich alles löschen?': 'Really delete everything?', 'für den englischen Spieltext': 'for the English game text', 'Stimme für die Übersetzung': 'Voice for the translation', 'passend zur Zielsprache der Übersetzungsspalte': 'matching the language of the translation column', 'automatisch': 'automatic', 'keine Stimme für diese Sprache': 'no voice for this language', 'Übersetzung vorlesen': 'Read the translation aloud', 'Letzte Übersetzung vorlesen': 'Read the latest translation aloud', 'Keine passende Stimme für diese Sprache gefunden – es liest die Standardstimme.': 'No voice for this language found – the default voice is reading.', 'Wo werden die Spielstände gespeichert?': 'Where are the saved games kept?', 'Nur hier im Browser, auf diesem Gerät (im lokalen Speicher des Browsers) – nichts geht an einen Server. Dazu gehören auch der automatische Spielstand nach jedem Zug, die Karte und deine Notizen.': 'Only here in the browser, on this device (in the browser’s local storage) – nothing is sent to a server. That includes the automatic save after every move, the map and your notes.', 'Jede Adresse hat ihren eigenen Speicher: Auf GitHub Pages, in der Ansicht bei Claude und in einer heruntergeladenen Datei siehst du jeweils andere Spielstände, ebenso in einem anderen Browser oder auf einem anderen Gerät.': 'Each address has its own storage: on GitHub Pages, in the view on Claude and in a downloaded file you see different saved games, and the same goes for another browser or device.', 'Verloren gehen sie, wenn du die Browserdaten für die Seite löschst; in einem privaten Fenster bleiben sie nur bis zum Schließen. Zum Sichern oder Mitnehmen: einen Spielstand exportieren und den Text oder die Datei aufheben.': 'They are lost if you clear the browser data for the page; in a private window they only last until you close it. To keep a copy or take it elsewhere: export a saved game and keep the text or the file.', 'README des Autors': "author's README", 'direkt von dort laden': 'load it straight from there', 'Lade aus dem IF Archive …': 'Loading from the IF Archive …', 'Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link in Schritt 1 herunter und leg sie hier ab.': 'Loading it directly did not work here – the browser or the IF Archive does not allow it from this page. Download the file with the link in step 1 and drop it here.', 'Zum Schließen klicken': 'Click to close',
+  'von dir hierher gebracht': 'brought here by you', 'Hier abgelegt:': 'Left here:', 'Hinweise in [eckigen Klammern] vorlesen': 'Read notes in [square brackets] aloud', 'zum Beispiel „[Your score has just gone up …]“': 'for example “[Your score has just gone up …]”', 'Alles zurücksetzen': 'Reset everything', 'löscht in diesem Browser alle Einstellungen, Spielstände, Karte, Notizen und die gespeicherte Spieldatei – danach startet die Seite wie beim ersten Besuch': 'deletes all settings, saved games, the map, notes and the stored story file in this browser – the page then starts as on a first visit', 'Wirklich alles löschen?': 'Really delete everything?', 'für den englischen Spieltext': 'for the English game text', 'Stimme für die Übersetzung': 'Voice for the translation', 'passend zur Zielsprache der Übersetzungsspalte': 'matching the language of the translation column', 'automatisch': 'automatic', 'keine Stimme für diese Sprache': 'no voice for this language', 'Übersetzung vorlesen': 'Read the translation aloud', 'Letzte Übersetzung vorlesen': 'Read the latest translation aloud', 'Keine passende Stimme für diese Sprache gefunden – es liest die Standardstimme.': 'No voice for this language found – the default voice is reading.', 'Wo werden die Spielstände gespeichert?': 'Where are the saved games kept?', 'Nur hier im Browser, auf diesem Gerät (im lokalen Speicher des Browsers) – nichts geht an einen Server. Dazu gehören auch der automatische Spielstand nach jedem Zug, die Karte und deine Notizen.': 'Only here in the browser, on this device (in the browser’s local storage) – nothing is sent to a server. That includes the automatic save after every move, the map and your notes.', 'Jede Adresse hat ihren eigenen Speicher: Auf GitHub Pages, in der Ansicht bei Claude und in einer heruntergeladenen Datei siehst du jeweils andere Spielstände, ebenso in einem anderen Browser oder auf einem anderen Gerät.': 'Each address has its own storage: on GitHub Pages, in the view on Claude and in a downloaded file you see different saved games, and the same goes for another browser or device.', 'Verloren gehen sie, wenn du die Browserdaten für die Seite löschst; in einem privaten Fenster bleiben sie nur bis zum Schließen. Zum Sichern oder Mitnehmen: einen Spielstand exportieren und den Text oder die Datei aufheben.': 'They are lost if you clear the browser data for the page; in a private window they only last until you close it. To keep a copy or take it elsewhere: export a saved game and keep the text or the file.', 'README des Autors': "author's README", 'direkt von dort laden': 'load it straight from there', 'Lade aus dem IF Archive …': 'Loading from the IF Archive …', 'Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link in Schritt 1 herunter und leg sie hier ab.': 'Loading it directly did not work here – the browser or the IF Archive does not allow it from this page. Download the file with the link in step 1 and drop it here.', 'Zum Schließen klicken': 'Click to close',
   'Ziehen zum Verschieben': 'Drag to move',
   'Klick: untersuchen': 'Click: examine', 'Was tust du? (auf Deutsch)': 'What do you do? (in German)', 'Deutsche Eingabe': 'German input', 'Namen im Bild': 'Names in the picture', 'beim Darüberfahren mit der Maus; ein Klick untersucht den Gegenstand': 'when hovering with the mouse; a click examines the item', 'Übersetzung': 'Translation', '🌐 Übersetzung': '🌐 Translation', 'Spieltext in einer eigenen Spalte übersetzen lassen': 'Have the game text translated in a separate column', 'Wie übersetze ich?': 'How do I translate?', 'Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur diese Spalte, das Original bleibt englisch.': 'If your browser has no built-in translation: use its translate feature, for example right-click → “Translate”. Only this column is translated; the original stays in English.', 'Spieltext in einem eigenen Feld übersetzen lassen': 'Have the game text translated in a separate panel', 'Zielsprache': 'Target language', 'Automatisch übersetzen': 'Translate automatically', 'Übersetzung aus': 'Stop translating',
   'Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur dieses Feld, das Original bleibt englisch.': 'If your browser has no built-in translation: use its translate feature, for example right-click → “Translate”. Only this panel is translated; the original stays in English.',
@@ -5997,6 +5999,14 @@ function newBlock() {
   $('#transcript').appendChild(b);
   return b;
 }
+// a quotation box keeps the columns of the status window: take away the common indent and the padding
+function dedent(t) {
+  const lines = t.split('\n').map(l => l.replace(/\s+$/, ''));
+  while (lines.length && !lines[0].trim()) lines.shift();
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+  const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^ */)[0].length));
+  return lines.map(l => l.slice(Number.isFinite(ind) ? ind : 0)).join('\n');
+}
 function renderOutput(out) {
   if (!out.length) return;
   const tr = $('#transcript');
@@ -6006,7 +6016,18 @@ function renderOutput(out) {
   for (const o of out) {
     const sp = document.createElement('span');
     const cls = styleClass(o.style); if (cls) sp.className = cls;
-    if (o.box) sp.className = 'quoteBox';
+    if (o.box) { sp.className = 'quoteBox'; sp.textContent = dedent(o.text); block.appendChild(sp); continue; }
+    // lines the game centres with spaces for a fixed-width screen are centred properly here
+    const centred = o.text.split('\n').filter(l => /^ {6,}\S/.test(l));
+    // only titles and single lines: drawings and tables made of characters keep their columns
+    if (centred.length && centred.length <= 4 && centred.every(l => (l.match(/[A-Za-z]/g) || []).length >= 4 && (l.match(/[A-Za-z]/g) || []).length / l.trim().length > .5)) {
+      const lines = o.text.split('\n');
+      lines.forEach((l, i) => {
+        if (/^ {6,}\S/.test(l)) { const c = document.createElement('span'); c.className = 'centerLine'; c.textContent = l.trim(); sp.appendChild(c); }
+        else { sp.appendChild(document.createTextNode(l + (i < lines.length - 1 && !(i + 1 < lines.length && /^ {6,}\S/.test(lines[i + 1]) && l === '') ? '\n' : ''))); }
+      });
+      block.appendChild(sp); continue;
+    }
     sp.textContent = o.text;
     block.appendChild(sp);
   }
@@ -6443,6 +6464,7 @@ function speakText(text, lang, el) {
   if (!TTS.ok) return false;
   if (el && TTS.cur === el) { stopSpeech(); return true; }
   stopSpeech();
+  { const P = window.ZFeat ? ZFeat.prefs() : {}; if (P.sayBrackets === false) text = text.replace(/\[[^\]]*\]/g, ' ').replace(/[ \t]+/g, ' ').trim(); }
   if (!text) return false;
   const token = ++TTS.token;
   const chunks = chunkText(text);
@@ -6842,7 +6864,7 @@ const LS = {
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const Z = () => window.__zp;
-const DEF = { picLabels: true, trCol: false, lang: 'de', smartParser: true, germanInput: true, wordClick: true, autocomplete: true, scoreToast: true, exits: true, sfx: true, sfxVol: .5, classic: false, classicColor: 'amber', fontSize: 17, width: 'mittel', theme: 'dark' };
+const DEF = { sayBrackets: false, picLabels: true, trCol: false, lang: 'de', smartParser: true, germanInput: true, wordClick: true, autocomplete: true, scoreToast: true, exits: true, sfx: true, sfxVol: .5, classic: false, classicColor: 'amber', fontSize: 17, width: 'mittel', theme: 'dark' };
 let P = Object.assign({}, DEF, JSON.parse(LS.get('zp:prefs') || '{}'));
 const saveP = () => LS.set('zp:prefs', JSON.stringify(P));
 
