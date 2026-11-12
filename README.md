@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-12-1924 – Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
+26-11-12-1936 – Diaprojektor zeigt das eingelegte Dia; Strahl im Observatorium
 
 ## Ältere Versionen
 
+- [26-11-12-1924](archiv/26-11-12-1924.html) – Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
 - [26-11-12-1919](archiv/26-11-12-1919.html) – Neuer Titel: Curses · a customized interpreter
 - [26-11-12-1842](archiv/26-11-12-1842.html) – Knopf „Alles zurücksetzen“ in den Einstellungen
-- [26-11-12-1835](archiv/26-11-12-1835.html) – Vorlesen in der Übersetzungsspalte
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -116,6 +116,11 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 ### 18. Titelbild und Vorlesen (12. November 2026)
 - Zeilen, die das Spiel mit Leerzeichen für einen Bildschirm fester Breite zentriert (etwa „Welcome to CURSES“), werden jetzt richtig zentriert; Zitatkästen verlieren die Einrückung aus dem Statusfenster. Zeichnungen und Tabellen aus Zeichen behalten ihre Spalten.
 - Hinweise in eckigen Klammern (z. B. „[Your score has just gone up …]“) werden beim Vorlesen übersprungen; in den Einstellungen lässt sich das wieder einschalten.
+
+### 19. Der Diaprojektor (12. November 2026)
+- Souvenirs Room: Die Südwand zeigt jetzt, was der Projektor tatsächlich wirft – dunkel, wenn er aus ist, weißes Licht ohne Dia, und sonst das Bild im Schlitz: die jeweilige Tarotkarte, die Miniatur der Folly oder die Skizze des Palasts von Alexandria. Nach dem Drehen am Rad schießt der Strahl rückwärts aus dem Projektor.
+- Disused Observatory: Der Strahl kommt von Süden, trifft die Glaskugel und fällt auf das Tierkreiszeichen, das der Text nennt.
+- Dafür kennen die Bilder jetzt auch, was eingeschaltet ist und was in einem Behälter steckt.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
