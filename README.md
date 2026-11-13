@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1923 – Übersetzung zeilen- und satzweise
+26-11-13-1926 – Bild sofort beim Fortsetzen
 
 ## Ältere Versionen
 
+- [26-11-13-1923](archiv/26-11-13-1923.html) – Übersetzung zeilen- und satzweise
 - [26-11-13-1921](archiv/26-11-13-1921.html) – Pause nach Überschriften beim Vorlesen
 - [26-11-13-1815](archiv/26-11-13-1815.html) – Rückmeldung über GitHub-Issues
-- [26-11-13-1808](archiv/26-11-13-1808.html) – Klänge für die Spielenden
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -233,6 +233,9 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 
 ### 37. Vollständige Übersetzung (13. November 2026)
 - Die eingebaute Übersetzung des Browsers verlor bei längeren Abschnitten Zeilenumbrüche und ließ manchmal ganze Sätze weg, zum Beispiel den Satz über die alte Verkabelung auf dem Dachboden. Jetzt wird jede Zeile für sich übersetzt und eine lange Zeile in Stücken aus wenigen Sätzen. Danach wird alles im ursprünglichen Aufbau wieder zusammengesetzt. Raumnamen bleiben so eigene Überschriften, und schon übersetzte Stücke werden wiederverwendet.
+
+### 38. Bild beim Fortsetzen (13. November 2026)
+- Nach „Weiterspielen“ blieb das Bild leer, bis man den Raum wechselte. Curses zeichnete beim Fortsetzen nur die zweite Zeile der Statuszeile neu, und ohne Raumnamen wusste die Seite nicht, welcher Raum gerade dran ist. Der automatische Spielstand speichert die Statuszeile jetzt mit. Bei älteren Spielständen nimmt die Seite den zuletzt gespeicherten Raum.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
