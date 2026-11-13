@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1726 – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
+26-11-13-1757 – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
 
 ## Ältere Versionen
 
+- [26-11-13-1726](archiv/26-11-13-1726.html) – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
 - [26-11-13-1712](archiv/26-11-13-1712.html) – Abgleich mit dem rekonstruierten Quelltext
 - [26-11-13-1658](archiv/26-11-13-1658.html) – Dinge, die man schiebt
-- [26-11-13-1549](archiv/26-11-13-1549.html) – Startbildschirm mit Spielen-Knopf
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -28,37 +28,50 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 - **Eigene Werke.** Alle Bilder, Symbole, die Musik und die Hinweise sind eigens für dieses Projekt entstanden.
 - **Nur zeigen, was beschrieben wurde.** Ein Bild darf nichts zeigen, was der Text noch nicht genannt hat. Was im Raum noch nicht erwähnt wurde, erscheint höchstens als unscharfer, farbloser Schemen. Diese Regel gilt für jeden Raum einzeln. Es wird auch nichts erfunden, was im Spiel nicht vorkommt.
 
-### 1. Der Spielkern
-- Eigener Z-Machine-Interpreter (Version 5) in JavaScript, der `curses.z5` vollständig durchspielt.
-- Statuszeile, Zitatboxen des Spiels, Undo, Spielstände im Browser (komprimiert, damit viele hineinpassen), automatisches Speichern und Fortsetzen.
-- Ein Neustart löscht wirklich alles vom vorigen Durchgang, auch Karte und Notizen.
+### 1. Der Anfang (11. November 2026, ab 15:38)
+- Ausgangsfrage war, ob sich Curses in HTML nachbauen lässt, mit Karte und Bildern. Ein Nachbau wurde verworfen, weil er Graham Nelsons Werk kopiert hätte. Stattdessen entstand ein eigener Z-Machine-Interpreter (Version 5) in JavaScript, der die unveränderte `curses.z5` des Spielers abspielt. In der Seite selbst steckt kein Spieltext.
+- Die Spieldatei diente nur zum Testen. Die erste Fassung bestand Vorspann, Statuszeile, Hilfemenü, SAVE, RESTORE, UNDO und RESTART sowie 1500 zufällige Befehle ohne Interpreterfehler.
+- Von Anfang an dabei waren die Minimap, die sich beim Spielen selbst zeichnet, Raumbilder aus 14 Szenentypen nach Stichwörtern, generative Musik mit acht Stimmungen, drei Speicherplätze mit automatischem Speichern und Bildschirmtasten für Menüs auf dem Handy.
+- Alles steckt in einer einzigen `index.html`, die auch ohne Internet läuft und andere Z-Code-Spiele der Versionen 3 bis 5 abspielt.
+- Vorlesen auf Klick: ein 🔊 an jedem Abschnitt und ein Knopf für die letzte Antwort. Eigene Eingaben werden nie mitgelesen, die Musik wird beim Vorlesen leiser.
 
-### 2. Oberfläche und Komfort
-- Deutsche und englische Oberfläche, Übersetzungsspalte für den Spieltext, Vorlesen.
-- Ein „schlauer“ Parser, der freiere Eingaben in Befehle übersetzt, die das Spiel versteht (z. B. „get all out of cupboard“).
-- Inventar mit Symbolen und passenden Aktionen per Klick; Befehle aus Symbolen benutzen die richtigen Namen der Gegenstände.
-- Raum-Inventarleiste unter dem Bild: Gegenstände, die du irgendwo abgelegt hast und die dort nicht hingehören.
-- Automatische Karte nach Regionen, mit frei verschiebbaren Räumen (an einem Raster einrastend).
-- Notizen, Hinweise, bekannte Wege als Knöpfe, Vorführmodus „Komplettlösung vorführen“.
-- Die Eingabetaste funktioniert auch in eingebetteten Ansichten (dort wird das Absenden selbst ausgelöst).
+### 2. Raumbilder und Hilfe (11. November 2026, 16:06–16:43)
+- Auf Wunsch des Projektinhabers sollten die Bilder möglichst genau der Beschreibung folgen. Zuerst bekamen die 15 Dachbodenräume, die man ohne Rätsel erreicht, eigene Bilder. Danach kamen mit Hilfe der Komplettlösung 37 weitere aus allen Spielbereichen dazu, insgesamt 52. Die Beschreibungen wurden mit dem eigenen Interpreter aus der Spieldatei gelesen.
+- Die optionale Hilfe besteht aus eigenen, stufenweise aufdeckbaren Hinweisen, die alle im Interpreter geprüft sind. Die InvisiClues aus dem Forum wurden nicht übernommen, weil ihre Weiterverwendung nicht erlaubt ist. Die Hilfe verlinkt aber auf sie, auf die Komplettlösung von David Welbourn und auf die IFDB.
+- Die Bilder folgen dem Spielzustand, der direkt aus dem Objektbaum gelesen wird (Attribut 14 bedeutet „offen“). Schließt man zum Beispiel die Falltür auf dem Dachboden, wird es dunkler, und das Schmuckkästchen erscheint. Gegenstände, die man nimmt, verschwinden aus dem Bild.
 
-### 3. Musik
-- Generative Musik mit der Web-Audio-Schnittstelle, keine Aufnahmen.
-- Nach einem ersten, eher gruseligen Entwurf neu komponiert: mystisch und sphärisch, mit eigener Stimmung für jeden Bereich (Dachboden, Garten, Labyrinth, Griechenland, Ägypten, Alexandria, Römisches Britannien, Jenseits …), die auf Ereignisse und Punkte reagiert.
-- Die Lautstärke ist fest eingestellt; der frühere Schieberegler entfiel.
+### 3. Komfort, Sprache und Startseite (11. November 2026, 16:43–19:04)
+- Auf einen Vorschlag hin kamen zehn Erweiterungen dazu: Notizbuch je Raum mit ✎ auf der Karte, beliebig viele benannte Spielstände mit Export und Import, Transkript, Wörter antippen, bekannte Wege als Knöpfe, Autovervollständigung nur mit schon gesehenen Wörtern, Punkteanzeige „+5“, Geräusche bei Zustandswechseln, ein klassischer Terminal-Modus sowie Schriftgröße, Zeilenbreite und ein heller Papiermodus.
+- Auf Wunsch des Projektinhabers gibt es ein Inventar mit eigenen Symbolen und passenden Aktionen per Klick.
+- Erster vollständiger Durchlauf der Komplettlösung: 554 von 550 Punkten in 1083 Zügen, ohne Fehler. Für die zwei Zufallsrätsel (Statuen im Labyrinth, Schrittzahl beim Krocket) bekam das Testskript einen eigenen Löser. Danach verbinden auf der Karte nur noch echte Wege die Räume, Teleports nicht mehr. Die Stichwortsuche erkennt nur ganze Wörter, damit zum Beispiel das griechische „Cross Centre“ nicht mehr als Kirche gezeichnet wird.
+- Die Karte ist nach den Regionen geteilt, die das Spiel in der Statuszeile nennt. Jede Region hat ein eigenes Blatt mit Wegweisern an den Übergängen, der Tarot-Kasten ist in Teilblätter getrennt. Behälter im Inventar zeigen ihren Inhalt nur, wenn das Spiel ihn zeigen würde.
+- Die Oberfläche lässt sich ganz zwischen Deutsch und Englisch umschalten. Der Spieltext bleibt englisch, weil eine Übersetzung eine Bearbeitung des Werks wäre. Deutsche Befehle werden vor dem Spiel übersetzt. Der „schlaue Parser“ korrigiert Tippfehler und Formulierungen erst dann, wenn das Spiel einen Befehl nicht versteht. Fehlversuche werden vollständig zurückgedreht.
+- Die Übersetzungsspalte übersetzt den Text mit der Übersetzung des Browsers auf dem eigenen Gerät. Zuerst war sie ein Reiter, dann eine eigene Spalte zwischen Original und Seitenleiste, später mit eigenem deutschem Eingabefeld.
+- Neue Startseite nach Entwurf B („Buch“): links der Dachboden als Buchtafel mit tanzendem Staub, rechts die Titelseite mit Dateierkennung, Weiterspielen-Karte, Spielweisen und Hörprobe.
+- Der Untertitel „der illustrierte Spieler“ wurde zu „Fan-Edition“.
 
-### 4. Raumbilder
-- Zuerst ein Baukasten aus Kategorien (Dachboden, Keller, Garten, Tempel …), dann nach und nach einzeln gezeichnete Räume: der ganze Dachboden, das Haus, die Keller, Gärten, Labyrinth und weitere wichtige Orte – insgesamt 73 Räume mit eigener Bildidee.
-- Die Bilder folgen dem Spielzustand: offene und geschlossene Türen, Gegenstände, die da sind oder fehlen.
-- Korrektur nach Hinweis: Der Schrank im Raum „Old Furniture“ hat im Spiel keine Türen – er wird ohne Türen gezeichnet, sein Inhalt erscheint erst, wenn der Text ihn nennt. Daraus entstand die allgemeine Regel „nur zeigen, was beschrieben wurde“.
-- Die Farben der Gegenstände im Bild und ihrer Inventarsymbole wurden aufeinander abgestimmt.
-- Figuren: 23 Personen und Tiere des Spiels (Jemima, Austin, Homer, die Druidin, Andromeda …) werden gezeichnet, wenn sie anwesend sind.
-- Grafikstile: Zeitweise gab es einen Pixel-Stil als Option und weitere Stilentwürfe (u. a. im Stil von 8-Bit-Heimcomputern). Sie wurden am 12. November 2026 verworfen; der gezeichnete Stil ist der einzige.
+### 4. Musik (11. November 17:34 bis 12. November 06:34)
+- Die erste Musik war zu „dudelig“. Die zweite Fassung war dunkel und sparsam, mit Drones, Moll und Kirchentonarten und einem Grusel-Regler, und jeder Raum bekam seine eigene Variante.
+- Diese zweite Fassung war dann zu gruselig. Die dritte ist mystisch und sphärisch, mit weichen Flächen, Spieluhr, Harfe, Chor und Glasharmonika und einer Stimmung je Raum nach dem, was dort passiert. Sie reagiert auf Punkte, Gefahr, Magie, Tod und Sieg.
+- Diese Fassung wurde fest übernommen. Der Regler entfiel, sein Wert ist bei 30 % fest eingestellt.
 
-### 5. Prüfen und Testen
-- Automatischer Durchlauf der kompletten Lösung (1083 Züge) im Browser: keine Fehler, jeder Raum mit Bild, volle Punktzahl.
-- „Chaos-Tests“: Durchläufe mit falschen, unsinnigen und gefährlichen Eingaben, die immer wieder per Undo, Spielstand oder Neustart zurückgesetzt werden – das Spiel muss trotzdem mit voller Punktzahl enden.
-- Dabei gefundene und behobene Fehler u. a.: verlorene Zitatboxen, Undo bei einer Rückfrage des Spiels, volle Spielstände, alte Karte nach Neustart, fehlerhafte Befehle aus Inventarsymbolen.
+### 5. Stile, Prüfung und der Grundsatz der Erwähnung (11. November 18:02 bis 12. November 11:59)
+- Stilproben: zuerst nur umgefärbte Varianten, dann vier neu gezeichnete Techniken, später sechs grundverschiedene Entwürfe, eine 8-Bit-Probe im CPC-Stil und ein flacher Pixelstil. Eine umgerechnete Pixelgrafik gab es eine Zeit lang als Option. Alle diese Stile wurden später verworfen, der gezeichnete Stil ist der einzige.
+- Hinzugedichtetes wurde entfernt: das tote Kabel auf dem Dachboden, ein drittes Buch in Library Storage, die Sense in der Garage (es ist ein Spaten), Kerzen, Landschaftsbilder und Fackeln in den allgemeinen Räumen. Bilder zeigen nur noch, was es im Spiel gibt.
+- Prüfung mit Umwegen: acht Durchläufe mit je rund 700 falschen Befehlen, Undo, Laden und Neustart. Behoben wurden die unsichtbaren Zitatkästen des Spiels, das „undo“, das bei einer Rückfrage etwas öffnete, und volle Spielstände (sie sind jetzt rund 17-mal kleiner). Ein „nicht“ in der Beschreibung wird beachtet, und für das Bild zählt nur die Raumbeschreibung.
+- 23 Figuren werden im gezeichneten Stil nach den Angaben des Spiels gezeigt, zum Beispiel Old Evans mit Mondsichel am Hut, die erkältete Madame Sosostris und Andromeda von hinten. Das Orakel wird nicht beschrieben und fehlt deshalb.
+- Ein Vorführmodus spielt eine selbst geladene Komplettlösung live im Browser durch. Das eigene Spiel bleibt dabei unberührt.
+- Am Morgen des 12. November (06:13) kam der Hinweis des Projektinhabers: Der Schrank in Old Furniture hat keine Türen, und man kennt seinen Inhalt erst, wenn man ihn untersucht. Daraus wurde der Grundsatz „nur zeigen, was beschrieben wurde“. Vorher ist nur ein farbloser Schemen zu sehen. Der Grundsatz gilt für jeden Raum einzeln, nur Dinge, die man selbst getragen hat, kennt man überall.
+- Weitere Wünsche am Vormittag des 12. November:
+  - eine Leiste „Hier abgelegt“ unter dem Bild für Dinge, die man woanders hingelegt hat
+  - ein Neustart, der wirklich alles löscht
+  - die Eingabetaste in der Sandbox des Artefakts
+  - frei verschiebbare Räume auf der Karte
+  - „get all out of cupboard“ im Parser
+  - die fehlende Medizinflasche
+  - gleiche Farben für Inventarsymbole und Bild (17 Symbole angepasst)
+  - richtige Wörter für Befehle aus Symbolen („examine history“ statt „examine II“)
+- Danach kamen in zwei Durchgängen die übrigen Räume von Meldrew Hall und den Gärten dazu, darunter das Labyrinth, dessen Gänge sich nach den Richtungen im Text öffnen. Damit waren es 73 einzeln gezeichnete Räume.
 
 ### 6. Alle übrigen Räume (12. November 2026)
 - Statt jeden der restlichen Räume einzeln zu zeichnen, wurde der Baukasten neu gebaut: Er liest die Raumbeschreibung und setzt das Bild daraus zusammen.
@@ -71,8 +84,10 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 - Alle zehn Tarotkarten des Spiels (Madame Sosostris, Grim Reaper, Fool, Drowned Sailor, Ace of Cups, Castle, Star, Maiden, Crescent Moon, Eight of Wands), die Adamant-Stäbe Life, Death und Love sowie die Mahagoni-Stäbe mit ihrem Silberschild.
 - Dieselben Bilder dienen verkleinert als Inventarsymbole.
 
-### 8. Veröffentlichung
-- Neben dem Artefakt auf claude.ai wird jede neue Version automatisch in dieses Repository übertragen; die drei vorigen Versionen liegen in `archiv/`.
+### 8. Veröffentlichung (12. November 2026, ab 16:42)
+- Neben dem Artefakt auf claude.ai liegt jede Version in diesem Repository, für GitHub Pages bereit. Die Übertragung läuft automatisch über ein kleines Skript: Die vorige Version wandert nach `archiv/`, wo die letzten drei bleiben, und die README bekommt eine Zeile zur Änderung. Offizielle GitHub-Releases kann die Sitzung nicht anlegen.
+- Der Entwicklungsverlauf in dieser README entstand zuerst aus einer Zusammenfassung. Am 13. November wurde er mit dem vollständigen Gesprächsverlauf und seinen Zeitstempeln ergänzt.
+- Vor dem Teilen wurde das Repository mit sauberer Historie neu aufgesetzt, damit keine persönlichen Daten in den Commits stehen. Eine Lizenz gibt es bewusst nicht.
 
 ### 9. Erkundungstest und Feinschliff (12. November 2026)
 - Neuer Erkundungstest: Von jedem dritten Zug der Komplettlösung aus werden alle Richtungen und einfache Bewegungen (klettern, hineingehen, springen …) ausprobiert, und von jedem neu gefundenen Raum aus weiter. So wurden neun Räume abseits der Lösung erreicht (u. a. Chimney, Wine Cellars, Vegetable Garden, Dark Staircase, Stadium, Hellish Place); alle zeigen ihr Bild ohne Fehler.
@@ -122,7 +137,7 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 - Disused Observatory: Der Strahl kommt von Süden, trifft die Glaskugel und fällt auf das Tierkreiszeichen, das der Text nennt.
 - Dafür kennen die Bilder jetzt auch, was eingeschaltet ist und was in einem Behälter steckt.
 
-### 20. Gegenstände verändern Räume (13. November 2026)
+### 20. Gegenstände verändern Räume (12. November 2026)
 Sieben weitere Räume zeigen jetzt, was der Spieler darin bewirkt hat. Gezeichnet wird nur, was das Spiel zuvor beschrieben hat:
 - Infinity Symbol: die Stäbe in den Halterungen des Bogens, die kugelförmige Öffnung und das goldene Licht, sobald die Kugel darin liegt.
 - West Side Chapel: Hand, Schädel und Herz am Ritter; ist er erwacht, bleibt nur das Grab.
@@ -194,6 +209,12 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Dienstbotenzimmer: Wer über die Dienstbotentreppe kommt, sieht die schmale Tür in der Nordwand offen stehen.
 - Garvins Fehlerliste zu Release 16 wurde durchgesehen. Ein Fehler betrifft die Bedienung: Sobald ein Stab einen Namen hat, passt „featureless“ immer noch auf ihn, und das Spiel fragt endlos, welcher Stab gemeint ist. Das Inventarmenü gibt deshalb selbst die Antwort, die das Spiel annimmt („a featureless mahogany rod“). Getippte Befehle bleiben, wie das Spiel sie behandelt.
 - Die übrigen Punkte der Liste ändern nichts am Bild. Der Kohlenbunker lässt sich von außen nie aufschließen, das Bild folgt dem Spielzustand. Der doppelt gezählte Stein ergibt am Ende 554 von 550 Punkten, auch auf dem Lösungsweg. Die Anzeige zeigt einfach die Zahl des Spiels.
+
+### 33. Wenn das Spiel endet (13. November 2026)
+- Endet das Spiel mit etwas anderem als dem Sieg, wird das Raumbild langsam dunkel und farblos. Das gilt für alle Enden.
+- Zwölf auffällige Enden haben ein eigenes Bild, gezeichnet nach dem, was der Schlusstext sagt, schemenhaft und eher komisch: das geplatzte Rohr in der Bibliothek, der Bär im Dunkeln, die zusammenrückenden Wände, Zeus' Blitz, der unglaubliche Zufall (Meteorit, Erdbeben, Vulkan, Blitz oder Speere, je nach Text), der Krake vor Andromedas Felsen, Feuer, die explodierende Bombe, das Gefängnis nach dem Griff zur Bombe, der Sturz vom Fahnenmast, der Geist auf den Zinnen und die Verbannung nach Australien.
+- Das Bild bleibt, solange das Spiel nach RESTART, RESTORE oder UNDO fragt, und verschwindet mit dem nächsten Zug, etwa nach „undo“.
+- Elf der zwölf Enden wurden im laufenden Spiel ausgelöst und geprüft. Der Bär ließ sich nicht herbeiführen, weil das Spiel fast jeden Schritt im Dunkeln als „Too risky“ ablehnt. Sein Bild ist nur einzeln geprüft.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
