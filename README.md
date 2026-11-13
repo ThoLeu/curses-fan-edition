@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-0857 – Dunkelkammer: rotes Licht erst mit der Lampe
+26-11-13-0907 – Zwanzig weitere Raumzustände
 
 ## Ältere Versionen
 
+- [26-11-13-0857](archiv/26-11-13-0857.html) – Dunkelkammer: rotes Licht erst mit der Lampe
 - [26-11-12-2001](archiv/26-11-12-2001.html) – Gegenstände verändern Räume: sieben Szenen
 - [26-11-12-1944](archiv/26-11-12-1944.html) – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
-- [26-11-12-1940](archiv/26-11-12-1940.html) – Projektor wirft die ganze Tarotkarte, leicht durchscheinend
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -133,7 +133,15 @@ Sieben weitere Räume zeigen jetzt, was der Spieler darin bewirkt hat. Gezeichne
 - Parish Church: der geöffnete Moonstone mit dem Kristalltor.
 
 ### 21. Die Dunkelkammer (13. November 2026)
-Die Dunkelkammer leuchtet erst rot, wenn man an der Schnur zieht und die Entwicklerlampe angeht. Vorher erhellt sie nur die mitgebrachte Taschenlampe, und der Raum ist in gedämpften Farben nur schemenhaft zu erkennen. Die goldene Kugel an der Schnur erscheint erst, wenn der Text sie erwähnt hat. Ein neues Prüfwerkzeug (tools/poke.js) probiert in jedem Raum die üblichen Handlungen aus und vergleicht Beschreibung und Bild vorher und nachher.
+Die Dunkelkammer leuchtet erst rot, wenn man an der Schnur zieht und die Entwicklerlampe angeht. Vorher erhellt sie nur die mitgebrachte Taschenlampe, und der Raum ist in gedämpften Farben nur schemenhaft zu erkennen. Die goldene Kugel an der Schnur erscheint erst, wenn der Text sie erwähnt hat. Ein neues Prüfwerkzeug in der Entwicklungsumgebung probiert in jedem Raum die üblichen Handlungen aus und vergleicht Beschreibung und Bild vorher und nachher.
+
+### 22. Zwanzig weitere Raumzustände (13. November 2026)
+Die Räume zeigen jetzt auch diese Veränderungen, sobald das Spiel sie beschreibt oder den Zustand ändert:
+- Licht: der Wandschrank (Inside Cupboard) bleibt dunkel, bis das Dachfenster offen ist; in der East Annexe fällt Sonnenlicht von Süden herein, sobald die Luke in der Sackgasse offen ist; in der Spirit World strömt Licht die Treppe herab, wenn der Eingang aufbricht.
+- Geöffnet, zerbrochen, verschoben: die Glasvitrine im Cabinet Room, das Wandbild in der Crypt mit dem Gang dahinter, die Brunnenabdeckung im Triclinium, der Sargdeckel in Quite an Undertaking, die beschriebene Tür mit der Treppe in A Tower, der Modellsarg in The Octagon (zu, offen, oder zu und elektrisch knisternd), die Fenster in Alison's Writing Room, die Klappe des Kohlenbunkers am Garden Stream.
+- Hinzugekommen oder verschwunden: die Flagge als Decke auf Alisons Bett, Fahnenmast und Flagge an Deck des Schiffs, das Segelboot am Garden Stream, das gegrabene Loch und die Lücke in der Hecke auf dem Croquet Lawn, die drei High Rods in der Parish Church, das Ausflugsboot am Ufer (Down by River), Schlüssel und Stein am Hafen in Alexandria, die verbrannte Lücke in der Dornenhecke.
+- Das Wandbild in Bohemia zeigt jeweils Stil und Motiv, die der Text nennt (zehn Varianten). Im Feld des Gartenrasters (Maze Foundations) stimmen die Beete jetzt mit allen Richtungsangaben überein.
+- Räume, die aus ihrer Beschreibung zusammengesetzt werden, behalten ihren Aufbau, wenn sich die Beschreibung durch eine Handlung ändert. Nur das Veränderte wird neu gezeichnet. Wo das Spiel einen Zustand kennt (offen, an, eingesteckt), gilt dieser sofort, auch bevor man sich erneut umsieht.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
