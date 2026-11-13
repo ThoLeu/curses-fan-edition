@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-2106</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-2115</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -414,7 +414,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-2106</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-2115</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -4187,6 +4187,7 @@ function FEATURES(ctx, pass) {
   const { h, rd } = ctx, G = ctx.G, { add, R, tag } = h;
   const done = ctx.doneF = ctx.doneF || new Set();
   const relWall = d => { const r = ctx.rel(d); return r === 0 || r === 1 || r === 7 ? 'back' : r === 6 || r === 5 ? 'left' : r === 2 || r === 3 ? 'right' : 'back'; };
+  const floorQ = [];
   for (const [src, where0, width, draw, label, count, opt] of FEAT) {
     if ((pass === 'pre') !== (where0 === 'band')) continue;
     // a thing the game's state puts here although the stored description does not (yet) say so
@@ -4224,14 +4225,20 @@ function FEATURES(ctx, pass) {
         const n = count || 1;
         const hi = opt && opt.high || /window|skylight/.test(label || '');
         for (let k = 0; k < n; k++) {
-          const u = claim(ctx, hi ? 'high' : 'back', width, n > 1 ? [.2 + k * .6 / Math.max(1, n - 1), .5, .3, .7] : [.5, .3, .7, .2, .8]);
+          const u = claim(ctx, hi ? 'high' : 'back', width, n > 1 ? [.2 + k * .6 / Math.max(1, n - 1), .5, .3, .7] : [.5, .3, .7, .2, .8]) ?? (hi ? claim(ctx, 'high', width * .7, [.88, .12, .74, .26]) : null);
           if (u === null) { if (n === 1) { const t = claim(ctx, 'left', .5, [.5, .3]); if (t !== null) add(T(Gx().onSide(G, 'left', t, draw(word, ctx)))); } continue; }
           const p = G.back(u);
           add(T(at(p, draw(word, ctx))));
           if (opt && opt.surf) ctx.surf[label] = { x: p.x + opt.surf[0] * p.s, y: p.y + opt.surf[1] * p.s, s: p.s };
         }
       } else {
-        const t = claim(ctx, side, .6, [.5, .4, .62]) ?? .5;
+        // find a free stretch: this wall, narrower near the corners, the other side wall, then the back wall;
+        // only if all are taken does it go in the middle (never silently on top of a doorway if avoidable)
+        const other = side === 'left' ? 'right' : 'left';
+        let t = claim(ctx, side, .6, [.5, .4, .62]);
+        if (t === null) t = claim(ctx, side, .42, [.22, .78]);
+        if (t === null) { t = claim(ctx, other, .6, [.5, .4, .62]) ?? claim(ctx, other, .42, [.22, .78]); if (t !== null) side = other; }
+        if (t === null) { const u = claim(ctx, 'back', width, [.5, .3, .7, .2, .8]) ?? claim(ctx, 'back', .28, [.17, .83]); if (u !== null) { ctx.used.high.push([u - .14, u + .14]); add(T(at(G.back(u), draw(word, ctx)))); continue; } t = .5; }
         add(T(Gx().onSide(G, side, t, draw(word, ctx))));
         if (opt && opt.surf) { const x = G.sideX(side, t), b = G.sideBot(t); ctx.surf[label] = { x, y: b + opt.surf[1] * .5, s: .5 }; }
       }
@@ -4264,7 +4271,7 @@ function FEATURES(ctx, pass) {
       pairs.forEach(([u, d], k) => add(T(at(G.floor(u, d), S.sphinx(rel === 6 ? true : rel === 2 ? false : k === 0)))));
       continue;
     }
-    if (/^onsurf/.test(where)) { const sf = ctx.surf[where.split(':')[1]]; if (sf) add(T(at(sf, draw(word, ctx)))); continue; }
+    if (/^onsurf/.test(where)) { const sf = ctx.surf[where.split(':')[1]]; if (sf) { const body = T(at(sf, draw(word, ctx))); if (sf.d != null) floorQ.push({ d: sf.d - 1e-4, k: floorQ.length, body }); else add(body); } continue; }
     if (/^floor/.test(where)) {
       const d = opt && opt.d !== undefined ? opt.d : .4;
       let prefs = where === 'floor:back' ? [.5, .35, .65] : [.5, .3, .7, .2, .8];
@@ -4273,8 +4280,9 @@ function FEATURES(ctx, pass) {
       const u = claim(ctx, d >= .5 ? 'floorB' : 'floor', width, prefs);
       if (u === null) continue;
       const p = G.floor(u, d);
-      add(T(at(p, draw(word, ctx))));
-      if (opt && opt.surf) ctx.surf[label] = { x: p.x + opt.surf[0] * p.s, y: p.y + opt.surf[1] * p.s, s: p.s };
+      // drawn later, far ones first, so that nearer things stand in front (not in the order the text names them)
+      floorQ.push({ d, k: floorQ.length, body: T(at(p, draw(word, ctx))) });
+      if (opt && opt.surf) ctx.surf[label] = { x: p.x + opt.surf[0] * p.s, y: p.y + opt.surf[1] * p.s, s: p.s, d };
     }
   }
   if (!ctx.exits.some(e => e.type === 'stairs') && rd.has('flight of steps|staircase|stairs|steps') && !rd.has('door opens onto a staircase')) {
@@ -4283,6 +4291,8 @@ function FEATURES(ctx, pass) {
     L.stairsVert = vert;
     Gx().drawExit(ctx, { dir: null, vert, type: 'stairs' });
   }
+  // things standing on the floor go in front of walls, doorways and stairs, far ones first
+  floorQ.sort((a, b) => b.d - a.d || a.k - b.k).forEach(q => add(q.body));
   // the sealed entrance at the top of the steps burst open: daylight pours down them
   if (rd.has('entrance bursts open|light streams in, searing')) { add(`<rect width="400" height="260" fill="#fff0c8" opacity=".12"/>`); ctx.h.glow(30, 60, 160, '#fff4d0', .7); }
 }
@@ -5623,7 +5633,7 @@ ${eyes(-102, false, 6, '#4a2a20')}<ellipse cx="0" cy="-95" rx="3" ry="2.4" fill=
 <path d="M6,-28 q8,-6 12,2 q-4,6 -12,2z" fill="#f4f0e8"/>`,
 
   hollow: () => `${sh(34)}
-<circle cx="-30" cy="-58" r="20" fill="none" stroke="#6a4a2a" stroke-width="4"/>${[0, 1, 2, 3, 4, 5, 6, 7].map(k => { const a = k * Math.PI / 4; return `<line x1="-30" y1="-58" x2="${-30 + Math.cos(a) * 27}" y2="${-58 + Math.sin(a) * 27}" stroke="#6a4a2a" stroke-width="3" stroke-linecap="round"/>`; }).join('')}<circle cx="-30" cy="-58" r="4" fill="#6a4a2a"/>
+
 <path d="M-12,0 L-6,-40 M12,0 L6,-40" stroke="#8a8270" stroke-width="7" stroke-linecap="round"/>
 <path d="M-16,-40 L-14,-82 Q0,-88 14,-82 L16,-40Z" fill="#b8ae94" stroke="#8a8270" stroke-width="1.5"/>
 <path d="M-12,-70 l24,8 M-12,-56 l24,-6" stroke="#9a907a" stroke-width="1"/>
@@ -5798,7 +5808,7 @@ const WHO = [
 const PLACE = {
   'Potting Room': { jemima: [250, 236, 1] }, 'Island of Pharos': { austin: [330, 212, .55] }, 'Causeway': { austin: [272, 252, .62] }, 'Stone Cross': { evans: [150, 226, .62], monkey: [220, 244, .8] },
   'Sea Shore': { andromeda: [136, 214, .95] }, 'Battlements': { joshua: [270, 226, .95] }, 'Consulting Room': { sosostris: [140, 232, .9] },
-  'On board the Phlebas': { hollow: [240, 236, 1] }, 'Chatelet-les-Halles': { shopkeeper: [260, 242, .95] }, 'Eraina Taverna': { bartender: [250, 244, .95] },
+  'On board the Phlebas': { hollow: [284, 238, 1] }, 'Chatelet-les-Halles': { shopkeeper: [260, 242, .95] }, 'Eraina Taverna': { bartender: [250, 244, .95] },
   'Inner Sanctum': { homer: [120, 238, .95] }, 'Reading Corridor': { callimachus: [230, 236, .95] }, "Librarian's Office": { apollonius: [150, 236, .95], callimachus: [290, 238, .9] },
   'Lost inside the Palace': { slave: [310, 234, .9] }, 'The Spirit World': { officers: [200, 238, .95] }, 'Warehouses and Port': { sailor: [190, 242, .95] },
   'Hollow': { crake: [210, 240, 1.1] }, 'Coven Cell': { goat: [180, 238, 1] }, 'Shrine of the Bear': { druid: [300, 238, .95] }, 'Rough Tent': { spy: [100, 246, 1] }, 'Melancholy Dream': { flurries: [200, 190, 1] }

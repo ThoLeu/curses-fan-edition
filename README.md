@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-2106 – Lair-Pflanzen vorn, saubere Statuszeile
+26-11-13-2115 – Ebenen und Plätze in allen Bildern geprüft
 
 ## Ältere Versionen
 
+- [26-11-13-2106](archiv/26-11-13-2106.html) – Lair-Pflanzen vorn, saubere Statuszeile
 - [26-11-13-2058](archiv/26-11-13-2058.html) – Wege-Knöpfe mit englischen Richtungen
 - [26-11-13-1931](archiv/26-11-13-1931.html) – Musik auf dem Handy ohne Knarzen
-- [26-11-13-1926](archiv/26-11-13-1926.html) – Bild sofort beim Fortsetzen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -248,6 +248,13 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 ### 41. Pflanzen vorn, saubere Statuszeile (13. November 2026)
 - In Aunt Jemima's Lair standen die Töpfe mit Gänseblümchen hinter der Tür und der Treppe. Jetzt stehen sie davor.
 - Seit Abschnitt 38 wurde die gespeicherte Statuszeile beim Fortsetzen wiederhergestellt. Sie stammte aber manchmal aus einer anderen Fensterbreite, und es blieben Reste wie ein doppeltes Datum stehen. Die Seite stellt sie jetzt nicht mehr her. Bis das Spiel den Raumnamen selbst wieder schreibt, nimmt sie den gespeicherten Raum. Das Bild erscheint also weiterhin sofort.
+
+### 42. Ebenen und Plätze in allen Bildern (13. November 2026)
+- Alle Raumbilder wurden auf Ebenen und Perspektive geprüft: die 150 Räume der Komplettlösung im Zustand ihres letzten Besuchs und dazu die 9 eigens gezeichneten Räume, die die Komplettlösung nicht besucht.
+- Bei den von Hand gezeichneten Räumen war Aunt Jemima's Lair der einzige solche Fehler (siehe Abschnitt 41).
+- Der Baukasten zeichnet Dinge auf dem Boden jetzt nach ihrer Tiefe: weiter hinten zuerst, weiter vorn zuletzt, und immer vor Wänden, Durchgängen und Treppen. Bisher galt die Reihenfolge, in der der Text sie nennt. Was auf einem Möbelstück steht, kommt direkt nach diesem.
+- Findet ein Bild an der Seitenwand keinen freien Platz, hängt es nicht mehr einfach über einer Tür. Es sucht schmalere Plätze, die andere Seitenwand und dann die Rückwand. Hohe Fenster weichen ihm aus. Das betraf zum Beispiel das Stillleben im Hall of Exhibits.
+- An Bord der Phlebas gab es zwei Steuerräder: eins am Ruder und eins in der Hand des hohlen Mannes. Jetzt gibt es nur noch das Ruder, und er steht daneben.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
