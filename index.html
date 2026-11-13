@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1931</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-2058</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -414,7 +414,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1931</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-2058</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -7792,7 +7792,8 @@ function wordAt(x, y) {
 }
 
 // ---------------- exits ----------------
-const DLAB = { n: 'N', s: 'S', e: 'O', w: 'W', ne: 'NO', nw: 'NW', se: 'SO', sw: 'SW', u: '↑ hoch', d: '↓ runter', in: 'rein', out: 'raus' };
+// the buttons show what you would type in the game (E for east, not the German O)
+const DLAB = { n: 'N', s: 'S', e: 'E', w: 'W', ne: 'NE', nw: 'NW', se: 'SE', sw: 'SW', u: '↑ U', d: '↓ D', in: 'in', out: 'out' };
 const DCMD = { n: 'n', s: 's', e: 'e', w: 'w', ne: 'ne', nw: 'nw', se: 'se', sw: 'sw', u: 'u', d: 'd', in: 'in', out: 'out' };
 const OPP = { n: 's', s: 'n', e: 'w', w: 'e', ne: 'sw', sw: 'ne', nw: 'se', se: 'nw', u: 'd', d: 'u', in: 'out', out: 'in' };
 function renderExits() {
@@ -7805,7 +7806,7 @@ function renderExits() {
   }
   const seen = new Set();
   const list = ex.filter(([d]) => !seen.has(d) && seen.add(d));
-  bar.innerHTML = list.length ? `<span class="exL">${T('Bekannte Wege:')}</span>` + list.map(([d, to]) => `<button data-cmd="${DCMD[d]}" title="${T('nach')} ${esc(to)}">${T(DLAB[d])} <small>${esc(to)}</small></button>`).join('') : '';
+  bar.innerHTML = list.length ? `<span class="exL">${T('Bekannte Wege:')}</span>` + list.map(([d, to]) => `<button data-cmd="${DCMD[d]}" title="${T('nach')} ${esc(to)} (${DCMD[d]})">${DLAB[d]} <small>${esc(to)}</small></button>`).join('') : '';
 }
 function initExits() { $('#exitBar').addEventListener('click', e => { const b = e.target.closest('button'); if (b) Z().sendCommand(b.dataset.cmd); }); }
 

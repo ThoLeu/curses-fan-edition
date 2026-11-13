@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1921</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1931</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -414,7 +414,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1921</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1931</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -5889,13 +5889,22 @@ class Music {
     if (this.ctx) return;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
-    const ctx = this.ctx = new AC();
+    // phones: bigger audio buffers and a lighter mix, so that the sound does not crackle
+    this.lite = !!((root.matchMedia && root.matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod|Mobile/i.test((root.navigator || {}).userAgent || ''));
+    let ctx; try { ctx = new AC({ latencyHint: 'playback' }); } catch (e) { ctx = new AC(); }
+    this.ctx = ctx;
     this.master = ctx.createGain(); this.master.gain.value = 0;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
-    const makeup = ctx.createGain(); makeup.gain.value = 1.7;
-    this.master.connect(comp); comp.connect(makeup); makeup.connect(ctx.destination);
+    const makeup = ctx.createGain(); makeup.gain.value = 1.5;
+    // a limiter at the very end: the sum of all voices never clips, which on small speakers rattles
+    const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -4; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = .002; lim.release.value = .15;
+    // small phone speakers rattle on deep bass they cannot play: leave it out there
+    if (this.lite) { const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 120; hp.Q.value = .7; this.master.connect(comp); comp.connect(makeup); makeup.connect(hp); hp.connect(lim); }
+    else { this.master.connect(comp); comp.connect(makeup); makeup.connect(lim); }
+    lim.connect(ctx.destination);
+    this.limiter = lim;
     // a long, soft hall
-    this.reverb = ctx.createConvolver(); this.reverb.buffer = this.impulse(5.5);
+    this.reverb = ctx.createConvolver(); this.reverb.buffer = this.impulse(this.lite ? 1.8 : 5.5);
     this.revGain = ctx.createGain(); this.revGain.gain.value = .75;
     this.reverb.connect(this.revGain); this.revGain.connect(this.master);
     // a slow stereo echo, the "spherical" part
@@ -5932,7 +5941,7 @@ class Music {
     this.init();
     if (!this.ctx) return;
     if (this.ctx.state === 'suspended') this.ctx.resume();
-    if (!this.sfxBus) { this.sfxBus = this.ctx.createGain(); this.sfxBus.gain.value = this.sfxVol ?? .5; this.sfxBus.connect(this.ctx.destination); this.sfxBus.connect(this.reverb); }
+    if (!this.sfxBus) { this.sfxBus = this.ctx.createGain(); this.sfxBus.gain.value = this.sfxVol ?? .5; this.sfxBus.connect(this.limiter || this.ctx.destination); this.sfxBus.connect(this.reverb); }
   }
   updateSfx() { if (this.sfxBus) this.sfxBus.gain.setTargetAtTime(this.sfxVol ?? .5, this.ctx.currentTime, .1); if (!this.sfxVol) this.ambience(null); }
   noiseHit(t, dur, freq, q, vol, type) {
@@ -6154,7 +6163,7 @@ class Music {
     const a = Math.min(5, dur * .4);
     out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(m.pad, t + a); out.gain.setValueAtTime(m.pad, t + dur * .65); out.gain.linearRampToValueAtTime(0, t + dur);
     flt.connect(out); out.connect(p.bus); out.connect(this.echoIn);
-    for (const nn of notes) for (const [type, det, v] of [['sine', -6, .6], ['triangle', 7, .35], ['sine', 1202, .08]]) {
+    for (const nn of notes) for (const [type, det, v] of (this.lite ? [['sine', -6, .62], ['triangle', 7, .4]] : [['sine', -6, .6], ['triangle', 7, .35], ['sine', 1202, .08]])) {
       const o = ctx.createOscillator(), og = ctx.createGain();
       o.type = type; o.frequency.value = mtof(nn); o.detune.value = det + (m.rnd() - .5) * 4; og.gain.value = v / notes.length;
       o.connect(og); og.connect(flt); o.start(t); o.stop(t + dur + .1);
@@ -6402,7 +6411,7 @@ function slotKey(n) { return 'zp:save:' + S.serial + ':' + n; }
 function wipeRun(serial) {
   for (const k of ['auto', 'meta', 'map', 'cur', 'rev', 'words', 'heldids', 'seen', 'notes', 'desc']) LS.del('zp:' + k + ':' + serial);
   S.descs = null;
-  S.map = { rooms: {}, edges: [] }; S.cur = null; S.revealed = null; S.words = null; S.wordsLoc = null; S.heldIds = null;
+  S.map = { rooms: {}, edges: [] }; S.cur = null; S.resumeRoom = null; S.revealed = null; S.words = null; S.wordsLoc = null; S.heldIds = null;
   S.lastStatus = null; S.lastRegion = null; S.lastTagKeys = null; S.lastText = ''; S.turnText = ''; S.sheet = null; shownKey = null;
   const ri = document.getElementById('roomItems'); if (ri) { ri.innerHTML = ''; ri.hidden = true; ri.dataset.sig = ''; }
   const pic = document.getElementById('pic'); if (pic) pic.innerHTML = '';
@@ -6442,8 +6451,8 @@ function startGame(bytes, resume, opts) {
       const snap = S.zm.deserialize(o.state);
       S.zm.applySnapshot(snap);
       S.zm.pendingRead = o.pending; S.zm.state = 'input';
-      S.zm.upperLines = o.upperLines || 1; S.zm.upper = [];
-      resumed = true;
+      S.zm.upperLines = o.upperLines || 1; S.zm.upper = Array.isArray(o.upper) ? o.upper : [];
+      resumed = true; S.resumeRoom = S.cur;
       appendSys(T('Spiel fortgesetzt.'));
       S.lastCmd = 'look';
       S.zm.provideInput('look');
@@ -6508,7 +6517,7 @@ function autosave() {
   if (S.demo) return;
   try {
     const zm = S.zm;
-    LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines }));
+    LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines, upper: zm.upper }));
     const line = zm.upperText().map(r => r.map(c => c.ch).join('')).join(' ');
     const sc = line.match(/Score:\s*(-?\d+)/i), tu = line.match(/(?:Turns|Moves):\s*(\d+)/i);
     LS.set('zp:meta:' + S.serial, JSON.stringify({ room: S.cur, region: S.curRegion && S.curRegion !== 'Ohne Region' ? S.curRegion : null, score: sc ? +sc[1] : null, turns: tu ? +tu[1] : null, time: Date.now() }));
@@ -6713,7 +6722,9 @@ function statusRoom() {
   if (!rows.length) return null;
   const line = rows[0].map(c => c.ch).join('');
   const name = line.trim().split(/\s{2,}/)[0];
-  if (!name || /^score|^moves|^turns/i.test(name)) return null;
+  // right after resuming, Curses may redraw only the second status line: use the room saved with the game
+  if (!name || /^score|^moves|^turns|^\(/i.test(name)) return S.resumeRoom || null;
+  S.resumeRoom = null;
   return name.trim();
 }
 function statusRegion() {
@@ -8010,10 +8021,22 @@ function renderTr() {
 function trTranslate(b) {
   TR.busy = TR.busy.then(async () => {
     try {
-      const parts = b.text.split(/\n\s*\n/);
-      const res = [];
-      for (const part of parts) res.push(part.trim() ? await TR.translator.translate(part) : '');
-      b.out = res.join('\n\n');
+      // The browser's translator loses line breaks and can drop whole sentences from a long piece.
+      // So every line goes on its own (a room name stays a heading), and a long line is sent in
+      // pieces of a few sentences; the pieces are joined again in the original layout.
+      TR.cache = TR.cache || new Map();
+      const tr = async x => { if (TR.cache.has(x)) return TR.cache.get(x); const y = await TR.translator.translate(x); if (TR.cache.size > 2000) TR.cache.clear(); TR.cache.set(x, y); return y; };
+      const lines = [];
+      for (const line of b.text.split('\n')) {
+        if (!line.trim()) { lines.push(''); continue; }
+        const sents = line.trim().split(/(?<=[.!?…])\s+(?=["'“‘(]?[A-Z0-9])/);
+        const pieces = []; let cur = '';
+        for (const x of sents) { if (cur && (cur + ' ' + x).length > 160) { pieces.push(cur); cur = x; } else cur = cur ? cur + ' ' + x : x; }
+        if (cur) pieces.push(cur);
+        const outp = []; for (const x of pieces) outp.push(await tr(x));
+        lines.push(outp.join(' '));
+      }
+      b.out = lines.join('\n').replace(/\n{3,}/g, '\n\n');
     } catch (e) { $('#trStatus').textContent = T('Übersetzung fehlgeschlagen'); }
     renderTr();
   });

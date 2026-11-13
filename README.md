@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1931 – Musik auf dem Handy ohne Knarzen
+26-11-13-2058 – Wege-Knöpfe mit englischen Richtungen
 
 ## Ältere Versionen
 
+- [26-11-13-1931](archiv/26-11-13-1931.html) – Musik auf dem Handy ohne Knarzen
 - [26-11-13-1926](archiv/26-11-13-1926.html) – Bild sofort beim Fortsetzen
 - [26-11-13-1923](archiv/26-11-13-1923.html) – Übersetzung zeilen- und satzweise
-- [26-11-13-1921](archiv/26-11-13-1921.html) – Pause nach Überschriften beim Vorlesen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -241,6 +241,9 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Auf Smartphones knarzte und schepperte die Musik in mehreren Browsern. Der Browser bekommt jetzt größere Puffer für die Tonausgabe, was gegen Aussetzer und Knistern hilft.
 - Auf Handys wird außerdem leichter gemischt, mit etwa 60 % weniger Rechenaufwand: Der Hall ist kürzer (1,8 statt 5,5 Sekunden), die Flächenklänge haben weniger Oszillatoren, und tiefe Töne unter etwa 120 Hz, die kleine Lautsprecher nur rasseln lassen, werden weggefiltert.
 - Auf allen Geräten verhindert ein Begrenzer am Ende der Kette, dass Musik und Geräusche zusammen übersteuern.
+
+### 40. Richtungen wie im Spiel (13. November 2026)
+- Die Knöpfe „Bekannte Wege“ zeigten deutsche Abkürzungen, zum Beispiel O für Osten, getippt werden muss im Spiel aber E für east. Sie zeigen jetzt in beiden Sprachen, was man im Spiel eingibt: N, S, E, W, NE, NW, SE, SW, ↑ U, ↓ D, in, out. Der Tooltip nennt das Ziel und den Befehl.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
