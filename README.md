@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1549 – Startbildschirm mit Spielen-Knopf
+26-11-13-1658 – Dinge, die man schiebt
 
 ## Ältere Versionen
 
+- [26-11-13-1549](archiv/26-11-13-1549.html) – Startbildschirm mit Spielen-Knopf
 - [26-11-13-1541](archiv/26-11-13-1541.html) – Inventar wie im Spiel
 - [26-11-13-1525](archiv/26-11-13-1525.html) – Breite Prüfung, Behälter und alle Lichtstrahlen
-- [26-11-13-1430](archiv/26-11-13-1430.html) – Die Spatzen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -170,6 +170,12 @@ Die Inventarliste stammt jetzt vom Spiel selbst. Nach jedem Zug spielt der Inter
 
 ### 29. Aufgeräumter Startbildschirm (13. November 2026)
 Das Bild mit dem tanzenden Staub bleibt, die rechte Seite ist aufgeräumt. Oben steht jetzt ein großer Knopf „Spielen“: Er lädt curses.z5 direkt aus dem IF Archive und startet das Spiel. Darunter kommt als Alternative die eigene Datei, mit Link zum Herunterladen und Ablagefeld. Die drei Spielweisen (Illustriert, Klassisch, Mit Hilfen) stehen ohne die wenig aussagekräftigen Vorschaubilder darunter, die nummerierten Schritte sind entfallen. Mit einem gespeicherten Spiel erscheint statt des Knopfes wie bisher die Karte „Weiterspielen“.
+
+### 30. Dinge, die man schiebt (13. November 2026)
+Ein zweiter Lösungsweg (von Marc Leduc) brachte einen neuen Prüflauf: Was lässt sich in jedem Raum in jede Richtung schieben? Gefunden wurden das Radio, Austin, der Wasserball und die Statuen.
+- Das alte Radio im Wäscheschrank erscheint, sobald man es unter den Laken gefunden hat. Schiebt man es zu Aunt Jemima, steht es dort, mit glühenden Röhren und Noten, wenn es spielt, und dunkel, wenn es aus ist.
+- Die Statuen im Labyrinth erscheinen dort, wo sie wirklich stehen, auch mehrere in einem Raum und auch dann, wenn das Spiel den Raum beim Hineinschieben nur kurz beschreibt.
+- Der Wasserball rollt mit ins Museumsfoyer. Was beim Betreten eines Raums über etwas gesagt wird, das man mitbringt, zählt jetzt auch für den neuen Raum als erwähnt.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

@@ -367,7 +367,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1549</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1658</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1549</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1658</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2048,6 +2048,23 @@ h.add(h.open('wheel'));   const wx = 248, wy = 140, wr = 38;
   torch(h, 180, 160, 150, .2);
 } };
 
+
+// the antiquated wireless in its heavy cabinet on casters; valves glowing and notes rising once it plays
+function wireless(h, x, y, w = 56) {
+  const st = h.st, d = h.desc || '';
+  if (st.known ? !st.here('wireless') : !/antiquated wireless/i.test(d)) return;
+  const on = !st.known || st.isOn('wireless');
+  const plays = on && /radio plays|wireless fills the air/i.test(d);
+  const glow = plays || (on && (/glowing valves/i.test(d) || !!(st.known && st.isOn('wireless') && st.mentioned && st.mentioned('glowing'))));
+  const k = w / 56, X = v => (x + v * k).toFixed(1), Y = v => (y + v * k).toFixed(1);
+  h.add(h.tag('wireless', `<rect x="${X(0)}" y="${Y(-50)}" width="${(56 * k).toFixed(1)}" height="${(46 * k).toFixed(1)}" rx="${(4 * k).toFixed(1)}" fill="#3a2414" stroke="#1a0e06" stroke-width="1.5"/>
+    <rect x="${X(5)}" y="${Y(-45)}" width="${(30 * k).toFixed(1)}" height="${(26 * k).toFixed(1)}" rx="${(2 * k).toFixed(1)}" fill="#c8b48a"/>${[0, 1, 2, 3, 4].map(i => `<line x1="${X(8 + i * 6)}" y1="${Y(-43)}" x2="${X(8 + i * 6)}" y2="${Y(-21)}" stroke="#6a5030" stroke-width="${(1.2 * k).toFixed(1)}"/>`).join('')}
+    <rect x="${X(39)}" y="${Y(-45)}" width="${(12 * k).toFixed(1)}" height="${(9 * k).toFixed(1)}" fill="${glow ? '#ffb040' : '#4a3a28'}"/><circle cx="${X(42)}" cy="${Y(-26)}" r="${(3.5 * k).toFixed(1)}" fill="#c8a060"/><circle cx="${X(50)}" cy="${Y(-26)}" r="${(3.5 * k).toFixed(1)}" fill="#c8a060"/>
+    <circle cx="${X(8)}" cy="${Y(-2)}" r="${(3 * k).toFixed(1)}" fill="#222"/><circle cx="${X(48)}" cy="${Y(-2)}" r="${(3 * k).toFixed(1)}" fill="#222"/>`));
+  if (glow) h.glow(+X(45), +Y(-40), 18 * k, '#ffb040', .6);
+  if (plays) h.add(`<g fill="#3a2a1a" opacity=".55">${[[20, -62], [34, -72], [48, -64]].map(([a, b], i) => `<path d="M${X(a)},${Y(b)} v${(-9 * k).toFixed(1)} l${(6 * k).toFixed(1)},${(-2 * k).toFixed(1)} v${(3 * k).toFixed(1)} l${(-5 * k).toFixed(1)},${(2 * k).toFixed(1)}"  stroke="#3a2a1a" stroke-width="1.2" fill="none"/><ellipse cx="${X(a - 1.5)}" cy="${Y(b)}" rx="${(2.4 * k).toFixed(1)}" ry="${(1.7 * k).toFixed(1)}"/>`).join('')}</g>`);
+}
+
 B["Aunt Jemima's Lair"] = { cat: 'interior', draw(h) {
   const { add, lin } = h;
   // former conservatory: glazed roof, lots of light
@@ -2069,7 +2086,8 @@ B["Aunt Jemima's Lair"] = { cat: 'interior', draw(h) {
   add(`<rect x="8" y="110" width="30" height="92" fill="#3a2a1c"/><rect x="11" y="113" width="24" height="89" fill="#1a120a"/>`);
   stepsUp(h, 318, 200, 7, 60, 1);
   add(`<rect x="358" y="80" width="40" height="44" fill="#1a120a"/>`);
-  // cluttered airing cupboard to the south (foreground right edge hint)
+  // the wireless, if it has been pushed in here
+  wireless(h, 150, 238, 58);
   h.glow(200, 40, 260, '#ffffff', .25);
 } };
 
@@ -2124,6 +2142,8 @@ B['Airing Cupboard'] = { cat: 'interior', draw(h) {
     add(`<path d="M${x - w / 2},${y} Q${x - w / 2 + 10},${y - ht} ${x},${y - ht + h.R(-4, 4)} Q${x + w / 2 - 6},${y - ht} ${x + w / 2},${y} Z" fill="url(#${h.id}${gid})"/>`);
   }
   for (let i = 0; i < 6; i++) add(`<circle cx="${h.R(220, 390)}" cy="${h.R(180, 250)}" r="${h.R(4, 9)}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".35"/>`);
+  // the wireless that was under the sheets: only once you have found it
+  if (h.st.mentioned && h.st.mentioned('wireless')) wireless(h, 200, 246, 62);
   h.glow(200, 120, 200, '#fff4d8', .2);
 } };
 
@@ -2805,7 +2825,11 @@ B['Museum Foyer'] = { cat: 'city', draw(h) {
   for (let i = 0; i < 6; i++) { const x = h.R(60, 340), y = h.R(20, 60); h.add(`<path d="M${x},${y} q6,-6 12,0 q6,-6 12,0 q-6,2 -12,6 q-6,-4 -12,-6z" fill="#000" opacity=".55"/>`); }
   // the metal corridor south and a publicity poster
   h.add(`<polygon points="160,260 240,260 222,206 178,206" fill="#5a6068"/><polygon points="178,206 222,206 214,190 186,190" fill="#0a0a0c"/>`);
-  if (h.st.here('poster')) h.add(h.tag('poster', `<rect x="34" y="96" width="22" height="34" fill="#c8402a" transform="skewY(14)"/>`));
+  if (h.st.here('poster')) h.add(h.tag('poster', `<rect x="34" y="96" width="22" height="34" fill="#c8402a" transform="skewY(14)"/>`));  // the beach ball, if you have bounced it in here from the revolving door
+  if (h.st.here('beach ball')) {   // it only gets here by being bounced along with you
+    const I = (typeof window !== 'undefined' && window.ZIcons) || (typeof require === 'function' ? require('./icons.js') : null);
+    if (I) h.add(h.tag('beach ball', `<ellipse cx="270" cy="232" rx="18" ry="4" fill="#000" opacity=".35"/><g transform="translate(250 196) scale(1)">${I.icon('beach ball').replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`));
+  }
 } };
 
 // ---------- myth & time travel ----------
@@ -4067,7 +4091,16 @@ const FEAT = [
   ['one table|on the table|tables?|a table', 'floor', .32, () => S.table(), 'table', 1, { d: .4, surf: [0, -52] }],
   ['couch', 'floor', .34, () => S.couch(), 'couch', 1, { d: .5 }],
   ['a bed|bed is', 'floor', .4, () => S.bed(), 'bed', 1, { d: .5 }],
-  ['statue of (?:the )?(?:god(?:dess)? )?\\w+|marble statue of \\w+', 'floor', .26, (m, ctx) => S.statue(m, ctx.rd.has('tall'), ctx.h.st.inside('statue of diana').some(n => /rose|flower/i.test(n)) || /flower is placed .* in her hair/.test(ctx.rd.t)), 'statue', 1, { d: .42, label: m => m.replace(/^.*statue of (the )?(god(dess)? )?/, '') }],
+  ['statue of (?:the )?(?:god(?:dess)? )?\\w+|marble statue of \\w+', 'floor', .26, (m, ctx) => {
+    // every statue that stands here: the game's state says which (statues can be pushed from room to room), else the text
+    const st = ctx.h.st, flower = st.inside('statue of diana').some(n => /rose|flower/i.test(n)) || /flower is placed .* in her hair/.test(ctx.rd.t);
+    let gods = st.known ? (st.hereList || []).map(n => /^statue of (\w+)$/i.exec(n)).filter(Boolean).map(x => x[1].toLowerCase()) : [];
+    if (!gods.length) gods = [...ctx.rd.t.matchAll(/statue of (?:the )?(?:god(?:dess)? )?(\w+)/g)].map(x => x[1]);
+    if (!gods.length) return S.statue(m, ctx.rd.has('tall'), flower);
+    gods = [...new Set(gods)].slice(0, 3);
+    const off = gods.length === 1 ? [0] : gods.length === 2 ? [-46, 46] : [-80, 0, 80];
+    return gods.map((g, i) => `<g transform="translate(${off[i]} 0)">${S.statue('statue of ' + g, ctx.rd.has('tall'), flower && /diana/.test(g))}</g>`).join('');
+  }, 'statue', 1, { d: .42, label: m => /^statue$/.test(m) ? 'statue' : m.replace(/^.*statue of (the )?(god(dess)? )?/, ''), state: ctx => (ctx.h.st.hereList || []).some(n => /^statue of \w+$/i.test(n)) ? { w: 'statue', i: 0 } : null }],
   ['headless adamantine statue|knight on a tomb', 'floor', .6, (m, ctx) => {
     const st = ctx.h.st, t = ctx.rd.t, f = st.fitted('adamantine statue');
     // once he has leapt up, only the tomb is left
@@ -4108,7 +4141,8 @@ function FEATURES(ctx, pass) {
   const relWall = d => { const r = ctx.rel(d); return r === 0 || r === 1 || r === 7 ? 'back' : r === 6 || r === 5 ? 'left' : r === 2 || r === 3 ? 'right' : 'back'; };
   for (const [src, where0, width, draw, label, count, opt] of FEAT) {
     if ((pass === 'pre') !== (where0 === 'band')) continue;
-    const m = rd.find(src);
+    // a thing the game's state puts here although the stored description does not (yet) say so
+    const m = rd.find(src) || (opt && opt.state && ctx.h.st && ctx.h.st.known ? opt.state(ctx) : null);
     if (!m || done.has(label || src)) continue;
     if (label) done.add(label);
     const word = m.w, lbl = ((opt && opt.label ? opt.label(word) : null) || word).replace(/^(the|a|an|one) /, '');
@@ -4258,7 +4292,10 @@ function PORTABLES(ctx) {
   let n = 0;
   for (const [src, iname, obj, where] of PORT) {
     if (!iname) continue;
-    const m = rd.find(src); if (!m) continue;
+    let m = rd.find(src);
+    // pushed here, not carried: the text named it as it came ("you bounce the beach ball along"), the room's description does not
+    if (!m && st && st.known && obj && st.here(obj) && !st.moved(obj) && st.mentioned && st.mentioned(obj)) m = { w: obj, i: 0 };
+    if (!m) continue;
     if (st && st.known && obj && !st.here(obj)) continue;
     let p = null, sc = 1;
     const sf = where && where.startsWith('on:') ? ctx.surf[where.slice(3)] : null;
@@ -6503,7 +6540,12 @@ function noteWords(text) {
   if (prev && prev !== loc) {
     const lines = text.split('\n'); let k = -1;
     for (let i = 0; i < lines.length; i++) if (lines[i].trim() === loc) { k = i; break; }
-    if (k > 0) { n += addWords(room(prev), lines.slice(0, k).join('\n')); text = lines.slice(k).join('\n'); }
+    if (k > 0) {
+      const pre = lines.slice(0, k).join('\n');
+      n += addWords(room(prev), pre); text = lines.slice(k).join('\n');
+      // ... except for things that came along ("you bounce the beach ball along in front of you"): those are named here too
+      try { const low = pre.toLowerCase(); for (let c = zm.child(zm.readVar(17)), g = 0; c && g < 200; c = zm.sibling(c), g++) { const nm = zm.shownName(c); if (nm && nm.length > 3 && low.includes(nm.toLowerCase())) n += addWords(room(loc), nm); } } catch (e) {}
+    }
   }
   n += addWords(room(loc), text);
   S.wordsLoc = loc;
