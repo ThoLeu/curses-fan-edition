@@ -362,7 +362,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1109</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1430</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -401,7 +401,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1109</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1430</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2661,15 +2661,18 @@ B['Summer House'] = { cat: 'garden', draw(h) {
   h.add(`<rect y="120" width="400" height="140" fill="${h.lin('wd', [[0, '#9a6a3a'], [1, '#6a4422']])}"/>`);
   for (let x = 0; x < 400; x += 20) h.add(`<line x1="${x}" y1="120" x2="${x}" y2="260" stroke="#4a2e16" opacity=".5"/>`);
   h.add(`<rect y="120" width="400" height="6" fill="#4a2e16"/>`);
-  // something golden hanging by a chain from a loose pane
-  if (h.st.here('gold watch')) {
+  // something golden hanging by a chain from a loose pane; once the sparrows have knocked it loose, it lies on the floor
+  if (h.st.here('gold watch') && h.st.moved('gold watch')) h.add(h.tag('gold watch', `<path d="M150,244 q10,-6 20,2 q6,6 -4,8" stroke="#c8a040" stroke-width="1.5" fill="none"/><ellipse cx="160" cy="246" rx="9" ry="4" fill="#e8c040" stroke="#a88010"/>`));
+  else if (h.st.here('gold watch')) {
   h.add(`<path d="M160,74 ${Array.from({ length: 8 }, (_, i) => `l${i % 2 ? 2 : -2},6`).join(' ')}" stroke="#c8a040" stroke-width="1.5" fill="none"/>`);
   h.glow(160, 128, 30, '#ffd86a', .7); h.add(`<circle cx="160" cy="128" r="8" fill="#e8c040" stroke="#a88010"/>`);
   }
   // croquet mallet standing by one wall
   if (h.st.here('mallet')) h.add(h.tag('mallet', `<rect x="320" y="150" width="5" height="90" fill="#c8a070"/><rect x="306" y="236" width="34" height="14" rx="3" fill="#7a3a2a"/><rect x="309" y="236" width="4" height="14" fill="#e8d050"/><rect x="333" y="236" width="4" height="14" fill="#e8d050"/>`));
-  // sparrows around the high gutter
-  for (let i = 0; i < 6; i++) { const x = h.R(20, 380), y = h.R(108, 118); h.add(`<ellipse cx="${x}" cy="${y}" rx="5" ry="3.5" fill="#7a5a3a"/><circle cx="${x + 4}" cy="${y - 3}" r="2.4" fill="#6a4a2a"/><path d="M${x + 6},${y - 3} l3,1 -3,1z" fill="#c8a040"/>`); }
+  // the sparrows: chirping around the high gutter, or startled and circling high in the sky above the glass roof
+  const calm = /sparrows chirp happily/i.test(h.desc), startled = /startled sparrows circle high/i.test(h.desc);
+  if (startled) h.add(h.tag('sparrows', Array.from({ length: 11 }, () => { const x = h.R(110, 290), y = h.R(8, 70), w = h.R(3, 6); return `<path d="M${x - w},${y - w * .5} q${w * .5},${w * .5} ${w},${w * .5} q${w * .5},0 ${w},${-w * .5}" stroke="#3a2a1e" stroke-width="1.6" fill="none"/>`; }).join('')));
+  else if (calm) h.add(h.tag('sparrows', Array.from({ length: 6 }, () => { const x = h.R(20, 380), y = h.R(108, 118); return `<ellipse cx="${x}" cy="${y}" rx="5" ry="3.5" fill="#7a5a3a"/><circle cx="${x + 4}" cy="${y - 3}" r="2.4" fill="#6a4a2a"/><path d="M${x + 6},${y - 3} l3,1 -3,1z" fill="#c8a040"/>`; }).join('')));
   h.glow(200, 60, 200, '#ffffff', .25);
 } };
 
@@ -3220,7 +3223,7 @@ B['Hedgery'] = { cat: 'garden', draw(h) {
   privet(h, '0,120 130,120 130,200 0,200', '#2a5226'); leafy(h, 30, 0, 130, 120, 200, ['#3a6a30']);
   h.add(h.open('summer house') + `<rect x="150" y="96" width="110" height="94" fill="#e8e0cc"/><polygon points="140,96 205,46 270,96" fill="#bcd0dc" stroke="#7a6a50" stroke-width="2"/><rect x="186" y="134" width="38" height="56" fill="#5a4a36"/>${[0, 1].map(i => `<rect x="${160 + i * 74}" y="112" width="18" height="24" fill="#a8c0d0" stroke="#8a7a60"/>`).join('')}<line x1="140" y1="96" x2="270" y2="96" stroke="#7a6a50" stroke-width="3"/>` + '</g>');
   // the sparrows around the gutters of the summer house
-  h.add(h.open('sparrows') + `${Array.from({ length: 9 }, (_, i) => { const x = 146 + i * 14 + h.R(-3, 3), y = 92 + h.R(-4, 2); return `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="2.6" fill="#7a5a3a"/><circle cx="${x + 2.5}" cy="${y - 2}" r="1.8" fill="#6a4a2e"/>`; }).join('')}<path d="M210,60 q4,-4 8,0 M228,52 q4,-4 8,0" stroke="#5a4028" stroke-width="1.5" fill="none"/>` + '</g>');
+  if (/sparrows/i.test(h.desc)) h.add(h.open('sparrows') + `${Array.from({ length: 9 }, (_, i) => { const x = 146 + i * 14 + h.R(-3, 3), y = 92 + h.R(-4, 2); return `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="2.6" fill="#7a5a3a"/><circle cx="${x + 2.5}" cy="${y - 2}" r="1.8" fill="#6a4a2e"/>`; }).join('')}<path d="M210,60 q4,-4 8,0 M228,52 q4,-4 8,0" stroke="#5a4028" stroke-width="1.5" fill="none"/>` + '</g>');
   privet(h, '280,120 330,120 330,200 280,200', '#2a5226');
   h.add(h.open('croquet lawn') + `<path d="M330,170 L400,160 L400,220 L330,214Z" fill="#7aaa52"/>` + '</g>');
   h.add(`<path d="M0,196 Q200,186 400,200 L400,260 L0,260Z" fill="#6a9a4a"/>`);
@@ -4707,7 +4710,7 @@ const MOOD = { darkness: 'dark', attic: 'house', interior: 'house', cellar: 'dar
 // Without state (e.g. a preview) every object counts as present in its default condition.
 function makeState(s) {
   const lc = a => (a || []).map(x => String(x).toLowerCase());
-  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], link: () => '', fitted: () => [], sig: '' };
+  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], link: () => '', fitted: () => [], moved: () => false, sig: '' };
   const here = lc(s.here), open = lc(s.open), carried = lc(s.carried);
   const m = (arr, w) => arr.some(n => n.includes(w.toLowerCase()));
   const on = lc(s.on), ins = s.inside || {};
@@ -4718,7 +4721,7 @@ function makeState(s) {
   // the socket a thing is fixed in; the parts fitted to a thing
   const link = w => byKey(s.links, w, '');
   const fitted = w => byKey(s.fitted, w, []);
-  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside, link, fitted };
+  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], moved: w => m(lc(s.moved), w), here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside, link, fitted };
 }
 
 let uid = 0;
@@ -6577,7 +6580,7 @@ function roomState(name) {
     const loc = findLocation(name);
     if (!loc) return null;
     const at = ATTR[S.serial];
-    const here = [], open = [], carried = [], on = [], inside = {}, links = {}, fitted = {};
+    const here = [], open = [], carried = [], on = [], moved = [], inside = {}, links = {}, fitted = {};
     const isPlayer = o => /^(yourself|self|you|player)$/i.test(zm.objName(o));
     const walk = (o, into, depth) => {
       for (let c = zm.child(o), n = 0; c && n < 200; c = zm.sibling(c), n++) {
@@ -6586,14 +6589,14 @@ function roomState(name) {
         const hid = false; // contents of open containers show as faint shapes until the text mentions them
         if (nm && at && at.link && into === here && zm.findProp(c, at.link)) { const v = zm.getProp(c, at.link); if (v > 0 && v < 1024 && /socket/i.test(zm.objName(v))) links[nm] = zm.shownName(v); }
         if (nm && at && at.fitted && at.fitted[zm.objName(c)]) fitted[nm] = at.fitted[zm.objName(c)].filter(pn => { const o = objByName(pn); return o && !zm.parent(o) && zm.testAttr(o, at.fittedAttr); });
-        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
+        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (at && at.moved && into === here && zm.testAttr(c, at.moved)) moved.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
         if (depth < 4 && contentsVisible(c) && !hid) walk(c, into, depth + 1);
       }
     };
     walk(loc, here, 0);
     const roomKey = zm.objName(loc), known = k => mentionedIn(roomKey, k);
-    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + JSON.stringify(links) + JSON.stringify(fitted) + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
-    return { here, open, carried, on, inside, links, fitted, mentioned: known, sig };
+    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + JSON.stringify(links) + JSON.stringify(fitted) + moved.join(',') + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
+    return { here, open, carried, on, moved, inside, links, fitted, mentioned: known, sig };
   } catch (e) { return null; }
 }
 
@@ -6620,14 +6623,16 @@ function roomDesc(name, desc) {
 // sentence the game itself will use for it, so the picture follows at once.
 const EVENTS = [
   { room: /^Croquet Lawn$/, when: /uncovering a tiny gap through the hedge/i, add: 'The hedge is broken slightly to the northwest.' },
-  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' }
+  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' },
+  // the bird whistle: the sparrows swoop onto the roof and then take to the skies
+  { room: /^Summer House$/, when: /flighty sparrows, who take to the skies/i, add: 'Startled sparrows circle high in the sky, showing no signs of calming down.', drop: /Sparrows chirp happily[^.]*\.\s*/ }
 ];
 function noteEvents(name, text) {
   if (!text || !name) return;
   roomDesc(name, '');
   const cur = S.descs && S.descs[name]; if (!cur) return;
   let d = cur;
-  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add;
+  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) { if (e.drop) d = d.replace(e.drop, ''); d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add; }
   if (d !== cur) { S.descs[name] = d; LS.set('zp:desc:' + S.serial, JSON.stringify(S.descs)); }
 }
 function showRoom(name, desc, dark) {

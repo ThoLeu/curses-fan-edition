@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1109 – Neuer Titel: an illustrated interpreter
+26-11-13-1430 – Die Spatzen
 
 ## Ältere Versionen
 
+- [26-11-13-1109](archiv/26-11-13-1109.html) – Neuer Titel: an illustrated interpreter
 - [26-11-13-1102](archiv/26-11-13-1102.html) – Letzte Räume und sofortige Änderungen
 - [26-11-13-0951](archiv/26-11-13-0951.html) – Bild nur noch Illustration
-- [26-11-13-0907](archiv/26-11-13-0907.html) – Zwanzig weitere Raumzustände
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -151,6 +151,9 @@ Auch die vier Räume abseits der Komplettlösung (Stream, Tree Planting, Up the 
 
 ### 25. Neuer Titel: an illustrated interpreter (13. November 2026)
 Aus „Curses · a customized interpreter“ wird „Curses · an illustrated interpreter“. Seit die Bilder reine Illustration sind, beschreibt das Wort genau, was diesen Interpreter von anderen unterscheidet.
+
+### 26. Die Spatzen (13. November 2026)
+Die Spatzen kommen an zwei Orten vor, im Hedgery und im Summer House. Im Hedgery drängen sie sich an der Dachrinne des Gartenhauses, wie der Text es sagt. Im Summer House zeigt das Bild jetzt die beiden Zustände der Beschreibung: aufgeschreckt kreisen die Spatzen hoch am Himmel über dem Glasdach, ruhig sitzen sie zwitschernd an der Dachrinne. Nach der Vogelpfeife fliegen sie sofort auf. Die goldene Uhr, die sie dabei losschlagen, hängt danach nicht mehr am Dach, sondern liegt am Boden.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
