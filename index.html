@@ -368,7 +368,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1944</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-2001</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1944</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-2001</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2472,19 +2472,35 @@ B['Cellar West'] = { cat: 'cellar', draw(h) {
 } };
 
 B['Infinity Symbol'] = { cat: 'otherworld', draw(h) {
-  h.add(`<rect width="400" height="260" fill="#0c0c14"/>`);
+  const st = h.st;
+  // the rods the game has fixed in the arc sockets, the spherical opening, and the golden light once the orb is in it
+  const rods = st.known ? st.inside('circular arc') : [];
+  const nRods = rods.length || (/all nine sockets are occupied/i.test(h.desc) ? 9 : /socket contains a rod/i.test(h.desc) ? 1 : 0);
+  const hole = st.known ? st.here('spherical opening') : /spherical opening/.test(h.desc);
+  const lit = /golden light/.test(h.desc) || (st.known && !hole && st.mentioned && st.mentioned('spherical opening'));
+  h.add(`<rect width="400" height="260" fill="${lit ? '#4a3410' : '#0c0c14'}"/>`);
   // crystal icicles of rock and spiders' webs
-  for (let i = 0; i < 26; i++) { const x = h.R(0, 400), l = h.R(20, 70); h.add(`<polygon points="${x - 6},0 ${x + 6},0 ${x},${l}" fill="#6a7a9a" opacity="${h.R(.4, .8)}"/><line x1="${x}" y1="0" x2="${x}" y2="${l}" stroke="#c8d8f0" opacity=".4"/>`); }
-  for (const [x, y] of [[40, 40], [360, 60]]) h.add(`<g stroke="#e0e0e8" opacity=".3" fill="none">${[10, 20, 30, 40].map(r => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}${[0, 1, 2, 3, 4, 5, 6, 7].map(k => `<line x1="${x}" y1="${y}" x2="${x + Math.cos(k * .785) * 44}" y2="${y + Math.sin(k * .785) * 44}"/>`).join('')}</g>`);
+  for (let i = 0; i < 26; i++) { const x = h.R(0, 400), l = h.R(20, 70); h.add(`<polygon points="${x - 6},0 ${x + 6},0 ${x},${l}" fill="${lit ? '#f0d890' : '#6a7a9a'}" opacity="${h.R(.4, .8)}"/><line x1="${x}" y1="0" x2="${x}" y2="${l}" stroke="${lit ? '#fff4c8' : '#c8d8f0'}" opacity=".4"/>`); }
+  if (!lit || /webs/.test(h.desc)) for (const [x, y] of [[40, 40], [360, 60]]) h.add(`<g stroke="#e0e0e8" opacity=".3" fill="none">${[10, 20, 30, 40].map(r => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}${[0, 1, 2, 3, 4, 5, 6, 7].map(k => `<line x1="${x}" y1="${y}" x2="${x + Math.cos(k * .785) * 44}" y2="${y + Math.sin(k * .785) * 44}"/>`).join('')}</g>`);
+  // the small spherical opening in one wall, and the orb glowing in it
+  if (hole || lit) h.add(h.tag('spherical opening', `<circle cx="100" cy="112" r="9" fill="#050404" stroke="#4a4a54" stroke-width="2"/>${lit ? `<circle cx="100" cy="112" r="8" fill="#ffd860"/><circle cx="97" cy="109" r="3" fill="#fff8d8"/>` : ''}`));
+  if (lit) { h.glow(100, 112, 90, '#ffd860', .8); h.add(`<rect width="400" height="260" fill="#ffc840" opacity=".14"/>`); }
   // round, smooth white marble disc with the black lemniscate and nine sockets
   h.add(`<ellipse cx="200" cy="190" rx="170" ry="52" fill="#e8e6e0"/><ellipse cx="200" cy="190" rx="150" ry="44" fill="none" stroke="#9a968e" stroke-width="2"/>`);
-  for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; h.add(`<ellipse cx="${200 + Math.cos(a) * 150}" cy="${190 + Math.sin(a) * 44}" rx="8" ry="3.5" fill="#2a2824"/>`); }
-  h.add(`<path d="M120,190 C120,166 196,166 200,190 C204,214 280,214 280,190 C280,166 204,166 200,190 C196,214 120,214 120,190Z" stroke="#111" stroke-width="7" fill="none"/>`);
+  const ROD = n => /sacrifice/i.test(n) ? '#7a1a2a' : /fire/i.test(n) ? '#d8442a' : /\bice\b/i.test(n) ? '#bfe4f4' : /love/i.test(n) ? '#e87aa0' : /luck/i.test(n) ? '#4aa85a' : /bronze/i.test(n) ? '#b87a3a' : /stalking/i.test(n) ? '#6a8a3a' : /husbandry/i.test(n) ? '#8a6a3a' : /returning/i.test(n) ? '#c8ccd8' : /sacrifice/i.test(n) ? '#7a1a2a' : '#a8a090';
+  // sockets behind the lemniscate first, so the rods in front overlap them
+  const order = [...Array(9).keys()].sort((a, b) => Math.sin(a / 9 * Math.PI * 2) - Math.sin(b / 9 * Math.PI * 2));
+  for (const i of order) {
+    const a = i / 9 * Math.PI * 2, x = 200 + Math.cos(a) * 150, y = 190 + Math.sin(a) * 44;
+    h.add(`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="8" ry="3.5" fill="#2a2824"/>`);
+    if (i < nRods) h.add(h.tag('rod', `<rect x="${(x - 3).toFixed(1)}" y="${(y - 40).toFixed(1)}" width="6" height="40" rx="2" fill="${ROD(rods[i] || '')}" stroke="#1a1410" stroke-width=".8"/><ellipse cx="${x.toFixed(1)}" cy="${(y - 40).toFixed(1)}" rx="3" ry="1.4" fill="#fff" opacity=".35"/>`));
+    if (i === 0) h.add(`<path d="M120,190 C120,166 196,166 200,190 C204,214 280,214 280,190 C280,166 204,166 200,190 C196,214 120,214 120,190Z" stroke="#111" stroke-width="7" fill="none"/>`);
+  }
   // dead white insects
-  for (let i = 0; i < 12; i++) h.add(`<ellipse cx="${h.R(20, 380)}" cy="${h.R(236, 256)}" rx="2" ry="1" fill="#f0f0f0" opacity=".7"/>`);
+  if (!lit) for (let i = 0; i < 12; i++) h.add(`<ellipse cx="${h.R(20, 380)}" cy="${h.R(236, 256)}" rx="2" ry="1" fill="#f0f0f0" opacity=".7"/>`);
   // the crevice towards the iron doorway and the warmth of the house
   h.add(`<polygon points="380,90 400,80 400,170 386,160" fill="#3a2a1a"/>`);
-  h.glow(396, 128, 50, '#ffb060', .4);
+  if (!lit) h.glow(396, 128, 50, '#ffb060', .4);
 } };
 
 B['The Octagon'] = { cat: 'interior', draw(h) {
@@ -2799,6 +2815,17 @@ B['Necropolis'] = { cat: 'egypt', draw(h) {
   h.add(`<rect x="250" y="150" width="150" height="24" fill="#5a5040"/>`);
   // birds of prey circling, talons glinting
   for (let i = 0; i < 4; i++) { const x = h.R(60, 300), y = h.R(30, 100); h.add(`<path d="M${x - 14},${y} q7,-7 14,0 q7,-7 14,0" stroke="#0a0a14" stroke-width="2.4" fill="none"/><circle cx="${x}" cy="${y + 3}" r="1" fill="#fff"/>`); }
+  // the tombstone you stand by: its stone face only once the text has spoken of it,
+  // the amber gem in its mouth and the steps down once the tomb is opened
+  if (/tombstone/.test(h.desc)) {
+    const st = h.st, gem = st.known ? st.inside('tombstone').some(n => /amber/.test(n)) : /flight of steps downward/.test(h.desc);
+    const face = gem || (st.mentioned && (st.mentioned('stone face') || st.mentioned('socket')));
+    h.add(h.open('tombstone'));
+    h.add(`<path d="M92,236 V178 Q92,160 120,158 Q148,160 148,178 V236Z" fill="#9a8a6a" stroke="#4a3e2a" stroke-width="2"/><path d="M96,236 V180 Q96,164 120,162" stroke="#c8b890" stroke-width="2" fill="none" opacity=".5"/>`);
+    if (face) h.add(`<ellipse cx="120" cy="190" rx="16" ry="20" fill="#8a7a5a"/><path d="M110,184 h6 M124,184 h6" stroke="#2a2216" stroke-width="2.4"/><path d="M120,186 v8" stroke="#5a4a32" stroke-width="2"/><ellipse cx="120" cy="201" rx="5" ry="3.5" fill="${gem ? '#f0a020' : '#1a140c'}"${gem ? ' stroke="#ffd880" stroke-width="1"' : ''}/>`);
+    h.add('</g>');
+    if (gem) { h.glow(120, 201, 18, '#ffb030', .6); h.add(h.tag('steps', `<path d="M158,252 L176,222 H232 L250,252Z" fill="#0a0806"/>${[0, 1, 2, 3].map(i => `<path d="M${180 - i * 5},${228 + i * 7} H${228 + i * 5}" stroke="#7a6a4a" stroke-width="3"/>`).join('')}`)); }
+  }
 } };
 
 B['Palace Balustrade'] = { cat: 'classical', draw(h) {
@@ -2827,7 +2854,12 @@ B['Parish Church'] = { cat: 'church', draw(h) {
   h.add(`<rect y="180" width="400" height="80" fill="#4a3a2a"/>`);
   for (let i = 0; i < 4; i++) { const y = 184 + i * 18; h.add(`<rect x="${20 - i * 8}" y="${y}" width="${120 + i * 6}" height="${8 + i * 2}" fill="#2a1a0e"/><rect x="${260 + i * 2}" y="${y}" width="${120 + i * 6}" height="${8 + i * 2}" fill="#2a1a0e"/>`); }
 h.add(h.open('moonstone'));   // the Moonstone: a raised door-sized flagstone inscribed with a crescent
-  h.add(`<polygon points="160,206 240,206 252,250 148,250" fill="#8a8680" stroke="#4a4640" stroke-width="2"/><path d="M196,214 a14,14 0 1 0 12,24 a11,11 0 1 1 -12,-24z" fill="#d8dce8"/>`); h.add('</g>');
+  if ((h.st.known && h.st.open('moonstone', false)) || /crystal doorway in the moonstone/i.test(h.desc)) {
+    // pulled open: the slab stands up on its edge, a crystal doorway and a passage slanting down
+    h.add(`<polygon points="160,206 240,206 252,250 148,250" fill="#0a0a12"/><polygon points="168,212 232,212 242,246 158,246" fill="${h.lin('mx', [[0, '#8ab0d8', .55], [1, '#2a3a5a', .2]])}" stroke="#c8e0f8" stroke-width="2"/>${[0, 1, 2].map(i => `<path d="M${176 + i * 4},${222 + i * 8} H${224 - i * 4}" stroke="#a8c8e8" stroke-width="2" opacity=".6"/>`).join('')}`);
+    h.add(`<polygon points="160,206 240,206 236,162 164,162" fill="#8a8680" stroke="#4a4640" stroke-width="2"/><path d="M196,170 a12,12 0 1 0 10,20 a9,9 0 1 1 -10,-20z" fill="#d8dce8"/>`);
+  } else h.add(`<polygon points="160,206 240,206 252,250 148,250" fill="#8a8680" stroke="#4a4640" stroke-width="2"/><path d="M196,214 a14,14 0 1 0 12,24 a11,11 0 1 1 -12,-24z" fill="#d8dce8"/>`);
+  h.add('</g>');
   // narrow stair upward, side chapels
   h.add(`<rect x="360" y="40" width="34" height="140" fill="#0e0c0a"/><rect x="6" y="60" width="40" height="120" fill="#141210"/>`);
 } };
@@ -3740,20 +3772,35 @@ const S = {
   cabinet: () => `<rect x="-26" y="-118" width="52" height="118" fill="#3a2414" stroke="#1a0e06" stroke-width="2"/><rect x="-21" y="-112" width="42" height="96" fill="#8aa8b8" opacity=".35"/><path d="M-21,-80 h42 M-21,-48 h42" stroke="#3a2414" stroke-width="2"/><circle cx="-6" cy="-92" r="6" fill="#a08a60"/><rect x="2" y="-64" width="12" height="14" fill="#8a7a5a"/><path d="M-14,-24 q6,-10 12,0z" fill="#7a6a50"/><path d="M-18,-110 l10,40" stroke="#fff" opacity=".25" stroke-width="2"/>`,
   couch: () => `<rect x="-60" y="-34" width="120" height="22" rx="6" fill="#8a5a3a"/><rect x="-60" y="-58" width="20" height="46" rx="6" fill="#7a4a2e"/><rect x="-62" y="-12" width="6" height="12" fill="#4a2e18"/><rect x="56" y="-12" width="6" height="12" fill="#4a2e18"/>`,
   bed: () => `<rect x="-70" y="-40" width="140" height="26" fill="#d8cfb8"/><rect x="-74" y="-66" width="10" height="66" fill="#5a3a20"/><rect x="64" y="-48" width="10" height="48" fill="#5a3a20"/><rect x="-62" y="-50" width="34" height="12" rx="5" fill="#efe8d8"/>`,
-  statue: (god, tall) => {
+  statue: (god, tall, flower) => {
     const k = tall ? 1.25 : 1;
     let attr = '';
     if (/demeter/.test(god)) attr = `<path d="M14,${-92 * k} l10,-26 M16,${-92 * k} l14,-22 M12,${-92 * k} l4,-28" stroke="#d8c890" stroke-width="2.5"/>`;
     else if (/dionysus/.test(god)) attr = `<path d="M14,${-96 * k} h14 l-3,10 h-8z" fill="#cfc8b8"/><circle cx="-14" cy="${-128 * k}" r="4" fill="#bcb4a4"/><circle cx="-8" cy="${-130 * k}" r="4" fill="#bcb4a4"/>`;
     else if (/ares/.test(god)) attr = `<line x1="18" y1="${-30}" x2="22" y2="${-150 * k}" stroke="#bcb4a4" stroke-width="3"/><path d="M22,${-150 * k} l-5,12 h10z" fill="#bcb4a4"/><ellipse cx="-16" cy="${-74 * k}" rx="10" ry="14" fill="#bcb4a4"/>`;
     else if (/poseidon/.test(god)) attr = `<line x1="18" y1="-30" x2="20" y2="${-156 * k}" stroke="#bcb4a4" stroke-width="3"/><path d="M12,${-150 * k} v-12 M20,${-152 * k} v-14 M28,${-150 * k} v-12 M12,${-150 * k} h16" stroke="#bcb4a4" stroke-width="3" fill="none"/>`;
-    else if (/diana/.test(god)) attr = `<path d="M-18,${-86 * k} q-14,-26 0,-52" stroke="#bcb4a4" stroke-width="3" fill="none"/><line x1="-18" y1="${-86 * k}" x2="-18" y2="${-138 * k}" stroke="#bcb4a4" stroke-width="1"/>`;
+    else if (/diana/.test(god)) attr = `<path d="M-18,${-86 * k} q-14,-26 0,-52" stroke="#bcb4a4" stroke-width="3" fill="none"/><line x1="-18" y1="${-86 * k}" x2="-18" y2="${-138 * k}" stroke="#bcb4a4" stroke-width="1"/>` + (flower ? `<g transform="translate(9 ${-134 * k}) scale(1.6)"><circle r="5" fill="#f4eee4" stroke="#b8ac98"/><path d="M-3,-1 q3,-4 6,0 q-3,4 -6,0z" fill="#d8cfc0"/><path d="M-5,3 l-5,4" stroke="#a8a090" stroke-width="1.5"/></g>` : '');
     return `<rect x="-24" y="-30" width="48" height="30" fill="#8a8478"/><rect x="-28" y="-34" width="56" height="6" fill="#a09a8e"/><path d="M-16,-34 L-12,${-110 * k} Q0,${-120 * k} 12,${-110 * k} L16,-34Z" fill="#dcd6ca"/><path d="M-12,${-104 * k} q-10,20 -6,40 M12,${-104 * k} q10,20 6,40" stroke="#cfc8bc" stroke-width="7" fill="none"/><circle cx="0" cy="${-124 * k}" r="11" fill="#e4dfd4"/><path d="M-8,-40 q8,-36 0,-60 M6,-44 q-4,-30 2,-56" stroke="#a8a296" stroke-width="1.2" fill="none"/>${attr}`;
   },
   sphinx: flip => `<g transform="scale(${flip ? -1 : 1} 1)"><rect x="-40" y="-12" width="80" height="12" fill="#a8885a"/><path d="M-34,-12 q4,-26 30,-26 h26 q10,0 12,10 l2,16z" fill="#c8a670"/><path d="M14,-38 q0,-24 14,-26 q14,2 14,24 l-4,16 h-20z" fill="#d0b07a"/><path d="M12,-56 l-6,20 M44,-56 l6,20" stroke="#a8885a" stroke-width="6"/><circle cx="24" cy="-48" r="2" fill="#2a1a0a"/><circle cx="34" cy="-48" r="2" fill="#2a1a0a"/><path d="M26,-40 h6" stroke="#5a3a1a" stroke-width="1.6"/><path d="M-34,-12 q-12,-4 -10,-18" stroke="#c8a670" stroke-width="4" fill="none"/></g>`,
   altar: flame => `<rect x="-52" y="-44" width="104" height="44" fill="#14121a"/><rect x="-56" y="-50" width="112" height="8" fill="#22202a"/><path d="M-40,-30 h80" stroke="#3a3848" stroke-width="1"/>${flame ? `<path d="M-14,-50 q-4,-22 14,-28 q18,6 14,28z" fill="#a8783a" stroke="#5a3a12" stroke-width="1.5"/><path d="M-10,-78 q10,-30 4,-46 q16,16 10,46z" fill="#ff9a30"/><path d="M-4,-78 q4,-16 2,-26 q8,10 6,26z" fill="#ffe08a"/>` : ''}`,
   mummy: () => `<path d="M-90,-8 L-80,-40 Q-60,-52 60,-48 Q90,-44 92,-26 L84,-6Z" fill="#d8a830" stroke="#6a4a10" stroke-width="2"/><path d="M-70,-40 Q-20,-50 50,-46 L48,-14 L-72,-12Z" fill="#2a5aa8"/>${[-56, -40, -24, -8, 8, 24, 40].map(x => `<path d="M${x},-46 v34" stroke="#e8c040" stroke-width="3"/>`).join('')}<ellipse cx="70" cy="-30" rx="18" ry="15" fill="#e8c040" stroke="#6a4a10"/><circle cx="66" cy="-32" r="2" fill="#1a1a2a"/><circle cx="76" cy="-32" r="2" fill="#1a1a2a"/><rect x="-92" y="-8" width="186" height="8" fill="#5a4a2a"/>`,
-  tombKnight: () => `<rect x="-90" y="-44" width="180" height="44" fill="#6a6660" stroke="#2a2826" stroke-width="2"/><rect x="-94" y="-50" width="188" height="8" fill="#7a766e"/><path d="M-60,-30 h120 M-60,-16 h120" stroke="#4a4844" stroke-width="1"/><path d="M-70,-50 Q-74,-64 -54,-64 L60,-62 Q76,-60 74,-50Z" fill="#c8ccd4" stroke="#6a6e78" stroke-width="1.5"/><path d="M-40,-62 v-6 M-20,-62 v-6 M0,-62 v-6 M20,-62 v-6" stroke="#8a8e98"/><rect x="-80" y="-62" width="12" height="10" fill="#9a9ea8"/><path d="M40,-64 l20,-4 M42,-58 l22,0" stroke="#aab0b8" stroke-width="3"/>`,
+  // the adamantine knight on his tomb: headless, handless and heartless until the parts are fitted
+  tombKnight: (parts = {}) => {
+    let s = `<rect x="-90" y="-44" width="180" height="44" fill="#6a6660" stroke="#2a2826" stroke-width="2"/><rect x="-94" y="-50" width="188" height="8" fill="#7a766e"/><path d="M-60,-30 h120 M-60,-16 h120" stroke="#4a4844" stroke-width="1"/>`;
+    if (parts.gone) return s;
+    // the body lying along the tomb, the neck to the west end
+    s += `<path d="M-62,-50 Q-66,-64 -50,-64 L60,-62 Q76,-60 74,-50Z" fill="#c8ccd4" stroke="#6a6e78" stroke-width="1.5"/><path d="M0,-62 v-6 M20,-62 v-6 M40,-62 v-4" stroke="#8a8e98"/><rect x="-70" y="-60" width="9" height="8" fill="#9a9ea8"/>`;
+    // the ribcage, empty or with the heart in it
+    s += `<path d="M-46,-63 q12,-8 24,0 v-1 q-12,-12 -24,0z" fill="#1a1a20"/><path d="M-42,-66 v4 M-37,-68 v6 M-32,-68 v6 M-27,-66 v4" stroke="#aab0b8" stroke-width="1.4"/>`;
+    if (parts.heart) s += `<path d="M-34,-63 q-6,-8 -1,-10 q3,-1 4,2 q1,-3 4,-2 q5,2 -1,10z" fill="#c8323a" stroke="#6a1018"/>`;
+    // the left arm, and the hand at the wrist reaching out
+    s += `<path d="M-30,-60 L6,-54" stroke="#aab0b8" stroke-width="5" stroke-linecap="round"/>`;
+    if (parts.hand) s += `<path d="M6,-56 l10,-2 l8,-3 l1,2 l-7,3 l9,-1 v2 l-9,1 l8,2 l-1,2 l-10,-2 l-8,1z" fill="#d8dce4" stroke="#6a6e78" stroke-width="1"/>`;
+    // the skull on the neck
+    if (parts.skull) s += `<circle cx="-80" cy="-62" r="10" fill="#e8e2d0" stroke="#8a8270" stroke-width="1.2"/><circle cx="-84" cy="-64" r="2.4" fill="#2a2620"/><circle cx="-78" cy="-65" r="2.4" fill="#2a2620"/><path d="M-84,-56 h7" stroke="#6a6250" stroke-width="1.2"/>`;
+    return s;
+  },
   easel: (k = 0) => `<path d="M-20,0 L0,-110 L20,0 M0,-110 L4,0" stroke="#6a4a28" stroke-width="4" fill="none"/><rect x="-30" y="-100" width="60" height="46" fill="#efe6d0" stroke="#5a3a1a" transform="rotate(${k ? -6 : 4})"/><circle cx="${-8 + k * 10}" cy="-80" r="10" fill="${k ? '#3a7ab8' : '#c84a3a'}" opacity=".8" transform="rotate(${k ? -6 : 4})"/><path d="M-22,-62 q20,-12 44,-4" stroke="#e8b040" stroke-width="5" fill="none" opacity=".8" transform="rotate(${k ? -6 : 4})"/>`,
   kiosk: () => `<rect x="-50" y="-90" width="100" height="90" fill="#3a4a5a" stroke="#1a222a" stroke-width="2"/><rect x="-56" y="-104" width="112" height="16" fill="#2a3644"/><rect x="-44" y="-80" width="88" height="34" fill="#1a1410"/>${[-38, -24, -10, 4, 18].map((x, i) => `<rect x="${x}" y="-46" width="11" height="15" fill="${['#c8382a', '#e8c040', '#3a7ab8', '#e8e0d0', '#3a8a5a'][i]}"/>`).join('')}<rect x="-50" y="-32" width="100" height="6" fill="#5a6a7a"/>`,
   globe: () => `<path d="M-20,0 L0,-40 L20,0" stroke="#5a3a1a" stroke-width="5" fill="none"/><path d="M-40,-80 a40,40 0 1 1 34,39 l-10,-20 l-14,10z" fill="#c8b880" stroke="#5a4a2a" stroke-width="2"/><path d="M-30,-96 q20,-10 40,6 q-6,14 -24,10 M2,-70 q14,-4 26,4" stroke="#6a8a5a" stroke-width="4" fill="none"/><path d="M-6,-41 l-4,-14 l12,6z" fill="#2a1a0a"/>`,
@@ -3800,7 +3847,8 @@ const WS = {
   shelves: (w = 280, scrolls) => { let s = `<rect x="${-w / 2}" y="-210" width="${w}" height="206" fill="#2a1a0e"/>`; for (let r = 0; r < 5; r++) { const y = -200 + r * 40; s += `<rect x="${-w / 2}" y="${y + 34}" width="${w}" height="5" fill="#5a3a1e"/>`; for (let x = -w / 2 + 6; x < w / 2 - 12; x += 13) s += scrolls ? `<circle cx="${x + 6}" cy="${y + 26}" r="6" fill="${['#e8dcbc', '#d8c8a0', '#c8b890'][(x + r) & 1 ? 0 : (x & 2 ? 1 : 2)]}" stroke="#7a6a4a"/><circle cx="${x + 6}" cy="${y + 26}" r="1.5" fill="#7a5a3a"/>${(x + r * 3) % 5 === 0 ? `<path d="M${x + 6},${y + 32} v6" stroke="#a83a2a" stroke-width="2"/>` : ''}` : `<rect x="${x}" y="${y + 10}" width="10" height="24" fill="${['#6e2a22', '#2f4a3a', '#7a5a2a', '#33405e'][(x + r) & 3]}"/>`; } return s; },
   pigeonhole: () => { let s = `<rect x="-40" y="-170" width="80" height="60" fill="#5a3a1e" stroke="#2a180a" stroke-width="2"/>`; for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) s += `<rect x="${-36 + c * 19}" y="${-166 + r * 19}" width="15" height="15" fill="#1a1008"/>`; return s; },
   niche: () => `<path d="M-36,-40 V-120 A36,36 0 0 1 36,-120 V-40Z" fill="#000" opacity=".5"/><path d="M-36,-40 h72" stroke="#fff" opacity=".2" stroke-width="3"/>`,
-  sockets: () => [-40, 0, 40].map(x => `<circle cx="${x}" cy="-170" r="9" fill="#0a0806" stroke="#8a7a5a" stroke-width="3"/>`).join(''),
+  // three sockets in a row; the sceptre, if the game has it fixed in one, projects from it like a handle
+  sockets: (fixed = -1, y = -170) => [-40, 0, 40].map((x, i) => `<circle cx="${x}" cy="${y}" r="9" fill="#0a0806" stroke="#8a7a5a" stroke-width="3"/>` + (i === fixed ? `<path d="M${x},${y} l10,22" stroke="#7a5a10" stroke-width="7" stroke-linecap="round"/><path d="M${x},${y} l10,22" stroke="#e8c040" stroke-width="4" stroke-linecap="round"/><circle cx="${x + 11}" cy="${y + 24}" r="5.5" fill="#f0d060" stroke="#7a5a10"/><circle cx="${x}" cy="${y}" r="3" fill="#c8a030"/>` : '')).join(''),
   stained: (theme, w = 70) => { let s = `<path d="M${-w / 2},-30 V-150 Q${-w / 2},-200 0,-212 Q${w / 2},-200 ${w / 2},-150 V-30Z" fill="#111"/>`; const cols = ['#b8323a', '#2a5ab0', '#d8a830', '#3a8a5a', '#8a3ab0']; for (let r = 0; r < 9; r++) for (let c = 0; c < 3; c++) { const x = -w / 2 + 5 + c * (w - 10) / 3, y = -196 + r * 18; if (y < -186 && c !== 1) continue; s += `<rect x="${f1(x)}" y="${y}" width="${f1((w - 14) / 3)}" height="16" fill="${cols[(r * 3 + c * 2 + w) % 5]}" opacity=".85"/>`; } if (theme === 'star') s += `<path d="M0,-180 l4,10 h10 l-8,6 l3,10 l-9,-6 l-9,6 l3,-10 l-8,-6 h10z" fill="#fff4b0"/>`; else if (theme === 'rise') s += `<path d="M-8,-60 l4,-70 q4,-8 8,0 l4,70z M-20,-120 l20,-12 l20,12" fill="#fff4d0" stroke="#fff4d0" stroke-width="3" opacity=".9"/><circle cx="0" cy="-146" r="8" fill="#fff4d0"/>`; s += `<path d="M${-w / 2},-30 V-150 Q${-w / 2},-200 0,-212 Q${w / 2},-200 ${w / 2},-150 V-30Z" fill="none" stroke="#2a2830" stroke-width="5"/>`; return s; },
   window: (storm, narrow) => { const w = narrow ? 26 : 50; return `<rect x="${-w / 2}" y="-200" width="${w}" height="80" fill="${storm ? '#1a2030' : '#26324a'}" stroke="#1a120b" stroke-width="4"/>${storm ? Array.from({ length: 8 }, (_, i) => `<line x1="${-w / 2 + 3 + i * w / 8}" y1="-196" x2="${-w / 2 + i * w / 8}" y2="-124" stroke="#8aa0c0" stroke-width=".8" opacity=".6"/>`).join('') + `<path d="M${w / 6},-198 l-6,24 h6 l-8,22" stroke="#e8f0ff" stroke-width="1.5" fill="none" opacity=".7"/>` : ''}<line x1="0" y1="-200" x2="0" y2="-120" stroke="#1a120b" stroke-width="2"/>`; },
   skylight: () => `<rect x="-50" y="-214" width="100" height="26" fill="#d8dcd0" opacity=".85" stroke="#2a2a26" stroke-width="3"/><path d="M-16,-214v26M18,-214v26" stroke="#2a2a26" stroke-width="2"/><polygon points="-50,-188 50,-188 110,0 -90,0" fill="#e8ecd8" opacity=".06"/>`,
@@ -3828,6 +3876,14 @@ const FEAT = [
   ['painted writings|dull painted writings', 'band', .8, () => WS.writings(), 'writings'],
   ['painted scenes', 'band', .9, () => WS.scenes(), 'scenes'],
   ['glass ornaments', 'band', .9, () => [-120, -70, -20, 30, 80, 130].map((x, i) => `<circle cx="${x}" cy="-70" r="7" fill="${['#3ab0a0', '#d0508a', '#e8c040', '#5a8ad8'][i % 4]}" opacity=".85"/><circle cx="${x - 2}" cy="-72" r="2" fill="#fff" opacity=".7"/>`).join(''), 'ornaments'],
+  ['curious sockets|sockets', 'wall:west', .34, (m, ctx) => {
+    const st = ctx.h.st, t = ctx.rd.t, ord = ['first', 'second', 'third'];
+    const lk = /projects from the (first|second|third) socket/.exec(t);
+    const fixed = st.known && st.here('sceptre') ? ord.findIndex(o => (st.link('sceptre') || '').startsWith(o)) : lk ? ord.indexOf(lk[1]) : -1;
+    if (!/above a painting of a priest/.test(t)) return WS.sockets(fixed);
+    ctx.doneF.add('painting');
+    return WS.sockets(fixed, -204) + `<g transform="translate(0 34) scale(.8)">${WS.painting(70, 110, 'priest')}</g>`;
+  }, 'sockets'],
   ['painting of a priest', 'wall', .34, () => WS.painting(70, 110, 'priest'), 'painting'],
   ['still life', 'wall:side', .5, () => WS.painting(150, 64, 'still'), 'still life'],
   ['posters', 'walls', .7, () => WS.posters(), 'posters'],
@@ -3838,7 +3894,6 @@ const FEAT = [
   ['narrow dark windows|windows are high|high windows|windows', 'wall', .16, (m, ctx) => WS.window(ctx.rd.has('storm'), /narrow/.test(m)), 'windows', 2],
   ['skylight', 'wall', .34, () => WS.skylight(), 'skylight'],
   ['niche', 'wall', .3, () => WS.niche(), 'niche', 1, { surf: [0, -40] }],
-  ['curious sockets|sockets', 'wall:west', .34, () => WS.sockets(), 'sockets'],
   ["ship's wheel|eight-spoked", 'wall:northwest', .34, () => S.shipwheel(), 'wheel'],
   ['torches bracketed|flaming torches', 'torches', 0, () => WS.torch(), 'torches'],
   ['decorated with bones', 'band', .9, () => WS.bones(), 'bones'],
@@ -3875,8 +3930,21 @@ const FEAT = [
   ['one table|on the table|tables?|a table', 'floor', .32, () => S.table(), 'table', 1, { d: .4, surf: [0, -52] }],
   ['couch', 'floor', .34, () => S.couch(), 'couch', 1, { d: .5 }],
   ['a bed|bed is', 'floor', .4, () => S.bed(), 'bed', 1, { d: .5 }],
-  ['statue of (?:the )?(?:god(?:dess)? )?\\w+|marble statue of \\w+', 'floor', .26, (m, ctx) => S.statue(m, ctx.rd.has('tall')), 'statue', 1, { d: .42, label: m => m.replace(/^.*statue of (the )?(god(dess)? )?/, '') }],
-  ['headless adamantine statue|knight on a tomb', 'floor', .6, () => S.tombKnight(), 'knight', 1, { d: .45 }],
+  ['statue of (?:the )?(?:god(?:dess)? )?\\w+|marble statue of \\w+', 'floor', .26, (m, ctx) => S.statue(m, ctx.rd.has('tall'), ctx.h.st.inside('statue of diana').some(n => /rose|flower/i.test(n)) || /flower is placed .* in her hair/.test(ctx.rd.t)), 'statue', 1, { d: .42, label: m => m.replace(/^.*statue of (the )?(god(dess)? )?/, '') }],
+  ['headless adamantine statue|knight on a tomb', 'floor', .6, (m, ctx) => {
+    const st = ctx.h.st, t = ctx.rd.t, f = st.fitted('adamantine statue');
+    // once he has leapt up, only the tomb is left
+    if (st.known && !st.here('adamantine statue')) return S.tombKnight({ gone: true });
+    return S.tombKnight({ hand: f.includes('adamantine hand') || /hand outstretched/.test(t), skull: f.includes('adamantine skull') || (/adamantine statue/.test(t) && !/headless/.test(t)), heart: f.includes('adamantine heart') || /heart in his ribcage/.test(t) });
+  }, 'knight', 1, { d: .45 }],
+  // the square opening in the Labyrinth floor, and the inscribed stone wedged across it
+  ['opening in the floor|opening is securely wedged', 'floor', .34, (m, ctx) => {
+    const st = ctx.h.st, wedged = (st.known && st.here('inscribed stone')) || /wedged with the stone/.test(ctx.rd.t);
+    let s = `<path d="M-40,0 L-28,-22 H28 L40,0Z" fill="#0a0806" stroke="#5a4a34" stroke-width="2"/>`;
+    if (wedged) s += `<path d="M-46,2 L-32,-26 H32 L46,2Z" fill="#b8b0a0" stroke="#6a6458" stroke-width="2"/><path d="M-26,-16 h12 M-8,-16 h20 M-30,-8 h18 M-6,-8 h26" stroke="#5a5448" stroke-width="2"/>`;
+    if (ctx.rd.has('inscriptions')) s += `<g opacity=".55">${[-90, -76, 64, 80].map((x, i) => `<path d="M${x},-6 l4,-10 l4,10 M${x + 2},-2 h8" stroke="#3a3024" stroke-width="1.6" fill="none" transform="translate(0 ${i % 2 * 6})"/>`).join('')}</g>`;
+    return s;
+  }, 'opening', 1, { d: .3 }],
   ['sphinxes|sphinx', 'sphinxes', 0, null, 'sphinxes'],
   ['altar stone|altar', 'floor', .34, (m, ctx) => S.altar(ctx.rd.has('flaming')), 'altar', 1, { d: .5 }],
   ['mummy case|sarcophagus, rests|gold and blue', 'floor', .6, () => S.mummy(), 'mummy case', 1, { d: .55 }],
@@ -4544,14 +4612,18 @@ const MOOD = { darkness: 'dark', attic: 'house', interior: 'house', cellar: 'dar
 // Without state (e.g. a preview) every object counts as present in its default condition.
 function makeState(s) {
   const lc = a => (a || []).map(x => String(x).toLowerCase());
-  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], sig: '' };
+  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], link: () => '', fitted: () => [], sig: '' };
   const here = lc(s.here), open = lc(s.open), carried = lc(s.carried);
   const m = (arr, w) => arr.some(n => n.includes(w.toLowerCase()));
   const on = lc(s.on), ins = s.inside || {};
   // switched on; what lies inside something (by part of its name)
   const isOn = w => m(on, w);
-  const inside = w => { const k = Object.keys(ins).find(n => n.toLowerCase().includes(w.toLowerCase())); return k ? ins[k] : []; };
-  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside };
+  const byKey = (o, w, d) => { const k = Object.keys(o || {}).find(n => n.toLowerCase().includes(w.toLowerCase())); return k ? o[k] : d; };
+  const inside = w => byKey(ins, w, []);
+  // the socket a thing is fixed in; the parts fitted to a thing
+  const link = w => byKey(s.links, w, '');
+  const fitted = w => byKey(s.fitted, w, []);
+  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside, link, fitted };
 }
 
 let uid = 0;
@@ -5839,7 +5911,7 @@ function musicByDefault() {
 function startGame(bytes, resume, opts) {
   if (S.previewTimer) S.previewTimer();
   setTimeout(musicByDefault, 0);
-  S.bytes = bytes;
+  S.bytes = bytes; S.objIds = null;
   const info = storyInfo(bytes);
   S.serial = info.id;
   $('#start').hidden = true; $('#game').hidden = false;
@@ -6215,7 +6287,11 @@ function addEdge(a, b, dir) {
 function saveMap() { LS.set('zp:map:' + S.serial, JSON.stringify(S.map)); }
 
 // ---------- room state for the illustrations (read from the object tree, not from the text) ----------
-const ATTR = { '16-951024': { open: 14, light: 9, container: 3, transparent: 23, moved: 12, on: 13 } };   // Curses release 16
+const ATTR = { '16-951024': { open: 14, light: 9, container: 3, transparent: 23, moved: 12, on: 13,
+  // property 23 of a thing names the socket it is fixed in (the sceptre in the burial chamber)
+  link: 23,
+  // parts that vanish from the object tree once they are fitted to something in the room (attribute 8)
+  fitted: { 'adamantine statue': ['adamantine hand', 'adamantine skull', 'adamantine heart'] }, fittedAttr: 8 } };   // Curses release 16
 // Can the player see inside object o? Only open or transparent containers show their contents.
 function contentsVisible(o) {
   const at = ATTR[S.serial], zm = S.zm;
@@ -6391,6 +6467,12 @@ function findLocation(name) {
   S.locCache = S.locCache || {}; if (best) S.locCache[name] = best;
   return best;
 }
+// an object's number by its name in the story file (looked up once)
+function objByName(n) {
+  const zm = S.zm, c = S.objIds = S.objIds || {};
+  if (!(n in c)) { c[n] = 0; for (let o = 1; o < 600; o++) { let nm = ''; try { nm = zm.objName(o); } catch (e) { break; } if (nm === n) { c[n] = o; break; } } }
+  return c[n];
+}
 function roomState(name) {
   const zm = S.zm;
   if (!zm) return null;
@@ -6398,21 +6480,23 @@ function roomState(name) {
     const loc = findLocation(name);
     if (!loc) return null;
     const at = ATTR[S.serial];
-    const here = [], open = [], carried = [], on = [], inside = {};
+    const here = [], open = [], carried = [], on = [], inside = {}, links = {}, fitted = {};
     const isPlayer = o => /^(yourself|self|you|player)$/i.test(zm.objName(o));
     const walk = (o, into, depth) => {
       for (let c = zm.child(o), n = 0; c && n < 200; c = zm.sibling(c), n++) {
         const nm = zm.shownName(c);
         if (isPlayer(c)) { walk(c, carried, depth + 1); continue; }
         const hid = false; // contents of open containers show as faint shapes until the text mentions them
+        if (nm && at && at.link && into === here && zm.findProp(c, at.link)) { const v = zm.getProp(c, at.link); if (v > 0 && v < 1024 && /socket/i.test(zm.objName(v))) links[nm] = zm.shownName(v); }
+        if (nm && at && at.fitted && at.fitted[zm.objName(c)]) fitted[nm] = at.fitted[zm.objName(c)].filter(pn => { const o = objByName(pn); return o && !zm.parent(o) && zm.testAttr(o, at.fittedAttr); });
         if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
         if (depth < 4 && contentsVisible(c) && !hid) walk(c, into, depth + 1);
       }
     };
     walk(loc, here, 0);
     const roomKey = zm.objName(loc), known = k => mentionedIn(roomKey, k);
-    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
-    return { here, open, carried, on, inside, mentioned: known, sig };
+    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + JSON.stringify(links) + JSON.stringify(fitted) + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
+    return { here, open, carried, on, inside, links, fitted, mentioned: known, sig };
   } catch (e) { return null; }
 }
 

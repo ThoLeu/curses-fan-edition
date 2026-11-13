@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-12-1944 – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
+26-11-12-2001 – Gegenstände verändern Räume: sieben Szenen
 
 ## Ältere Versionen
 
+- [26-11-12-1944](archiv/26-11-12-1944.html) – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
 - [26-11-12-1940](archiv/26-11-12-1940.html) – Projektor wirft die ganze Tarotkarte, leicht durchscheinend
 - [26-11-12-1936](archiv/26-11-12-1936.html) – Diaprojektor zeigt das eingelegte Dia; Strahl im Observatorium
-- [26-11-12-1924](archiv/26-11-12-1924.html) – Titelbild zentriert; Hinweise in eckigen Klammern werden nicht vorgelesen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -121,6 +121,16 @@ Das Projekt ist in einem langen Gespräch zwischen dem Projektinhaber und Claude
 - Souvenirs Room: Die Südwand zeigt jetzt, was der Projektor tatsächlich wirft – dunkel, wenn er aus ist, weißes Licht ohne Dia, und sonst das Bild im Schlitz: die jeweilige Tarotkarte (ganz und hochkant, leicht durchscheinend wie ein Dia), die Miniatur der Folly (hochkant, so groß wie eine Spielkarte) oder die Skizze des Palasts von Alexandria (quer), alle leicht durchscheinend. Nach dem Drehen am Rad schießt der Strahl rückwärts aus dem Projektor.
 - Disused Observatory: Der Strahl kommt von Süden, trifft die Glaskugel und fällt auf das Tierkreiszeichen, das der Text nennt.
 - Dafür kennen die Bilder jetzt auch, was eingeschaltet ist und was in einem Behälter steckt.
+
+### 20. Gegenstände verändern Räume (13. November 2026)
+Sieben weitere Räume zeigen jetzt, was der Spieler darin bewirkt hat. Gezeichnet wird nur, was das Spiel zuvor beschrieben hat:
+- Infinity Symbol: die Stäbe in den Halterungen des Bogens, die kugelförmige Öffnung und das goldene Licht, sobald die Kugel darin liegt.
+- West Side Chapel: Hand, Schädel und Herz am Ritter; ist er erwacht, bleibt nur das Grab.
+- Quite an Undertaking: das Zepter in der jeweiligen Halterung, über dem Gemälde des Priesters.
+- Necropolis: das Steingesicht, der Bernstein in seinem Mund und die Stufen hinab.
+- Cross Centre: die Öffnung im Boden und der Stein, der sie verschließt.
+- East Side Chapel: die Marmorrose im Haar der Diana.
+- Parish Church: der geöffnete Moonstone mit dem Kristalltor.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

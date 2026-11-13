@@ -368,7 +368,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1924</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-1944</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1924</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-1944</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2152,6 +2152,16 @@ h.add(h.open('mural'));   add(`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="#1e
   add(`<polygon points="214,250 226,170 238,250" fill="#3a3a40"/><line x1="226" y1="250" x2="200" y2="258" stroke="#3a3a40" stroke-width="4"/><line x1="226" y1="250" x2="252" y2="258" stroke="#3a3a40" stroke-width="4"/><rect x="216" y="162" width="20" height="10" fill="#4a4a52"/>`);
   if (h.st.here('glass ball')) h.glow(226, 140, 56, '#cfe6ff', .55);
   if (h.st.here('glass ball')) add(h.tag('glass ball', `<circle cx="226" cy="142" r="20" fill="${h.rad('ball', [[0, '#ffffff'], [.5, '#b8d4f0'], [1, '#5a7aa8']], .35, .3, .8)}" opacity=".92"/><ellipse cx="219" cy="134" rx="6" ry="4" fill="#fff" opacity=".8"/>`));
+  // the projector's beam from the south, bent by the glass ball onto one sign of the mural
+  const od = (h.desc || '').toLowerCase();
+  const bm = /beam of white light runs into the room/.test(od) || (h.st.known && h.st.mentioned && h.st.mentioned('beam') && h.st.isOn && false);
+  if (bm && h.st.here('glass ball')) {
+    const names = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
+    const sm = /at the sign of (\w+)/.exec(od); const si = sm ? names.indexOf(sm[1]) : -1;
+    const ang = -Math.PI / 2 + (si >= 0 ? si : 9) * Math.PI / 6 + Math.PI / 12, tx = cx + Math.cos(ang) * (rr - 9), ty = cy + Math.sin(ang) * (rr - 9);
+    add(h.tag('beam', `<polygon points="150,260 176,260 228,146 222,140" fill="#ffffff" opacity=".35"/><line x1="163" y1="260" x2="225" y2="143" stroke="#fff" stroke-width="2.5" opacity=".9"/><line x1="226" y1="142" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#fff" stroke-width="2" opacity=".9"/>`));
+    h.glow(tx, ty, 22, '#ffffff', .8);
+  }
   if (!h.st.here('smoke detector')) add(`<rect x="106" y="28" width="28" height="8" fill="#1a1612"/>`);
 } };
 
@@ -2202,9 +2212,28 @@ B['Souvenirs Room'] = { cat: 'interior', draw(h) {
   add(`<rect width="400" height="260" fill="#1c140e"/>`);
   // whitewashed south wall (we look at it), lit by the slide projector
   add(`<rect x="70" y="40" width="260" height="160" fill="${lin('w', [[0, '#d8d4c8'], [1, '#b8b2a4']])}"/><polygon points="0,0 70,40 70,200 0,260" fill="#2a1e14"/><polygon points="400,0 330,40 330,200 400,260" fill="#241a12"/><polygon points="70,200 330,200 400,260 0,260" fill="#3a2a1c"/><polygon points="0,0 400,0 330,40 70,40" fill="#16100a"/>`);
-  add(`<rect x="140" y="62" width="120" height="84" fill="#fff8dc" opacity=".9"/><rect x="146" y="68" width="108" height="72" fill="${lin('slide', [[0, '#7ab0e0'], [.6, '#f2d8a0'], [1, '#e89a5a']])}"/><path d="M146,140 L180,104 L200,120 L226,96 L254,140Z" fill="#5a7a5a" opacity=".85"/><circle cx="232" cy="84" r="8" fill="#fff4c0"/>`);
+  // what the projector throws onto the south wall: nothing, white light, or the picture in its slot
+  const st = h.st, dd = (h.desc || '').toLowerCase();
+  const on = st.known ? st.isOn('projector') : /wall is lit up|south wall displays/.test(dd);
+  const slide = st.known ? (st.inside('projector')[0] || '') : '';
+  const CU = root.ZClose || (typeof require === 'function' ? (() => { try { return require('./closeup.js'); } catch (e) { return null; } })() : null);
+  const cardText = { 'ace of cups': 'crystal-glass cups and glasses', fool: 'steps off the edge of a cliff', maiden: 'andromeda chained to a rock', castle: 'a stone castle on a hill', star: 'a single bright light in the darkness', 'grim reaper': 'hood, scythe, skeleton', 'drowned sailor': 'pearls that were his eyes', 'crescent moon': 'some kind of crescent moon, an old druidical symbol', 'eight of wands': 'nothing special about the eight of wands', 'madame sosostris': 'She has a bad cold, but nevertheless' };
+  if (on) {
+    h.glow(200, 104, 150, '#fff8dc', .35);
+    add(`<rect x="120" y="54" width="160" height="104" fill="#fffbe8" opacity=".95"/>`);
+    const sl = slide.toLowerCase(), key = Object.keys(cardText).find(k => sl.startsWith(k));
+    let pic = '';
+    if (key && CU) { const c = CU.find(cardText[key]); if (c) pic = `<g opacity=".78"><svg x="167" y="56" width="66" height="100" viewBox="0 0 200 320">${c.svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '').replace(/filter="url\(#[^)]*\)"/g, '')}</svg></g><rect x="167" y="56" width="66" height="100" fill="#fff8e0" opacity=".14"/>`; }
+    else if (/miniature/.test(sl)) pic = `<g opacity=".8"><rect x="171" y="56" width="58" height="100" fill="#a8803a"/><rect x="175" y="60" width="50" height="92" fill="#a8c8e0"/><path d="M175,152 V112 Q196,96 214,104 L225,108 V152Z" fill="#6a8a4a"/><path d="M182,112 l22,-6 l14,10 l-36,4z" fill="#7a6a5a"/><rect x="193" y="70" width="14" height="40" fill="#9a8a78"/>${[193, 198, 203].map(x => `<rect x="${x}" y="66" width="4" height="5" fill="#9a8a78"/>`).join('')}<path d="M197,80 l3,8 M201,92 l-3,6" stroke="#5a4a3a" stroke-width="1"/></g><rect x="171" y="56" width="58" height="100" fill="#fff8e0" opacity=".14"/>`;
+    else if (/sketch/.test(sl)) pic = `<g opacity=".8"><rect x="128" y="58" width="144" height="96" fill="#ece6d6"/><g stroke="#3a3430" stroke-width="1.4" fill="none"><path d="M140,140 h120 M146,140 V104 h108 V140 M140,104 h120 l-60,-24z"/>${Array.from({ length: 9 }, (_, k) => `<path d="M${152 + k * 12},106 v32"/>`).join('')}<path d="M194,140 v-18 h12 v18"/></g></g><rect x="128" y="58" width="144" height="96" fill="#fff8e0" opacity=".14"/>`;
+    if (pic) add(st.mentioned && st.mentioned(slide) ? h.tag(slide, pic) : pic);
+  } else add(`<rect x="120" y="54" width="160" height="104" fill="#000" opacity=".08"/>`);
+
   // projector on a stack of boxes, beam to the wall
-  add(`<polygon points="200,214 140,62 260,62" fill="#fff4c8" opacity=".08"/>`);
+  if (on) add(`<polygon points="200,214 120,54 280,54" fill="#fff4c8" opacity=".08"/>`);
+  // the dial turned: a sharp beam runs backward out of the projector, through the north doorway
+  if (on && (/beam of white light points directly backward/.test(dd) || (st.mentioned && st.mentioned('beam') && st.mentioned('backward')))) add(h.tag('beam', `<polygon points="198,212 202,212 232,260 168,260" fill="#ffffff" opacity=".5"/><line x1="200" y1="212" x2="200" y2="260" stroke="#fff" stroke-width="3" opacity=".8"/>`));
+
   crate(h, 160, 252, 70, 26, '#5a4028');
   add(`<rect x="178" y="206" width="44" height="20" rx="3" fill="#3a3a40"/><circle cx="200" cy="212" r="7" fill="#1a1a20" stroke="#6a6a70"/><circle cx="200" cy="212" r="3" fill="#fff4c8"/><circle cx="186" cy="202" r="7" fill="#2a2a30" stroke="#555"/><circle cx="214" cy="202" r="7" fill="#2a2a30" stroke="#555"/>`);
   // souvenirs and holiday snaps: boxes and stacks of photos
@@ -4515,10 +4544,14 @@ const MOOD = { darkness: 'dark', attic: 'house', interior: 'house', cellar: 'dar
 // Without state (e.g. a preview) every object counts as present in its default condition.
 function makeState(s) {
   const lc = a => (a || []).map(x => String(x).toLowerCase());
-  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, sig: '' };
+  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], sig: '' };
   const here = lc(s.here), open = lc(s.open), carried = lc(s.carried);
   const m = (arr, w) => arr.some(n => n.includes(w.toLowerCase()));
-  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w) };
+  const on = lc(s.on), ins = s.inside || {};
+  // switched on; what lies inside something (by part of its name)
+  const isOn = w => m(on, w);
+  const inside = w => { const k = Object.keys(ins).find(n => n.toLowerCase().includes(w.toLowerCase())); return k ? ins[k] : []; };
+  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside };
 }
 
 let uid = 0;
@@ -6182,7 +6215,7 @@ function addEdge(a, b, dir) {
 function saveMap() { LS.set('zp:map:' + S.serial, JSON.stringify(S.map)); }
 
 // ---------- room state for the illustrations (read from the object tree, not from the text) ----------
-const ATTR = { '16-951024': { open: 14, light: 9, container: 3, transparent: 23, moved: 12 } };   // Curses release 16
+const ATTR = { '16-951024': { open: 14, light: 9, container: 3, transparent: 23, moved: 12, on: 13 } };   // Curses release 16
 // Can the player see inside object o? Only open or transparent containers show their contents.
 function contentsVisible(o) {
   const at = ATTR[S.serial], zm = S.zm;
@@ -6365,21 +6398,21 @@ function roomState(name) {
     const loc = findLocation(name);
     if (!loc) return null;
     const at = ATTR[S.serial];
-    const here = [], open = [], carried = [];
+    const here = [], open = [], carried = [], on = [], inside = {};
     const isPlayer = o => /^(yourself|self|you|player)$/i.test(zm.objName(o));
     const walk = (o, into, depth) => {
       for (let c = zm.child(o), n = 0; c && n < 200; c = zm.sibling(c), n++) {
         const nm = zm.shownName(c);
         if (isPlayer(c)) { walk(c, carried, depth + 1); continue; }
         const hid = false; // contents of open containers show as faint shapes until the text mentions them
-        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); }
+        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
         if (depth < 4 && contentsVisible(c) && !hid) walk(c, into, depth + 1);
       }
     };
     walk(loc, here, 0);
     const roomKey = zm.objName(loc), known = k => mentionedIn(roomKey, k);
-    const sig = here.join('|') + '#' + open.join('|') + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
-    return { here, open, carried, mentioned: known, sig };
+    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
+    return { here, open, carried, on, inside, mentioned: known, sig };
   } catch (e) { return null; }
 }
 
