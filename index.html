@@ -36,21 +36,24 @@ select{background:var(--panel2);border:1px solid var(--line);border-radius:8px;p
 .steps{list-style:none;margin:0 0 14px;padding:0}
 .steps li{display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #3a2c1e;padding:9px 0;font-size:15.5px}
 .steps li b{display:inline-grid;place-items:center;width:26px;height:26px;border:1.5px solid var(--acc);border-radius:50%;color:var(--acc);font-weight:normal;font-size:14px;flex:none}
-#drop{display:block;margin:14px 0 6px;border:2px dashed #7a5f3c;border-radius:12px;padding:18px 20px;cursor:pointer;transition:.2s;background:rgba(0,0,0,.12)}
+#start .playBox{margin:6px 0 18px}
+#start button.play{display:block;width:100%;font-size:22px;letter-spacing:.06em;padding:16px 20px;border-radius:12px;background:linear-gradient(180deg,#e8c47a,#c89a4a);color:#1a1208;border:0;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#start button.play:hover{filter:brightness(1.07)}#start button.play:disabled{opacity:.7;cursor:wait}
+#start .playNote{margin:8px 2px 0;font-size:13.5px;color:var(--dim)}
+#start .orLine{margin:16px 0 0;font-size:14px;color:#cbbd9c}#start .orLine small{color:var(--dim)}
+#drop{display:block;margin:8px 0 6px;border:2px dashed #7a5f3c;border-radius:12px;padding:12px 18px;cursor:pointer;transition:.2s;background:rgba(0,0,0,.12)}
 #drop.over,#drop:hover{border-color:var(--acc);background:rgba(210,168,90,.06)}
-#drop strong{display:block;font-weight:normal;font-size:18px}
+#drop strong{display:block;font-weight:normal;font-size:16px}
 #drop span{color:var(--dim);font-size:13.5px}
 #drop #detect{display:block;margin-top:8px;font-size:14px;color:#9fd0a8}
 #drop #detect.warn{color:#e8c88a}
 #fileInput{display:none}
 #detectBtns{margin:4px 0 8px}
 #startErr{color:#e89a8a}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-.tile{display:block;text-align:left;background:#1c1510;border:1px solid #4a3a28;border-radius:12px;padding:12px;cursor:pointer}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.tile{display:flex;flex-direction:column;justify-content:flex-start;text-align:left;background:#1c1510;border:1px solid #4a3a28;border-radius:12px;padding:12px;cursor:pointer}
 .tile:hover{border-color:#6a5236}
 .tile.sel{border-color:var(--acc);box-shadow:0 0 0 1px rgba(210,168,90,.35) inset}
-.tile .sw{display:block;height:50px;border-radius:7px;overflow:hidden;border:1px solid #3a2e22;margin-bottom:9px}
-.tile .sw svg{width:100%;height:100%;display:block}
 .tile b{display:block;font-weight:normal;font-size:16.5px}
 .tile small{display:block;color:var(--dim);font-size:13px;line-height:1.4;margin-top:3px}
 .quick{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 0;font-size:14px;color:var(--dim)}
@@ -364,18 +367,18 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1541</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1549</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
       <div class="rinfo"><div class="rk">Weiterspielen</div><h3 id="resumeRoom"></h3><div class="rmeta" id="resumeMeta"></div>
         <div class="rbtns"><button id="resumeBtn">▶ Weiterspielen</button><button id="freshBtn">Neues Spiel</button></div></div>
     </div>
-    <ol class="steps" id="startSteps">
-      <li><b>1</b><span>Lade <a href="https://ifarchive.org/if-archive/games/zcode/curses.z5" target="_blank" rel="noopener">curses.z5</a> kostenlos aus dem IF Archive <small>(<a href="https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt" target="_blank" rel="noopener">README des Autors</a>)</small> – oder <button type="button" id="archiveBtn" class="linkBtn">direkt von dort laden</button>.</span></li>
-      <li><b>2</b><span>Leg die Datei hier ab oder wähle sie aus.</span></li>
-      <li><b>3</b><span>Such die Karte. Und vielleicht noch etwas mehr.</span></li>
-    </ol>
+    <div class="playBox" id="playBox">
+      <button type="button" id="playBtn" class="play">▶ Spielen</button>
+      <p class="playNote">Lädt <i>curses.z5</i> kostenlos aus dem <a href="https://ifarchive.org/if-archive/games/zcode/" target="_blank" rel="noopener">IF Archive</a> · <a href="https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt" target="_blank" rel="noopener">README des Autors</a></p>
+    </div>
+    <p class="orLine" id="orLine">oder mit eigener Datei <small>(<a href="https://ifarchive.org/if-archive/games/zcode/curses.z5" target="_blank" rel="noopener">curses.z5 herunterladen</a>)</small></p>
     <label id="drop" for="fileInput">
       <strong id="dropTitle">curses.z5 hier ablegen</strong>
       <span>oder klicken, um die Datei auszuwählen</span>
@@ -384,10 +387,11 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
     <input type="file" id="fileInput" accept=".z3,.z4,.z5,.dat,.zblorb">
     <div id="detectBtns" hidden><button id="startAnyway">Trotzdem spielen</button></div>
     <p id="startErr" hidden></p>
+    <p class="orLine">Spielweise</p>
     <div class="tiles" id="styleTiles">
-      <button class="tile" data-style="illustrated"><span class="sw" id="swIll"></span><b>Illustriert</b><small>Raumbilder, Musik, Karte und Inventar.</small></button>
-      <button class="tile" data-style="classic"><span class="sw"><svg viewBox="0 0 120 46" preserveAspectRatio="xMidYMid slice"><rect width="120" height="46" fill="#0a0700"/><text x="7" y="17" fill="#ffb000" font-family="monospace" font-size="8">&gt; examine attic</text><text x="7" y="30" fill="#ffb000" font-family="monospace" font-size="8" opacity=".75">The attics, full of</text><text x="7" y="41" fill="#ffb000" font-family="monospace" font-size="8" opacity=".5">low beams and…</text></svg></span><b>Klassisch</b><small>Wie 1993: nur Text, Leuchtschrift, keine Hilfen.</small></button>
-      <button class="tile" data-style="helpers"><span class="sw"><svg viewBox="0 0 120 46" preserveAspectRatio="xMidYMid slice"><rect width="120" height="46" fill="#1b1611"/><rect x="5" y="6" width="53" height="34" rx="4" fill="#2a2119"/><rect x="62" y="6" width="53" height="34" rx="4" fill="#22302a"/><rect x="10" y="12" width="40" height="3" fill="#a8997c"/><rect x="10" y="19" width="34" height="3" fill="#a8997c"/><rect x="10" y="26" width="38" height="3" fill="#a8997c"/><rect x="67" y="12" width="40" height="3" fill="#8fb0a0"/><rect x="67" y="19" width="36" height="3" fill="#8fb0a0"/><rect x="67" y="26" width="30" height="3" fill="#8fb0a0"/><text x="10" y="37" fill="#eadfc6" font-family="Georgia" font-size="6">EN</text><text x="67" y="37" fill="#cfe6dc" font-family="Georgia" font-size="6">DE</text></svg></span><b>Mit Hilfen</b><small>Übersetzungsspalte, deutsche Befehle, Hinweise.</small></button>
+      <button class="tile" data-style="illustrated"><b>Illustriert</b><small>Raumbilder, Musik, Karte und Inventar.</small></button>
+      <button class="tile" data-style="classic"><b>Klassisch</b><small>Wie 1993: nur Text, Leuchtschrift, keine Hilfen.</small></button>
+      <button class="tile" data-style="helpers"><b>Mit Hilfen</b><small>Übersetzungsspalte, deutsche Befehle, Hinweise.</small></button>
     </div>
     <div class="quick">
       <label>Sprache <select id="startLang"><option value="de">Deutsch</option><option value="en">English</option></select></label>
@@ -403,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1541</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1549</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -554,6 +558,8 @@ const EN = {
   'Ein Textadventure von Graham Nelson · 1993': 'A text adventure by Graham Nelson · 1993',
   'Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.': 'An attic, a lost map of Paris and a family curse.', 'Der Dachboden von Meldrew Hall': 'The attic of Meldrew Hall',
   'Lade': 'Download', 'kostenlos aus dem IF Archive.': 'for free from the IF Archive.', 'kostenlos aus dem IF Archive': 'for free from the IF Archive', '– oder': '– or', 'Leg die Datei hier ab oder wähle sie aus.': 'Drop the file here or choose it.', 'Such die Karte. Und vielleicht noch etwas mehr.': 'Look for the map. And perhaps a little more.',
+  '▶ Spielen': '▶ Play', 'Spielweise': 'How to play', 'Lädt': 'Loads', 'kostenlos aus dem': 'for free from the', 'oder mit eigener Datei': 'or with your own file', 'curses.z5 herunterladen': 'download curses.z5',
+  'Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link „curses.z5 herunterladen“ herunter und leg sie hier ab.': 'Loading directly did not work here: the browser or the IF Archive does not allow it from this page. Download the file with the link below and drop it here.',
   'curses.z5 hier ablegen': 'Drop curses.z5 here', 'Andere Story-Datei laden': 'Load another story file', 'oder klicken, um die Datei auszuwählen': 'or click to choose the file',
   'Illustriert': 'Illustrated', 'Raumbilder, Musik, Karte und Inventar.': 'Room pictures, music, map and inventory.', 'Klassisch': 'Classic', 'Wie 1993: nur Text, Leuchtschrift, keine Hilfen.': 'Like 1993: text only, glowing letters, no aids.',
   'Mit Hilfen': 'With aids', 'Übersetzungsspalte, deutsche Befehle, Hinweise.': 'Translation column, German commands, hints.', 'Übersetzungsspalte': 'Translation column', '♫ Stimmung anhören': '♫ Hear the mood', '■ Hörprobe stoppen': '■ Stop the preview',
@@ -5947,7 +5953,7 @@ async function loadFromArchive(btn) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     handleBytes(new Uint8Array(await r.arrayBuffer()), 'curses.z5');
   } catch (e) {
-    showStartError(T('Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link in Schritt 1 herunter und leg sie hier ab.'));
+    showStartError(T('Direkt laden ging hier nicht – der Browser oder das IF Archive lässt es von dieser Seite aus nicht zu. Lade die Datei über den Link „curses.z5 herunterladen“ herunter und leg sie hier ab.'));
   } finally { btn.disabled = false; btn.textContent = old; }
 }
 function handleBytes(bytes, name) {
@@ -5974,7 +5980,6 @@ function initStart() {
   const plate = $('#startPic');
   plate.innerHTML = ZArt.scene('Attic', 'beams trapdoor light below', null, null).svg +
     '<div class="dust">' + Array.from({ length: 22 }, (_, k) => `<i style="left:${40 + Math.random() * 22}%;top:${25 + Math.random() * 65}%;animation-delay:${(Math.random() * 9).toFixed(1)}s"></i>`).join('') + '</div>';
-  $('#swIll').innerHTML = ZArt.scene('Old Winery', '', null, null).svg;
   const cached = LS.get('zp:story');
   if (cached) {
     try {
@@ -5982,7 +5987,7 @@ function initStart() {
       const auto = LS.get('zp:auto:' + info.id);
       const meta = JSON.parse(LS.get('zp:meta:' + info.id) || 'null');
       $('#resumeCard').hidden = false;
-      $('#startSteps').hidden = true;
+      $('#playBox').hidden = true;
       $('#dropTitle').textContent = T('Andere Story-Datei laden');
       if (auto && meta && meta.room) {
         const map = JSON.parse(LS.get('zp:map:' + info.id) || 'null');
@@ -6006,7 +6011,7 @@ function initStart() {
     } catch (e) {}
   }
   $('#fileInput').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-  { const ab = $('#archiveBtn'); if (ab) ab.onclick = () => loadFromArchive(ab); }
+  { const pb = $('#playBtn'); if (pb) pb.onclick = () => loadFromArchive(pb); }
   const dz = $('#drop');
   ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));

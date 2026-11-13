@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1541 – Inventar wie im Spiel
+26-11-13-1549 – Startbildschirm mit Spielen-Knopf
 
 ## Ältere Versionen
 
+- [26-11-13-1541](archiv/26-11-13-1541.html) – Inventar wie im Spiel
 - [26-11-13-1525](archiv/26-11-13-1525.html) – Breite Prüfung, Behälter und alle Lichtstrahlen
 - [26-11-13-1430](archiv/26-11-13-1430.html) – Die Spatzen
-- [26-11-13-1109](archiv/26-11-13-1109.html) – Neuer Titel: an illustrated interpreter
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -167,6 +167,9 @@ Die Inventarliste stammt jetzt vom Spiel selbst. Nach jedem Zug spielt der Inter
 - Tarotkarten und Stäbe erscheinen als aufklappbare Gruppen, wie das Spiel sie zusammenfasst. Volle Behälter wie der Rucksack lassen sich zuklappen. Die Zahl am Reiter zählt alle Gegenstände.
 - Das Menü beim Antippen schlägt nur noch vor, was nichts verrät: untersuchen, ablegen und das Rückgängigmachen eines angezeigten Zustands (ausziehen, ausschalten, öffnen, schließen).
 - Eigene Symbole für die Miniatur, den Holzbalken und das Papyrusfragment. Auch die Leiste „Hier abgelegt“ verwendet die Namen des Spiels.
+
+### 29. Aufgeräumter Startbildschirm (13. November 2026)
+Das Bild mit dem tanzenden Staub bleibt, die rechte Seite ist aufgeräumt. Oben steht jetzt ein großer Knopf „Spielen“: Er lädt curses.z5 direkt aus dem IF Archive und startet das Spiel. Darunter kommt als Alternative die eigene Datei, mit Link zum Herunterladen und Ablagefeld. Die drei Spielweisen (Illustriert, Klassisch, Mit Hilfen) stehen ohne die wenig aussagekräftigen Vorschaubilder darunter, die nummerierten Schritte sind entfallen. Mit einem gespeicherten Spiel erscheint statt des Knopfes wie bisher die Karte „Weiterspielen“.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

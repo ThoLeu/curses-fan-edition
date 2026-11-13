@@ -157,6 +157,8 @@ body[data-theme="paper"] #sheetMenu{background:#fbf4e4}
 .invItem .nm{font-size:14px}
 .invItem .tag{font-size:11px;color:var(--dim);font-style:italic;margin-left:4px}
 .invItem.stale{opacity:.55;border-style:dashed}
+.invItem .fold{width:14px;flex:none;color:var(--dim);font-size:13px;text-align:center;cursor:pointer}
+.invItem.grp .nm{font-style:italic}
 #trCol{display:grid;grid-template-rows:auto 1fr auto;min-height:0;border-right:1px solid var(--line);background:rgba(18,15,11,.55)}
 #trCol[hidden]{display:none!important}
 .trHead{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--line);background:rgba(20,16,12,.85);position:relative}
@@ -362,7 +364,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1109</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1541</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -401,7 +403,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1109</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1541</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -793,8 +795,8 @@ class ZMachine {
   seedRandom(seed) {
     if (!seed) { this.rngMode = 'random'; return; }
     this.rngMode = 'seeded';
-    let s = seed >>> 0 || 1;
-    this.rng = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+    this.rngS = seed >>> 0 || 1;
+    this.rng = () => { let s = this.rngS; s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; this.rngS = s; return s / 4294967296; };
   }
   rand() { return this.rngMode === 'seeded' ? this.rng() : Math.random(); }
 
@@ -1161,6 +1163,34 @@ class ZMachine {
     for (let i = 0; i < args.length && i < n; i++) locals[i] = args[i];
     this.frames.push({ retPC: this.pc, locals, store, argc: args.length, base: this.stack.length });
     this.pc = a;
+  }
+  // Play one command on the side (for example "inventory") and return what the game printed; everything,
+  // the story's memory, the undo history, the screen and the random numbers, is put back afterwards.
+  silentCommand(cmd, maxSteps = 3000000) {
+    if (this.state !== 'input') return null;
+    const keep = { snap: this.snapshot(), undo: this.undoStack.slice(), out: this.out, upper: JSON.stringify(this.upper), upperLines: this.upperLines, curWin: this.curWin, cursor: { ...this.cursor }, style: this.style, streams3: this.streams3.slice(), stream1: this.stream1, pendingRead: this.pendingRead, rngS: this.rngS, io: this.io };
+    this.out = []; this.io = {};
+    let text = '';
+    try { this.provideInput(cmd); this.run(maxSteps); text = this.out.map(o => o.text).join(''); } catch (e) { text = ''; }
+    this.applySnapshot(keep.snap); this.undoStack = keep.undo; this.out = keep.out; this.upper = JSON.parse(keep.upper); this.upperLines = keep.upperLines; this.curWin = keep.curWin;
+    this.cursor = keep.cursor; this.style = keep.style; this.streams3 = keep.streams3; this.stream1 = keep.stream1; this.pendingRead = keep.pendingRead; this.rngS = keep.rngS; this.io = keep.io; this.state = 'input';
+    return text;
+  }
+  // Run a routine of the story (for example an object's short_name) on the side and return what it printed
+  // and returned; the machine is put back exactly as it was afterwards.
+  callSilently(paddr, args = [], maxSteps = 200000) {
+    const snap = this.snapshot(), outSave = this.out, st0 = this.state;
+    this.out = []; this.state = 'run';
+    let ret = null, n = 0;
+    const depth = this.frames.length;
+    try {
+      this.call(paddr, args, -1);
+      if (this.frames.length > depth) this.frame().onReturn = v => { ret = v; };
+      while (this.frames.length > depth && n < maxSteps && this.state === 'run') { this.step(); n++; }
+    } catch (e) { ret = null; }
+    const text = this.out.map(o => o.text).join('');
+    this.applySnapshot(snap); this.out = outSave; this.state = st0;
+    return { ret, text, done: n < maxSteps };
   }
   ret(v) {
     const f = this.frames.pop();
@@ -1907,7 +1937,7 @@ h.add(h.open('trapdoor'));   if (h.st.open('trapdoor')) {
     h.add(`<rect x="${jx}" y="${jy - 14}" width="26" height="14" rx="2" fill="#7a2a3a" stroke="#c8a040" stroke-width="1.5"/><path d="M${jx},${jy - 14} q13,-10 26,0" fill="#8a3446" stroke="#c8a040" stroke-width="1.5"/><rect x="${jx + 11}" y="${jy - 10}" width="4" height="5" fill="#e8c860"/>${[0, 1, 2].map(i => `<path d="M${jx + 4 + i * 9},${jy - 20} l2,-4 l2,4 l-2,4z" fill="#fff8d0" opacity=".9"/>`).join('')}`);
   }
   // heavy teachests
-h.add(h.open('teachests'));   crate(h, 40, 236, 54, 40, '#6e4c2b'); crate(h, 70, 206, 40, 30, '#7a5532');
+h.add(h.open('teachests'));   crate(h, 40, 236, 54, 40, '#6e4c2b'); crate(h, 70, 206, 40, 30, '#7a5532'); h.add('</g>'); h.contents('teachest', 42, 210, 16, 13, 3); h.add(h.open('teachests') + '');
   crate(h, 300, 240, 58, 44, '#664527'); crate(h, 318, 200, 40, 30, '#6d4a2a'); h.add('</g>');
   if (!h.st.open('trapdoor')) torch(h, 200, 170, 160, .12);
 } };
@@ -2151,9 +2181,26 @@ h.add(h.open('mural'));   add(`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="#1e
   if (bm && h.st.here('glass ball')) {
     const names = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
     const sm = /at the sign of (\w+)/.exec(od); const si = sm ? names.indexOf(sm[1]) : -1;
-    const ang = -Math.PI / 2 + (si >= 0 ? si : 9) * Math.PI / 6 + Math.PI / 12, tx = cx + Math.cos(ang) * (rr - 9), ty = cy + Math.sin(ang) * (rr - 9);
-    add(h.tag('beam', `<polygon points="150,260 176,260 228,146 222,140" fill="#ffffff" opacity=".35"/><line x1="163" y1="260" x2="225" y2="143" stroke="#fff" stroke-width="2.5" opacity=".9"/><line x1="226" y1="142" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#fff" stroke-width="2" opacity=".9"/>`));
-    h.glow(tx, ty, 22, '#ffffff', .8);
+    const inBeam = `<polygon points="150,260 176,260 228,146 222,140" fill="#ffffff" opacity=".35"/><line x1="163" y1="260" x2="225" y2="143" stroke="#fff" stroke-width="2.5" opacity=".9"/>`;
+    if (/spins it about wildly/.test(od)) {
+      // the ball spins the light about like a strobe at a discotheque: short rays every way, flecks on the walls
+      let rays = ''; for (let i = 0; i < 16; i++) { const a2 = h.R(0, 6.28), l = h.R(40, 150); rays += `<line x1="226" y1="142" x2="${(226 + Math.cos(a2) * l).toFixed(1)}" y2="${(142 + Math.sin(a2) * l * .7).toFixed(1)}" stroke="#fff" stroke-width="${h.R(1, 2.4).toFixed(1)}" opacity="${h.R(.3, .9).toFixed(2)}"/>`; }
+      for (let i = 0; i < 30; i++) rays += `<circle cx="${h.R(10, 390).toFixed(0)}" cy="${h.R(40, 220).toFixed(0)}" r="${h.R(1.5, 4).toFixed(1)}" fill="#fff" opacity="${h.R(.3, .8).toFixed(2)}"/>`;
+      add(h.tag('beam', inBeam + rays)); h.glow(226, 142, 40, '#ffffff', .8);
+    } else if (/diffracts it into a beautiful spectrum/.test(od)) {
+      // diffracted into a beautiful spectrum across the ceiling
+      const cols = ['#ff4040', '#ff9a30', '#ffe040', '#50d050', '#40a0ff', '#6050e0', '#b050d0'];
+      add(h.tag('beam', inBeam + `<g opacity=".22">${cols.map((c, i) => `<polygon points="226,142 ${20 + i * 52},34 ${72 + i * 52},34" fill="${c}"/>`).join('')}</g><g opacity=".5">${cols.map((c, i) => `<rect x="${20 + i * 52}" y="2" width="52" height="32" fill="${c}"/>`).join('')}</g>`));
+      h.glow(226, 142, 30, '#ffffff', .8);
+    } else if (/yellow searchlight/.test(od)) {
+      // amplified into a powerful yellow searchlight which slowly turns about the room
+      add(h.tag('beam', inBeam + `<polygon points="226,142 20,40 70,10" fill="#ffe060" opacity=".45"/><polygon points="226,142 30,36 64,18" fill="#fff4b0" opacity=".5"/><path d="M60,120 A170,120 0 0 1 120,20" stroke="#ffe060" stroke-width="1.5" fill="none" stroke-dasharray="4 6" opacity=".6"/>`));
+      h.glow(46, 26, 60, '#ffe060', .7); h.glow(226, 142, 34, '#ffe880', .9);
+    } else {
+      const ang = -Math.PI / 2 + (si >= 0 ? si : 9) * Math.PI / 6 + Math.PI / 12, tx = cx + Math.cos(ang) * (rr - 9), ty = cy + Math.sin(ang) * (rr - 9);
+      add(h.tag('beam', inBeam + `<line x1="226" y1="142" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#fff" stroke-width="2" opacity=".9"/>`));
+      h.glow(tx, ty, 22, '#ffffff', .8);
+    }
   }
   if (!h.st.here('smoke detector')) add(`<rect x="106" y="28" width="28" height="8" fill="#1a1612"/>`);
 } };
@@ -2533,6 +2580,7 @@ B['The Octagon'] = { cat: 'interior', draw(h) {
     const open = h.st.known ? h.st.open('coffin', false) : /coffin rests open/i.test(h.desc), power = !open && (/throbbing with electric power/i.test(h.desc) || !!(h.st.mentioned && h.st.mentioned('throbbing')));
     if (open) h.add(h.tag('coffin', `<path d="M170,228 L190,212 L232,212 L246,228 L232,244 L190,244Z" fill="#8a6010" stroke="#6a4a08" stroke-width="2"/><path d="M178,228 L194,216 L228,216 L238,228 L228,240 L194,240Z" fill="#2a1a08"/><path d="M190,212 L198,186 L240,186 L232,212Z" fill="#d8a830" stroke="#8a6010" stroke-width="2"/><path d="M212,192 v14 M206,198 h12" stroke="#8a6010" stroke-width="2"/>`));
     else h.add(h.tag('coffin', `<path d="M170,228 L190,212 L232,212 L246,228 L232,244 L190,244Z" fill="#d8a830" stroke="#8a6010" stroke-width="2"/><path d="M200,220 v16 M194,226 h12" stroke="#8a6010" stroke-width="2"/>`));
+    if (open) h.contents('coffin', 196, 238, 16, 14, 3);
     if (power) { h.glow(208, 228, 46, '#a8d8ff', .6); h.add(`<path d="M172,222 l-10,-8 l6,-2 l-10,-10 M244,222 l10,-8 l-6,-2 l10,-10 M208,210 l-4,-12 l6,2 l-2,-12" stroke="#d8f0ff" stroke-width="1.6" fill="none"/>`); }
   }
   if (h.st.here('scroll')) h.add(h.tag('scroll', `<rect x="336" y="150" width="14" height="50" rx="5" fill="#f0e8d4" transform="rotate(8 343 175)"/><ellipse cx="346" cy="152" rx="9" ry="4" fill="#e8dcc0"/>`));
@@ -2661,15 +2709,18 @@ B['Summer House'] = { cat: 'garden', draw(h) {
   h.add(`<rect y="120" width="400" height="140" fill="${h.lin('wd', [[0, '#9a6a3a'], [1, '#6a4422']])}"/>`);
   for (let x = 0; x < 400; x += 20) h.add(`<line x1="${x}" y1="120" x2="${x}" y2="260" stroke="#4a2e16" opacity=".5"/>`);
   h.add(`<rect y="120" width="400" height="6" fill="#4a2e16"/>`);
-  // something golden hanging by a chain from a loose pane
-  if (h.st.here('gold watch')) {
+  // something golden hanging by a chain from a loose pane; once the sparrows have knocked it loose, it lies on the floor
+  if (h.st.here('gold watch') && h.st.moved('gold watch')) h.add(h.tag('gold watch', `<path d="M150,244 q10,-6 20,2 q6,6 -4,8" stroke="#c8a040" stroke-width="1.5" fill="none"/><ellipse cx="160" cy="246" rx="9" ry="4" fill="#e8c040" stroke="#a88010"/>`));
+  else if (h.st.here('gold watch')) {
   h.add(`<path d="M160,74 ${Array.from({ length: 8 }, (_, i) => `l${i % 2 ? 2 : -2},6`).join(' ')}" stroke="#c8a040" stroke-width="1.5" fill="none"/>`);
   h.glow(160, 128, 30, '#ffd86a', .7); h.add(`<circle cx="160" cy="128" r="8" fill="#e8c040" stroke="#a88010"/>`);
   }
   // croquet mallet standing by one wall
   if (h.st.here('mallet')) h.add(h.tag('mallet', `<rect x="320" y="150" width="5" height="90" fill="#c8a070"/><rect x="306" y="236" width="34" height="14" rx="3" fill="#7a3a2a"/><rect x="309" y="236" width="4" height="14" fill="#e8d050"/><rect x="333" y="236" width="4" height="14" fill="#e8d050"/>`));
-  // sparrows around the high gutter
-  for (let i = 0; i < 6; i++) { const x = h.R(20, 380), y = h.R(108, 118); h.add(`<ellipse cx="${x}" cy="${y}" rx="5" ry="3.5" fill="#7a5a3a"/><circle cx="${x + 4}" cy="${y - 3}" r="2.4" fill="#6a4a2a"/><path d="M${x + 6},${y - 3} l3,1 -3,1z" fill="#c8a040"/>`); }
+  // the sparrows: chirping around the high gutter, or startled and circling high in the sky above the glass roof
+  const calm = /sparrows chirp happily/i.test(h.desc), startled = /startled sparrows circle high/i.test(h.desc);
+  if (startled) h.add(h.tag('sparrows', Array.from({ length: 11 }, () => { const x = h.R(110, 290), y = h.R(8, 70), w = h.R(3, 6); return `<path d="M${x - w},${y - w * .5} q${w * .5},${w * .5} ${w},${w * .5} q${w * .5},0 ${w},${-w * .5}" stroke="#3a2a1e" stroke-width="1.6" fill="none"/>`; }).join('')));
+  else if (calm) h.add(h.tag('sparrows', Array.from({ length: 6 }, () => { const x = h.R(20, 380), y = h.R(108, 118); return `<ellipse cx="${x}" cy="${y}" rx="5" ry="3.5" fill="#7a5a3a"/><circle cx="${x + 4}" cy="${y - 3}" r="2.4" fill="#6a4a2a"/><path d="M${x + 6},${y - 3} l3,1 -3,1z" fill="#c8a040"/>`; }).join('')));
   h.glow(200, 60, 200, '#ffffff', .25);
 } };
 
@@ -3084,6 +3135,7 @@ B['White Hallway'] = { cat: 'interior', draw(h) {
   if (h.st.known && h.st.here('painting')) h.add(h.tag('painting', `<line x1="154" y1="80" x2="126" y2="96" stroke="#6a5a40"/><line x1="154" y1="80" x2="182" y2="96" stroke="#6a5a40"/><rect x="116" y="94" width="76" height="92" fill="#7a5a20" stroke="#c8a040" stroke-width="3"/><rect x="123" y="101" width="62" height="78" fill="#2e2418"/><path d="M134,179 Q138,146 154,140 Q170,146 174,179Z" fill="#4a2a24"/><ellipse cx="154" cy="128" rx="9" ry="11" fill="#c8a080"/><path d="M144,125 Q154,108 164,125" fill="#e8e0d0"/>`));
   // the elephant's foot umbrella stand beside the garden doorway
   h.add(h.open('umbrella stand') + `<path d="M216,196 q-2,-40 4,-46 h28 q6,6 4,46z" fill="#8a8480"/>${[0, 1, 2, 3].map(i => `<path d="M220,${160 + i * 9} q14,4 28,0" stroke="#6a6460" fill="none"/>`).join('')}<ellipse cx="234" cy="150" rx="14" ry="4" fill="#5a5450"/>${[0, 1, 2, 3].map(i => `<ellipse cx="${220 + i * 9}" cy="196" rx="4" ry="2" fill="#d8d0c4"/>`).join('')}` + '</g>');
+  h.contents('umbrella stand', 216, 152, 16, 14, 3);
   if (h.st.here('sceptre')) h.add(h.tag('sceptre', `<line x1="238" y1="150" x2="242" y2="118" stroke="#d8a830" stroke-width="3"/><circle cx="242" cy="116" r="4" fill="#e8c048"/>`));
 } };
 
@@ -3220,7 +3272,7 @@ B['Hedgery'] = { cat: 'garden', draw(h) {
   privet(h, '0,120 130,120 130,200 0,200', '#2a5226'); leafy(h, 30, 0, 130, 120, 200, ['#3a6a30']);
   h.add(h.open('summer house') + `<rect x="150" y="96" width="110" height="94" fill="#e8e0cc"/><polygon points="140,96 205,46 270,96" fill="#bcd0dc" stroke="#7a6a50" stroke-width="2"/><rect x="186" y="134" width="38" height="56" fill="#5a4a36"/>${[0, 1].map(i => `<rect x="${160 + i * 74}" y="112" width="18" height="24" fill="#a8c0d0" stroke="#8a7a60"/>`).join('')}<line x1="140" y1="96" x2="270" y2="96" stroke="#7a6a50" stroke-width="3"/>` + '</g>');
   // the sparrows around the gutters of the summer house
-  h.add(h.open('sparrows') + `${Array.from({ length: 9 }, (_, i) => { const x = 146 + i * 14 + h.R(-3, 3), y = 92 + h.R(-4, 2); return `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="2.6" fill="#7a5a3a"/><circle cx="${x + 2.5}" cy="${y - 2}" r="1.8" fill="#6a4a2e"/>`; }).join('')}<path d="M210,60 q4,-4 8,0 M228,52 q4,-4 8,0" stroke="#5a4028" stroke-width="1.5" fill="none"/>` + '</g>');
+  if (/sparrows/i.test(h.desc)) h.add(h.open('sparrows') + `${Array.from({ length: 9 }, (_, i) => { const x = 146 + i * 14 + h.R(-3, 3), y = 92 + h.R(-4, 2); return `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="2.6" fill="#7a5a3a"/><circle cx="${x + 2.5}" cy="${y - 2}" r="1.8" fill="#6a4a2e"/>`; }).join('')}<path d="M210,60 q4,-4 8,0 M228,52 q4,-4 8,0" stroke="#5a4028" stroke-width="1.5" fill="none"/>` + '</g>');
   privet(h, '280,120 330,120 330,200 280,200', '#2a5226');
   h.add(h.open('croquet lawn') + `<path d="M330,170 L400,160 L400,220 L330,214Z" fill="#7aaa52"/>` + '</g>');
   h.add(`<path d="M0,196 Q200,186 400,200 L400,260 L0,260Z" fill="#6a9a4a"/>`);
@@ -4707,7 +4759,7 @@ const MOOD = { darkness: 'dark', attic: 'house', interior: 'house', cellar: 'dar
 // Without state (e.g. a preview) every object counts as present in its default condition.
 function makeState(s) {
   const lc = a => (a || []).map(x => String(x).toLowerCase());
-  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], link: () => '', fitted: () => [], sig: '' };
+  if (!s) return { known: false, here: () => true, open: (w, d) => d !== false, carried: () => false, isOn: () => false, inside: () => [], link: () => '', fitted: () => [], moved: () => false, sig: '' };
   const here = lc(s.here), open = lc(s.open), carried = lc(s.carried);
   const m = (arr, w) => arr.some(n => n.includes(w.toLowerCase()));
   const on = lc(s.on), ins = s.inside || {};
@@ -4718,7 +4770,7 @@ function makeState(s) {
   // the socket a thing is fixed in; the parts fitted to a thing
   const link = w => byKey(s.links, w, '');
   const fitted = w => byKey(s.fitted, w, []);
-  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside, link, fitted };
+  return { known: true, mentioned: s.mentioned || null, hereList: s.here || [], moved: w => m(lc(s.moved), w), here: w => m(here, w), open: (w, d) => m(here, w) ? m(open, w) : d !== false, carried: w => m(carried, w), isOn, inside, link, fitted };
 }
 
 let uid = 0;
@@ -4757,7 +4809,13 @@ function scene(name, desc, catOverride, state) {
   const night = r() < .5;
   const st = makeState(state);
   const tag = (k, s) => `<g class="zi" data-k="${k}">${s}</g>`, open = k => `<g class="zi" data-k="${k}">`;
-  const h = { desc: desc || '', W, H, R, RI, r, add, lin, rad, glow, stars, moon, tree, cypress, ridge, has, id, st, tag, open };
+  // what the game says lies in a container: small icons in a row, starting at x, y (their bottom edge)
+  const contents = (container, x, y, size = 18, step = 20, max = 4) => {
+    const I = (typeof window !== 'undefined' && window.ZIcons) || (typeof require === 'function' ? (() => { try { return require('./icons.js'); } catch (e) { return null; } })() : null);
+    if (!I || !st || !st.known) return;
+    st.inside(container).slice(0, max).forEach((n, i) => { const body = I.icon(n).replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, ''); add(tag(n, `<g transform="translate(${x + i * step} ${y - size}) scale(${size / 40})">${body}</g>`)); });
+  };
+  const h = { desc: desc || '', W, H, R, RI, r, add, lin, rad, glow, stars, moon, tree, cypress, ridge, has, id, st, tag, open, contents };
   const BS = (root.ZBespoke || (typeof require === 'function' ? (() => { try { return require('./bespoke.js'); } catch (e) { return null; } })() : null));
   const bespoke = BS && BS.BESPOKE[name];
   if (bespoke && catOverride !== 'darkness') { bespoke.draw(h); return finish(bespoke.cat); }
@@ -5104,6 +5162,9 @@ const TINTS = ['#c8a050', '#b8604a', '#6a9ab8', '#8ab070', '#a878b8', '#d8b878',
 
 // each entry: [regex on the lower-case name, function(tint) -> svg body in a 40x40 box]
 const LIB = [
+  [/^miniature$/, () => `<ellipse cx="20" cy="20" rx="11" ry="14" fill="#c8a040" stroke="#6a4a10" stroke-width="1.5"/><ellipse cx="20" cy="20" rx="8" ry="11" fill="#e8dcc4"/><circle cx="20" cy="16" r="3.4" fill="#c89a7a"/><path d="M14,28 q6,-9 12,0" fill="#5a3a5a"/>`],
+  [/timber spar/, () => `<rect x="4" y="16" width="32" height="8" rx="1.5" fill="#8a6038" stroke="#4a3018" transform="rotate(-20 20 20)"/><path d="M8,22 l26,-10 M10,25 l20,-7" stroke="#5a3a1a" stroke-width=".8" transform="rotate(0)"/><path d="M33,8 l3,-2 1,4z" fill="#8a6038"/>`],
+  [/papyrus fragment/, () => `<path d="M9,8 L30,6 L32,14 L28,20 L33,27 L29,34 L11,33 L8,24 L12,18Z" fill="#d8c890" stroke="#8a7a40"/><path d="M13,13 h12 M12,18 h9 M14,24 h13 M13,29 h10" stroke="#6a5a30" stroke-width="1.2"/>`],
   [/smooth round stone/, () => `<ellipse cx="20" cy="24" rx="13" ry="10" fill="#8a8a86" stroke="#4a4a46" stroke-width="1.5"/><ellipse cx="16" cy="20" rx="5" ry="3" fill="#c8c8c4" opacity=".6"/>`],
   // items that also appear in the room pictures: same colours as there
   [/\btube\b/, () => `<rect x="14" y="5" width="12" height="30" rx="5" fill="#a8784a" stroke="#5a3a1a" transform="rotate(20 20 20)"/><ellipse cx="25" cy="7" rx="6" ry="2.5" fill="#c89860" stroke="#5a3a1a" transform="rotate(20 20 20)"/>`],
@@ -6471,8 +6532,8 @@ function roomItems() {
   const H = homes(), held = heldIds(), out = [];
   const walk = (o, d) => {
     for (let c = zm.child(o), g = 0; c && g < 200; c = zm.sibling(c), g++) {
-      const nm = zm.shownName(c);
-      if (/^(yourself|self|you|player)$/i.test(nm)) continue;
+      const nm0 = zm.shownName(c), nm = (S.pname && S.pname[c]) || nm0;
+      if (/^(yourself|self|you|player)$/i.test(nm0)) continue;
       // Inform marks everything the player has ever picked up as 'moved'; that survives saved games
       const moved = held.has(c) || (ATTR[S.serial] && zm.testAttr(c, ATTR[S.serial].moved ?? 12));
       if (moved && H[c] !== loc && nm) out.push(nm);
@@ -6499,7 +6560,10 @@ function nounFor(name) {
   const zm = S.zm; if (!zm || !name) return name;
   const want = String(name).toLowerCase().trim();
   let found = 0;
-  const walk = (o, d) => { for (let c = zm.child(o), g = 0; c && g < 300 && !found; c = zm.sibling(c), g++) { if (zm.shownName(c).toLowerCase().trim() === want) { found = c; return; } if (d < 5) walk(c, d + 1); } };
+  // the rods are typed as "rod of fire"
+  if (/^(high )?rod of [a-z]+$/.test(want)) return want;
+  const pn = S.pname || {};
+  const walk = (o, d) => { for (let c = zm.child(o), g = 0; c && g < 300 && !found; c = zm.sibling(c), g++) { if (zm.shownName(c).toLowerCase().trim() === want || (pn[c] || '').toLowerCase() === want) { found = c; return; } if (d < 5) walk(c, d + 1); } };
   try { walk(zm.readVar(17), 0); } catch (e) {}
   if (!found) { const S2 = want.split(/\s+/).filter(w => !/^(a|an|the|of|some)$/.test(w)); return S2.slice(-2).join(' ') || name; }
   const dict = new Set(zm.nameWords(found).map(w => w.toLowerCase()));
@@ -6577,7 +6641,7 @@ function roomState(name) {
     const loc = findLocation(name);
     if (!loc) return null;
     const at = ATTR[S.serial];
-    const here = [], open = [], carried = [], on = [], inside = {}, links = {}, fitted = {};
+    const here = [], open = [], carried = [], on = [], moved = [], inside = {}, links = {}, fitted = {};
     const isPlayer = o => /^(yourself|self|you|player)$/i.test(zm.objName(o));
     const walk = (o, into, depth) => {
       for (let c = zm.child(o), n = 0; c && n < 200; c = zm.sibling(c), n++) {
@@ -6586,14 +6650,14 @@ function roomState(name) {
         const hid = false; // contents of open containers show as faint shapes until the text mentions them
         if (nm && at && at.link && into === here && zm.findProp(c, at.link)) { const v = zm.getProp(c, at.link); if (v > 0 && v < 1024 && /socket/i.test(zm.objName(v))) links[nm] = zm.shownName(v); }
         if (nm && at && at.fitted && at.fitted[zm.objName(c)]) fitted[nm] = at.fitted[zm.objName(c)].filter(pn => { const o = objByName(pn); return o && !zm.parent(o) && zm.testAttr(o, at.fittedAttr); });
-        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
+        if (nm) { into.push(nm); if (at && zm.testAttr(c, at.open) && !hid) open.push(nm); if (at && at.on && zm.testAttr(c, at.on)) on.push(nm); if (at && at.moved && into === here && zm.testAttr(c, at.moved)) moved.push(nm); if (into === here && o !== loc) { const pn = zm.shownName(o); (inside[pn] = inside[pn] || []).push(nm); } }
         if (depth < 4 && contentsVisible(c) && !hid) walk(c, into, depth + 1);
       }
     };
     walk(loc, here, 0);
     const roomKey = zm.objName(loc), known = k => mentionedIn(roomKey, k);
-    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + JSON.stringify(links) + JSON.stringify(fitted) + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
-    return { here, open, carried, on, inside, links, fitted, mentioned: known, sig };
+    const sig = here.join('|') + '#' + open.join('|') + '#' + on.join('|') + '#' + JSON.stringify(inside) + JSON.stringify(links) + JSON.stringify(fitted) + moved.join(',') + '#' + (S.lastTagKeys || []).concat(here).map(k => known(k) ? 1 : 0).join('');
+    return { here, open, carried, on, moved, inside, links, fitted, mentioned: known, sig };
   } catch (e) { return null; }
 }
 
@@ -6620,14 +6684,16 @@ function roomDesc(name, desc) {
 // sentence the game itself will use for it, so the picture follows at once.
 const EVENTS = [
   { room: /^Croquet Lawn$/, when: /uncovering a tiny gap through the hedge/i, add: 'The hedge is broken slightly to the northwest.' },
-  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' }
+  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' },
+  // the bird whistle: the sparrows swoop onto the roof and then take to the skies
+  { room: /^Summer House$/, when: /flighty sparrows, who take to the skies/i, add: 'Startled sparrows circle high in the sky, showing no signs of calming down.', drop: /Sparrows chirp happily[^.]*\.\s*/ }
 ];
 function noteEvents(name, text) {
   if (!text || !name) return;
   roomDesc(name, '');
   const cur = S.descs && S.descs[name]; if (!cur) return;
   let d = cur;
-  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add;
+  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) { if (e.drop) d = d.replace(e.drop, ''); d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add; }
   if (d !== cur) { S.descs[name] = d; LS.set('zp:desc:' + S.serial, JSON.stringify(S.descs)); }
 }
 function showRoom(name, desc, dark) {
@@ -7146,59 +7212,122 @@ function initTabs() {
 }
 
 // ---------------- inventory ----------------
-let lastInvSig = '';
+// The list is the game's own: after every turn the story's "inventory" is played on the side (and
+// everything put back), so names, groups and states are exactly what the game would tell the player:
+// "a featureless mahogany rod" until it has a name, "(being worn)", "five Tarot cards", "the Rods of …".
+let lastInvSig = '', invCache = null, invTurn = -1, turnNo = 0;
+const ST_DE = [[/^providing light$/, 'leuchtet'], [/^being worn$/, 'getragen'], [/^around your neck$/, 'um den Hals'], [/^(tucked|twitching) behind your ear$/, 'hinterm Ohr'],
+  [/^which is open but empty$/, 'offen, leer'], [/^which is open$/, 'offen'], [/^which is closed and locked$/, 'verschlossen'], [/^which is closed$/, 'geschlossen'], [/^closed$/, 'geschlossen'],
+  [/^which is empty$/, 'leer'], [/^charged$/, 'geladen'], [/^lit$/, 'brennt']];
+function statusTags(st) {
+  if (!st) return [];
+  // "(providing light and closed)" → two states
+  return st.split(/\s+and\s+(?=closed|open|being|providing|which)/).map(x => x.trim()).filter(Boolean).map(x => {
+    const de = ST_DE.find(([re]) => re.test(x));
+    return { en: x.replace(/^which is /, ''), de: de ? de[1] : x, key: de ? de[1] : x };
+  });
+}
+function parseInventory(text) {
+  const lines = (text || '').split('\n');
+  const i0 = lines.findIndex(l => /^You are carrying/i.test(l.trim()));
+  if (i0 < 0) return [];
+  const root = { kids: [], depth: -1 }, stack = [root];
+  const art = n => n.replace(/^(a|an|the|some)\s+/i, '').trim();
+  for (let i = i0 + 1; i < lines.length; i++) {
+    const raw = lines[i]; if (!/^\s{2,}\S/.test(raw)) break;
+    const depth = Math.floor(raw.match(/^\s*/)[0].length / 2) - 1, l = raw.trim();
+    while (stack.length > 1 && stack[stack.length - 1].depth >= depth) stack.pop();
+    const parent = stack[stack.length - 1];
+    let m;
+    if ((m = /^(\w+) Tarot cards:$/.exec(l))) { const g = { name: 'Tarot', title: l.replace(/:$/, ''), group: 'tarot', depth, kids: [], status: [] }; parent.kids.push(g); stack.push(g); continue; }
+    if (parent.group === 'tarot' && !parent.kids.length) { for (const n of l.replace(/^the /, '').split(/, | and /)) parent.kids.push({ name: art(n), depth, kids: [], status: [] }); continue; }
+    if ((m = /^the (High )?Rods of (.+)$/.exec(l))) { const g = { name: (m[1] || '') + 'Rods', title: l.replace(/^the /, ''), group: 'rods', depth, kids: [], status: [] }; for (const n of m[2].split(/, | and /)) { const s2 = /\(([^)]*)\)$/.exec(n); g.kids.push({ name: (m[1] || '') + 'Rod of ' + n.replace(/\s*\([^)]*\)$/, ''), depth: depth + 1, kids: [], status: statusTags(s2 && s2[1]) }); } parent.kids.push(g); continue; }
+    const sm = /\(([^)]*)\)\s*$/.exec(l);
+    const it = { name: art(l.replace(/\s*\([^)]*\)\s*$/, '')), depth, kids: [], status: statusTags(sm && sm[1]) };
+    parent.kids.push(it); stack.push(it);
+  }
+  return root.kids;
+}
+// which object of the story stands behind each line (for the commands and the "left here" bar)
+function learnNames(items) {
+  const zp = Z(), zm = zp.S.zm, S = zp.S; S.pname = S.pname || {};
+  let me = 0; for (let c = zm.child(zm.readVar(17)); c; c = zm.sibling(c)) if (/^(yourself|self|you|player)$/i.test(zm.objName(c))) me = c;
+  if (!me) return;
+  const match = (list, owner) => {
+    const objs = []; for (let c = zm.child(owner); c; c = zm.sibling(c)) objs.push(c);
+    const free = new Set(objs), lines = [];
+    for (const it of list) { if (it.group) { for (const k of it.kids) lines.push([k, owner]); } else lines.push([it, owner]); }
+    const left = [];
+    for (const [it] of lines) {
+      const low = it.name.toLowerCase();
+      const o = [...free].find(c => { const n = zm.objName(c).toLowerCase(); return n && (low === n || low.endsWith(' ' + n) || low.includes(n)); });
+      if (o) { free.delete(o); it.obj = o; S.pname[o] = it.name; } else left.push(it);
+    }
+    // what is left keeps the order of the story's object tree
+    const rest = objs.filter(c => free.has(c));
+    left.forEach((it, i) => { if (rest[i]) { it.obj = rest[i]; S.pname[rest[i]] = it.name; } });
+    for (const [it] of lines) if (it.obj && it.kids.length) match(it.kids, it.obj);
+  };
+  match(items, me);
+}
 function inventoryTree() {
   const zp = Z(), zm = zp.S.zm; if (!zm) return [];
-  const name = zp.statusRoom && zp.statusRoom();
-  const loc = name ? zp.findLocation(name) : 0;
-  let player = 0;
-  const isPlayer = o => /^(yourself|self|you|player)$/i.test(zm.objName(o));
-  if (loc) for (let c = zm.child(loc), n = 0; c && n < 300; c = zm.sibling(c), n++) { if (isPlayer(c)) { player = c; break; } for (let d = zm.child(c); d; d = zm.sibling(d)) if (isPlayer(d)) player = d; }
-  if (!player) { const g = zm.readVar(17); if (g) for (let c = zm.child(g); c; c = zm.sibling(c)) if (isPlayer(c)) player = c; }
-  if (!player) return [];
+  if (invCache && invTurn === turnNo) return invCache;
+  if (zm.state !== 'input' || !zm.silentCommand) return invCache || [];
   const S = zp.S;
+  const items = parseInventory(zm.silentCommand('inventory'));
+  try { learnNames(items); } catch (e) {}
+  // a closed container shows what was in it the last time it was open
   if (!S.seenInside) S.seenInside = JSON.parse(LS.get('zp:seen:' + S.serial) || '{}');
-  const at = zp.ATTR && zp.ATTR[S.serial];
-  const isContainer = o => at && zm.testAttr(o, at.container);
   let changed = false;
-  const walk = (o, depth, stale) => {
-    const out = [];
-    for (let c = zm.child(o), n = 0; c && n < 100; c = zm.sibling(c), n++) {
-      const nm = zm.shownName(c); if (!nm) continue;
-      const it = { name: nm, depth, stale, kids: [], closed: false };
-      if (zm.child(c) && depth < 3) {
-        if (zp.contentsVisible(c)) {
-          it.kids = walk(c, depth + 1, stale);
-          if (isContainer(c)) { const names = it.kids.map(k => k.name).join('|'); if (S.seenInside[nm] !== names) { S.seenInside[nm] = names; changed = true; } }
-        } else {
-          it.closed = true;
-          // closed now: show only what the player saw the last time it was open
-          const seen = S.seenInside[nm];
-          if (seen) it.kids = seen.split('|').filter(Boolean).map(k => ({ name: k, depth: depth + 1, stale: true, kids: [], closed: false }));
-        }
-      } else if (isContainer(c) && !zp.contentsVisible(c)) it.closed = true;
-      out.push(it);
-    }
-    return out;
-  };
-  const tree = walk(player, 0, false);
+  const walk = list => { for (const it of list) {
+    const closed = it.status.some(t => /geschlossen|verschlossen/.test(t.de));
+    if (it.kids.length && !it.group) { const names = it.kids.map(k => k.name).join('|'); if (S.seenInside[it.name] !== names) { S.seenInside[it.name] = names; changed = true; } walk(it.kids); }
+    else if (closed && S.seenInside[it.name]) it.kids = S.seenInside[it.name].split('|').filter(Boolean).map(n => ({ name: n, depth: it.depth + 1, kids: [], status: [], stale: true }));
+  } };
+  walk(items);
   if (changed) LS.set('zp:seen:' + S.serial, JSON.stringify(S.seenInside));
-  return tree;
+  invCache = items; invTurn = turnNo;
+  return items;
+}
+const countItems = list => list.reduce((n, it) => n + (it.group ? it.kids.length : 1) + (it.group ? 0 : countItems(it.kids)), 0);
+let invOpen = null;
+function isOpenNode(it) {
+  if (!invOpen) { try { invOpen = JSON.parse(LS.get('zp:invOpen') || '{}'); } catch (e) { invOpen = {}; } }
+  const k = it.group || it.name;
+  if (k in invOpen) return invOpen[k];
+  return it.group ? false : it.kids.length <= 8;   // groups and full containers start folded
 }
 function renderInventory() {
   const box = $('#invList'); if (!box) return;
   const items = inventoryTree();
-  const sig = JSON.stringify(items);
+  const sig = JSON.stringify(items) + JSON.stringify(invOpen || {});
   if (sig === lastInvSig && box.childElementCount) return;
   lastInvSig = sig;
   if (!items.length) { box.innerHTML = `<p class="paneEmpty">${T('Du trägst nichts bei dir.')}</p>`; $('#invCount').textContent = ''; return; }
-  const row = it => `<button class="invItem d${it.depth}${it.stale ? ' stale' : ''}" data-item="${esc(it.name)}" title="${esc(it.name)}${it.stale ? T(' (zuletzt gesehen, als der Behälter offen war)') : ''}"><span class="ico">${ZIcons.icon(it.name)}</span><span class="nm">${esc(it.name)}${it.closed ? ` <small class="tag">${T('geschlossen')}</small>` : ''}${it.stale ? ` <small class="tag">${T('zuletzt gesehen')}</small>` : ''}</span></button>${it.kids.map(row).join('')}`;
+  const en = (P.lang || 'de') === 'en';
+  const tags = it => it.status.map(t => ` <small class="tag">${esc(en ? t.en : t.de)}</small>`).join('') + (it.stale ? ` <small class="tag">${T('zuletzt gesehen')}</small>` : '');
+  const row = it => {
+    const foldable = it.group || it.kids.length, open = foldable && isOpenNode(it);
+    const caret = foldable ? `<span class="fold" data-fold="${esc(it.group || it.name)}" data-open="${open ? 1 : 0}">${open ? '▾' : '▸'}</span>` : '<span class="fold"></span>';
+    const label = it.group ? `${esc(it.title)} <small class="tag">${it.kids.length}</small>` : esc(it.name) + tags(it);
+    const icon = it.group === 'tarot' ? ZIcons.icon(it.kids[0] ? it.kids[0].name : 'Tarot card') : it.group === 'rods' ? ZIcons.icon('mahogany rod') : ZIcons.icon(it.name);
+    const head = `<button class="invItem d${Math.max(0, it.depth)}${it.stale ? ' stale' : ''}${it.group ? ' grp' : ''}" ${it.group ? `data-fold="${esc(it.group)}" data-open="${open ? 1 : 0}"` : `data-item="${esc(it.name)}" data-st="${esc(it.status.map(t => t.de).join(','))}"`} title="${esc(it.group ? it.title : it.name)}${it.stale ? T(' (zuletzt gesehen, als der Behälter offen war)') : ''}">${caret}<span class="ico">${icon}</span><span class="nm">${label}</span></button>`;
+    return head + (open ? it.kids.map(row).join('') : '');
+  };
   box.innerHTML = items.map(row).join('');
-  $('#invCount').textContent = items.length;
+  $('#invCount').textContent = countItems(items);
 }
-function itemMenu(anchor, name) {
-  const noun = Z().nounFor(name);
-  showPop(anchor, name, ZIcons.verbsFor(name).map(v => [v, `${v} ${noun}`]));
+// The menu offers only what gives nothing away: looking, putting down, and undoing a state the list shows.
+function itemMenu(anchor, name, st) {
+  const noun = Z().nounFor(name), s = st || '';
+  const v = [['examine', 'examine ' + noun]];
+  if (/getragen|um den Hals|hinterm Ohr/.test(s)) v.push(['take off', 'take off ' + noun]);
+  if (/leuchtet/.test(s)) v.push(['turn off', 'turn off ' + noun]);
+  if (/(^|,)offen/.test(s)) v.push(['close', 'close ' + noun]);
+  if (/(^|,)geschlossen/.test(s)) v.push(['open', 'open ' + noun]);
+  v.push(['drop', 'drop ' + noun]);
+  showPop(anchor, name, v);
 }
 
 // ---------------- popover (items and words) ----------------
@@ -7222,7 +7351,12 @@ function initPop() {
   });
   document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop') && !e.target.closest('.invItem')) hidePop(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hidePop(); });
-  $('#invList').addEventListener('click', e => { const b = e.target.closest('.invItem'); if (b) itemMenu(b, b.dataset.item); });
+  $('#invList').addEventListener('click', e => {
+    const f = e.target.closest('[data-fold]');
+    if (f) { e.stopPropagation(); if (!invOpen) invOpen = {}; invOpen[f.dataset.fold] = f.dataset.open !== '1'; LS.set('zp:invOpen', JSON.stringify(invOpen)); lastInvSig = ''; renderInventory(); return; }
+    if (f) { e.stopPropagation(); const k = f.dataset.fold; if (!invOpen) invOpen = {}; const it = { group: /^(tarot|rods)$/.test(k) ? k : null, name: k, kids: [] }; invOpen[k] = !(k in invOpen ? invOpen[k] : f.closest('.invItem') && f.textContent.trim() === '▾'); if (f.classList.contains('grp')) invOpen[k] = !(k in invOpen ? !invOpen[k] : false) ; LS.set('zp:invOpen', JSON.stringify(invOpen)); lastInvSig = ''; renderInventory(); return; }
+    const b = e.target.closest('.invItem'); if (b && b.dataset.item) itemMenu(b, b.dataset.item, b.dataset.st);
+  });
   // word taps in the transcript
   $('#transcript').addEventListener('click', e => {
     if (!P.wordClick || P.classic) return;
@@ -7588,6 +7722,7 @@ function initTr() {
 
 // ---------------- per-turn hook ----------------
 function afterTurn(info) {
+  turnNo++;
   learn(info.text || '');
   trAdd(Z().S.lastShownCmd, info.text);
   checkScore();
@@ -7597,7 +7732,7 @@ function afterTurn(info) {
   if (P.sfx && !P.classic) stateSfx(name, st); else { prevState = st; prevRoom = name; }
   renderExits();
   try { zp.renderRoomItems(); } catch (e) {}
-  if (!$('#paneInv').hidden) renderInventory(); else { const items = inventoryTree(); $('#invCount').textContent = items.length || ''; }
+  if (!$('#paneInv').hidden) renderInventory(); else { const items = inventoryTree(); $('#invCount').textContent = countItems(items) || ''; }
   if (!$('#paneNotes').hidden) renderNotes();
   updateAC();
 }
