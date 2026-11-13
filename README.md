@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1658 – Dinge, die man schiebt
+26-11-13-1712 – Abgleich mit dem rekonstruierten Quelltext
 
 ## Ältere Versionen
 
+- [26-11-13-1658](archiv/26-11-13-1658.html) – Dinge, die man schiebt
 - [26-11-13-1549](archiv/26-11-13-1549.html) – Startbildschirm mit Spielen-Knopf
 - [26-11-13-1541](archiv/26-11-13-1541.html) – Inventar wie im Spiel
-- [26-11-13-1525](archiv/26-11-13-1525.html) – Breite Prüfung, Behälter und alle Lichtstrahlen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -176,6 +176,15 @@ Ein zweiter Lösungsweg (von Marc Leduc) brachte einen neuen Prüflauf: Was läs
 - Das alte Radio im Wäscheschrank erscheint, sobald man es unter den Laken gefunden hat. Schiebt man es zu Aunt Jemima, steht es dort, mit glühenden Röhren und Noten, wenn es spielt, und dunkel, wenn es aus ist.
 - Die Statuen im Labyrinth erscheinen dort, wo sie wirklich stehen, auch mehrere in einem Raum und auch dann, wenn das Spiel den Raum beim Hineinschieben nur kurz beschreibt.
 - Der Wasserball rollt mit ins Museumsfoyer. Was beim Betreten eines Raums über etwas gesagt wird, das man mitbringt, zählt jetzt auch für den neuen Raum als erwähnt.
+
+### 31. Abgleich mit dem rekonstruierten Quelltext (13. November 2026)
+Allen Garvin hat Curses aus der Spieldatei dekompiliert und als Inform-6-Quelltext nachgebaut (github.com/allengarvin/curses), nach eigener Aussage mit Graham Nelsons Einverständnis. Mit diesem Quelltext ließ sich zum ersten Mal vollständig prüfen, statt zu suchen: Für jeden Raum wurden alle Sätze herausgezogen, die je nach Spielzustand in seiner Beschreibung erscheinen können, knapp 400 aus 160 Räumen. Jeder Satz wurde gegen das Bild geprüft. Der Quelltext wurde nur zum Prüfen gelesen, nichts daraus steckt im Interpreter.
+- Observatorium: drei weitere Strahlen, die keiner der Lösungswege erreicht hatte. Der Strahl endet an der noch trüben Glaskugel, er wirft (mit der Acht der Stäbe) einen geraden Lichtstab an die Wand oder (mit der Mondsichel) eine Sichel. Damit sind alle sieben Varianten des Spiels zu sehen.
+- Der Gartenroller steht jetzt auch unter dem Stammbaum (Family Tree), wenn man ihn dorthin fährt.
+- Hinter dem Gartenhaus erscheint das Loch in der Bretterwand, sobald das Brett offen ist.
+- Auf der Insel Pharos sieht man den Schlüssel im Gang unter dem Gitter, bis man ihn holt.
+- In der Spirit World altert das Grab sichtbar, so wie der Text es beschreibt: mit jedem Jahrhundert mehr Risse, Staub und verblasste Farbe.
+- Die Stäbe im Bogen des Infinity Symbol lassen sich auch aus jeder Zahlenangabe des Textes ablesen. Austin sitzt in Alexandria auf dem Damm statt im Wasser.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

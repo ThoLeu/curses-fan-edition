@@ -367,7 +367,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1658</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1712</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1658</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1712</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2208,7 +2208,16 @@ h.add(h.open('mural'));   add(`<circle cx="${cx}" cy="${cy}" r="${rr}" fill="#1e
     const names = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
     const sm = /at the sign of (\w+)/.exec(od); const si = sm ? names.indexOf(sm[1]) : -1;
     const inBeam = `<polygon points="150,260 176,260 228,146 222,140" fill="#ffffff" opacity=".35"/><line x1="163" y1="260" x2="225" y2="143" stroke="#fff" stroke-width="2.5" opacity=".9"/>`;
-    if (/spins it about wildly/.test(od)) {
+    if (/opaque glass ball/.test(od)) {
+      // the ball is still filmed over: the beam just ends on it
+      add(h.tag('beam', inBeam)); h.glow(226, 142, 18, '#ffffff', .45);
+    } else if (/straight rod of white light across one wall/.test(od)) {
+      add(h.tag('beam', inBeam + `<line x1="226" y1="142" x2="20" y2="70" stroke="#fff" stroke-width="1.6" opacity=".8"/><rect x="18" y="64" width="6" height="150" fill="#fff" opacity=".85"/>`));
+      h.glow(21, 140, 40, '#ffffff', .6);
+    } else if (/throws it in a crescent against one wall/.test(od)) {
+      add(h.tag('beam', inBeam + `<line x1="226" y1="142" x2="58" y2="112" stroke="#fff" stroke-width="1.6" opacity=".7"/><path d="M60,88 A24,24 0 1 0 60,136 A18,18 0 1 1 60,88Z" fill="#fff" opacity=".9"/>`));
+      h.glow(56, 112, 40, '#ffffff', .5);
+    } else if (/spins it about wildly/.test(od)) {
       // the ball spins the light about like a strobe at a discotheque: short rays every way, flecks on the walls
       let rays = ''; for (let i = 0; i < 16; i++) { const a2 = h.R(0, 6.28), l = h.R(40, 150); rays += `<line x1="226" y1="142" x2="${(226 + Math.cos(a2) * l).toFixed(1)}" y2="${(142 + Math.sin(a2) * l * .7).toFixed(1)}" stroke="#fff" stroke-width="${h.R(1, 2.4).toFixed(1)}" opacity="${h.R(.3, .9).toFixed(2)}"/>`; }
       for (let i = 0; i < 30; i++) rays += `<circle cx="${h.R(10, 390).toFixed(0)}" cy="${h.R(40, 220).toFixed(0)}" r="${h.R(1.5, 4).toFixed(1)}" fill="#fff" opacity="${h.R(.3, .8).toFixed(2)}"/>`;
@@ -2561,7 +2570,8 @@ B['Infinity Symbol'] = { cat: 'otherworld', draw(h) {
   const st = h.st;
   // the rods the game has fixed in the arc sockets, the spherical opening, and the golden light once the orb is in it
   const rods = st.known ? st.inside('circular arc') : [];
-  const nRods = rods.length || (/all nine sockets are occupied/i.test(h.desc) ? 9 : /socket contains a rod/i.test(h.desc) ? 1 : 0);
+  const NUM = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7 }, nm = /\b(two|three|four|five|six|seven)\b(?: of the)? sockets contain rods/i.exec(h.desc);
+  const nRods = rods.length || (/all nine sockets are occupied/i.test(h.desc) ? 9 : /only one socket is left empty/i.test(h.desc) ? 8 : nm ? NUM[nm[1].toLowerCase()] : /one socket contains a rod/i.test(h.desc) ? 1 : 0);
   const hole = st.known ? st.here('spherical opening') : /spherical opening/.test(h.desc);
   const lit = /golden light/.test(h.desc) || (st.known && !hole && st.mentioned && st.mentioned('spherical opening'));
   h.add(`<rect width="400" height="260" fill="${lit ? '#4a3410' : '#0c0c14'}"/>`);
@@ -2911,6 +2921,8 @@ B['Island of Pharos'] = { cat: 'water', draw(h) {
   h.add(`<rect y="200" width="400" height="16" fill="#6a6050"/>`); stones(h, 0, 200, 400, 216, '#3a3428', .5);
   h.add(`<rect x="80" y="202" width="30" height="14" fill="#1a1410"/>${h.st.known && h.st.open('grating', false) ? '' : [0, 1, 2, 3, 4].map(i => `<line x1="${82 + i * 6.5}" y1="202" x2="${82 + i * 6.5}" y2="216" stroke="#8a4a2a" stroke-width="2"/>`).join('')}<path d="M80,206 q8,4 14,-2 q8,6 16,0" stroke="#2a5a3a" stroke-width="2" fill="none"/>`);
   h.add(`<path d="M300,216 L400,216" stroke="#6a6050" stroke-width="6"/>`);
+  // the key that would fit the grating, lying in the passage beneath it
+  if (/key which looks as if it would fit the grating/i.test(h.desc) && !(h.st.known && h.st.carried('rusty iron key'))) h.add(h.tag('key', `<g transform="translate(90 212) rotate(-20)"><circle r="2.6" fill="none" stroke="#b07a3a" stroke-width="1.6"/><path d="M2.6,0 h9 M9,0 v2.5 M11,0 v2" stroke="#b07a3a" stroke-width="1.6"/></g>`));
 } };
 
 B['Necropolis'] = { cat: 'egypt', draw(h) {
@@ -3219,6 +3231,8 @@ const clouds = (h, n, y0, y1) => { for (let i = 0; i < n; i++) h.add(`<ellipse c
 const privet = (h, pts, c) => { h.add(`<polygon points="${pts}" fill="${c || '#2a5226'}"/>`); };
 const leafy = (h, n, x0, x1, y0, y1, cols) => { for (let i = 0; i < n; i++) h.add(`<circle cx="${h.R(x0, x1).toFixed(1)}" cy="${h.R(y0, y1).toFixed(1)}" r="${h.R(2, 5).toFixed(1)}" fill="${cols[i % cols.length]}" opacity=".7"/>`); };
 const roller = h => { if (h.st.known && h.st.here('roller')) h.add(h.tag('garden roller', `<rect x="120" y="226" width="160" height="34" rx="6" fill="#4a6a3a" stroke="#1a2a14" stroke-width="2"/><rect x="132" y="232" width="136" height="20" rx="10" fill="#6a6a6a"/>${[0, 1, 2, 3, 4].map(i => `<line x1="${142 + i * 28}" y1="232" x2="${142 + i * 28}" y2="252" stroke="#4a4a4a"/>`).join('')}<path d="M170,226 v-14 h60 v14" stroke="#2a2a2a" stroke-width="4" fill="none"/>`)); };
+// the roller can be driven up to the plane tree too
+if (B['Family Tree'] && !B['Family Tree'].withRoller) { const d0 = B['Family Tree'].draw; B['Family Tree'].draw = function (h) { d0.call(this, h); roller(h); }; B['Family Tree'].withRoller = true; }
 // which ways a maze corridor runs, read from the text: "runs east, south and west"
 const runs = (h, txt) => { const m = (txt || '').match(/(?:runs|corridor runs|maze runs)\s+([a-z ,]+?)(?:\.|$)/i); const s = m ? m[1] : ''; return { n: /north/.test(s), s: /south/.test(s), e: /east/.test(s), w: /west/.test(s) }; };
 
@@ -3322,7 +3336,7 @@ B['Behind Summer House'] = { cat: 'garden', draw(h) {
   // among dense hedges by the shabby, wood-slatted back of the summer house
   sky(h, '#7aa0c0', '#c8d4c8');
   h.add(h.open('summer house') + `<rect x="120" y="40" width="200" height="170" fill="#8a7458"/>${Array.from({ length: 12 }, (_, i) => `<line x1="120" y1="${48 + i * 14}" x2="320" y2="${48 + i * 14}" stroke="#5a4a36" stroke-width="2"/>`).join('')}` + '</g>');
-  const holed = h.st.known && !h.st.here('squirrel') && h.st.here('hole');
+  const holed = (h.st.known && ((!h.st.here('squirrel') && h.st.here('hole')) || h.st.open('loose board', false))) || /squeeze past the loose board/i.test(h.desc);
   h.add(h.open('loose board') + (holed ? `<rect x="208" y="118" width="40" height="44" fill="#140e08"/>` : `<rect x="210" y="118" width="34" height="12" fill="#9a8466" transform="rotate(4 227 124)"/><rect x="212" y="131" width="30" height="3" fill="#140e08"/>`) + '</g>');
   privet(h, '0,20 120,40 120,260 0,260', '#1e3e1a'); privet(h, '320,40 400,20 400,180 320,210', '#1e3e1a');
   leafy(h, 160, 0, 400, 0, 260, ['#2a5226', '#16301a', '#3a6a30']);
@@ -4020,9 +4034,16 @@ function muralArt(t) {
 const DOOR_OPEN = () => `<rect x="-38" y="-150" width="76" height="150" fill="#0e0a06"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${-30 + i * 4},${-8 - i * 22} h${60 - i * 8}" stroke="#6a5a44" stroke-width="5"/>`).join('')}<path d="M-38,-150 L-62,-140 L-62,-6 L-38,0Z" fill="#5a4a34" stroke="#2a2014" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(r => `<path d="M-58,${-128 + r * 20} l18,${2 + r % 2}" stroke="#1a1008" stroke-width="2" opacity=".7"/>`).join('')}`;
 const MURAL_ASIDE = () => `<rect x="-150" y="-200" width="160" height="200" fill="#0a0806"/>${[0, 1, 2, 3].map(i => `<path d="M${-136 + i * 10},${-30 - i * 26} h${120 - i * 20}" stroke="#4a3e30" stroke-width="5"/>`).join('')}<g transform="translate(110 0)">${WS.mural()}</g>`;
 const COVER_RAISED = () => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
+// the Spirit World tomb ages as you lie in it: cracks, dust and faded paint grow with the centuries
+const TOMB_AGE = [['beautifully well-preserved', 0], ['older now, weighed under with centuries', 1], ['swelters now, a thousand years old', 2], ['two thousand years old', 3], ['at last it has been opened', 4]];
+const tombAge = ctx => { const h = ctx.h, t = ctx.rd.t; let a = -1; for (const [p, n] of TOMB_AGE) if (t.includes(p)) a = Math.max(a, n); if (a <= 0) return;
+  for (let i = 0; i < a * 6; i++) { const x = h.R(10, 390), y = h.R(20, 200); h.add(`<path d="M${x.toFixed(0)},${y.toFixed(0)} l${h.R(-14, 14).toFixed(0)},${h.R(6, 18).toFixed(0)} l${h.R(-10, 10).toFixed(0)},${h.R(6, 16).toFixed(0)}" stroke="#3a2a20" stroke-width="1.2" fill="none" opacity=".55"/>`); }
+  for (let i = 0; i < a * 20; i++) h.add(`<circle cx="${h.R(0, 400).toFixed(0)}" cy="${h.R(200, 260).toFixed(0)}" r="${h.R(.8, 2.4).toFixed(1)}" fill="#c8b89a" opacity=".35"/>`);
+  h.add(`<rect width="400" height="260" fill="#8a8070" opacity="${(a * .06).toFixed(2)}"/>`); };
 const isOpen = (ctx, obj) => !!(ctx.h.st && ctx.h.st.known && ctx.h.st.open(obj, false));
 const FEAT = [
   ['revolving door', 'special', 0, (m, ctx) => { const { h } = ctx; h.add(`<path d="M60,0 Q20,130 60,260 M340,0 Q380,130 340,260" stroke="#c8d8e0" stroke-width="5" fill="none" opacity=".5"/><rect x="60" y="0" width="280" height="260" fill="#a8c0d0" opacity=".1"/><path d="M200,10 V250" stroke="#2a2a2a" stroke-width="6"/><path d="M90,20 l40,200 M300,30 l-30,180" stroke="#fff" stroke-width="2" opacity=".2"/>`); return ''; }],
+  ['tomb is beautifully well-preserved|tomb seems older now|tomb swelters now|tomb might be two thousand years old|at last it has been opened', 'special', 0, (w, ctx) => tombAge(ctx), 'tomb age'],
   ['mural stands slightly to one side', 'wall:south', .78, () => MURAL_ASIDE(), 'mural'],
   ['bronze mural', 'wall:south', .78, (m, ctx) => isOpen(ctx, 'bronze mural') ? MURAL_ASIDE() : WS.mural(), 'mural'],
   ['mural painting', 'wall', .8, (m, ctx) => muralArt(ctx.rd.t), 'mural'],
@@ -5565,7 +5586,7 @@ const WHO = [
 ];
 // where a figure stands in a given room: [x, y of the feet, scale]; otherwise a default spot
 const PLACE = {
-  'Potting Room': { jemima: [250, 236, 1] }, 'Stone Cross': { evans: [150, 226, .62], monkey: [220, 244, .8] },
+  'Potting Room': { jemima: [250, 236, 1] }, 'Island of Pharos': { austin: [330, 212, .55] }, 'Causeway': { austin: [272, 252, .62] }, 'Stone Cross': { evans: [150, 226, .62], monkey: [220, 244, .8] },
   'Sea Shore': { andromeda: [136, 214, .95] }, 'Battlements': { joshua: [270, 226, .95] }, 'Consulting Room': { sosostris: [140, 232, .9] },
   'On board the Phlebas': { hollow: [240, 236, 1] }, 'Chatelet-les-Halles': { shopkeeper: [260, 242, .95] }, 'Eraina Taverna': { bartender: [250, 244, .95] },
   'Inner Sanctum': { homer: [120, 238, .95] }, 'Reading Corridor': { callimachus: [230, 236, .95] }, "Librarian's Office": { apollonius: [150, 236, .95], callimachus: [290, 238, .9] },
