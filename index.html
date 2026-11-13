@@ -367,7 +367,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1712</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1726</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1712</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1726</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2547,7 +2547,11 @@ B['Wine Cellars'] = { cat: 'cellar', draw(h) {
     else if (h.r() < .15) h.add(`<circle cx="${cx + 2}" cy="${cy + 2}" r="1.5" fill="#8a8070"/>`);
   }
   h.add(`<rect x="60" y="196" width="280" height="6" fill="#3a2818"/>`);
-  h.glow(300, 120, 120, '#ffb070', .18);
+  // the barrel-shaft to the north lets in daylight only once the timber hatch above is open
+  if (/bright light floods in/i.test(h.desc) || (h.st && h.st.known && h.st.open('timber hatch', false))) {
+    h.add(`<polygon points="200,0 250,0 300,260 120,260" fill="#fff2c8" opacity=".16"/><polygon points="212,0 238,0 268,260 150,260" fill="#fff8e0" opacity=".14"/>`);
+    h.glow(210, 230, 110, '#fff0c0', .3);
+  } else h.glow(300, 120, 120, '#ffb070', .18);
 } };
 
 B['Cellar West'] = { cat: 'cellar', draw(h) {
@@ -3352,6 +3356,11 @@ B['Beside the Wall'] = { cat: 'garden', draw(h) {
   h.add(h.open('carved wall') + `<rect x="120" y="96" width="280" height="104" fill="#c8bca4"/>${[0, 1, 2, 3, 4].map(i => `<path d="M${150 + i * 52},170 q10,-40 20,0 q10,-40 20,0" stroke="#8a7e66" stroke-width="3" fill="none"/><circle cx="${170 + i * 52}" cy="122" r="9" fill="none" stroke="#8a7e66" stroke-width="3"/>`).join('')}<rect x="120" y="90" width="280" height="8" fill="#a89a80"/>` + '</g>');
   h.add(`<polygon points="0,200 400,200 400,260 0,260" fill="#b8a88a"/><polygon points="120,200 400,200 400,260 60,260" fill="#c8b898" opacity=".6"/>`);
   h.add(h.open('shrub') + `<ellipse cx="240" cy="232" rx="56" ry="12" fill="#6a4a2a"/><rect x="184" y="206" width="112" height="26" fill="#7a5632"/><ellipse cx="240" cy="206" rx="56" ry="10" fill="#5a3a20"/><circle cx="240" cy="176" r="34" fill="#3a6a30"/><circle cx="216" cy="188" r="20" fill="#2e5a28"/><circle cx="264" cy="186" r="22" fill="#2a5226"/>` + '</g>');
+  // the timber hatch beside the shrub, once the text has named it; open, it shows the dark barrel-shaft
+  const hOpen = /timber lid stands open/i.test(h.desc) || (h.st && h.st.known && h.st.open('timber hatch', false));
+  if (hOpen || /timber hatch/i.test(h.desc)) h.add(h.open('timber hatch') + (hOpen
+    ? `<ellipse cx="96" cy="238" rx="40" ry="11" fill="#2a2016" stroke="#3a2414" stroke-width="2.5"/><ellipse cx="96" cy="239" rx="32" ry="7.5" fill="#030201"/><path d="M58,214 L62,236 L132,236 L136,214Z" fill="#7a5630" stroke="#3a2414" stroke-width="2"/>${[76, 96, 116].map(x => `<line x1="${x}" y1="215" x2="${x}" y2="235" stroke="#4a3018" stroke-width="1.5"/>`).join('')}`
+    : `<ellipse cx="96" cy="238" rx="40" ry="11" fill="#7a5630" stroke="#3a2414" stroke-width="2.5"/>${[-24, -8, 8, 24].map(x => `<line x1="${96 + x}" y1="${228 + Math.abs(x) / 5}" x2="${96 + x}" y2="${248 - Math.abs(x) / 5}" stroke="#4a3018" stroke-width="1.5"/>`).join('')}<rect x="90" y="235" width="12" height="5" fill="#5a5a5a"/>`) + '</g>');
 } };
 
 B['Up the Beanstalk'] = { cat: 'heights', draw(h) {
@@ -4033,7 +4042,8 @@ function muralArt(t) {
 // the game's own state wins over a description the player has not refreshed yet (opened since the last look)
 const DOOR_OPEN = () => `<rect x="-38" y="-150" width="76" height="150" fill="#0e0a06"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${-30 + i * 4},${-8 - i * 22} h${60 - i * 8}" stroke="#6a5a44" stroke-width="5"/>`).join('')}<path d="M-38,-150 L-62,-140 L-62,-6 L-38,0Z" fill="#5a4a34" stroke="#2a2014" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(r => `<path d="M-58,${-128 + r * 20} l18,${2 + r % 2}" stroke="#1a1008" stroke-width="2" opacity=".7"/>`).join('')}`;
 const MURAL_ASIDE = () => `<rect x="-150" y="-200" width="160" height="200" fill="#0a0806"/>${[0, 1, 2, 3].map(i => `<path d="M${-136 + i * 10},${-30 - i * 26} h${120 - i * 20}" stroke="#4a3e30" stroke-width="5"/>`).join('')}<g transform="translate(110 0)">${WS.mural()}</g>`;
-const COVER_RAISED = () => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
+const HATCH_OPEN = () => `<ellipse cx="0" cy="-6" rx="44" ry="13" fill="#2a2016" stroke="#3a2414" stroke-width="2.5"/><ellipse cx="0" cy="-5" rx="36" ry="9" fill="#030201"/><path d="M-36,-5 Q0,8 36,-5" stroke="#4a3018" stroke-width="2" fill="none" opacity=".7"/><g transform="translate(54 -8) rotate(-8)"><ellipse cx="0" cy="0" rx="20" ry="6" fill="#7a5630" stroke="#3a2414" stroke-width="2"/></g>`;
+const COVER_RAISED =() => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
 // the Spirit World tomb ages as you lie in it: cracks, dust and faded paint grow with the centuries
 const TOMB_AGE = [['beautifully well-preserved', 0], ['older now, weighed under with centuries', 1], ['swelters now, a thousand years old', 2], ['two thousand years old', 3], ['at last it has been opened', 4]];
 const tombAge = ctx => { const h = ctx.h, t = ctx.rd.t; let a = -1; for (const [p, n] of TOMB_AGE) if (t.includes(p)) a = Math.max(a, n); if (a <= 0) return;
@@ -4081,6 +4091,12 @@ const FEAT = [
   ['amber-coloured metal', 'wall:north', .9, () => WS.amberSheet(), 'metal'],
   ['sealed by an ingenious stone slab|stone slab', 'wall', .3, () => WS.slab(), 'slab'],
   ['metal barrier', 'end', .5, () => WS.metalBarrier(), 'barrier'],
+  // This Is The Death: the passage ends in marble until the burial chamber is opened
+  ['slants down only into a solid marble wall', 'end', .5, () => `<rect x="-70" y="-160" width="140" height="160" fill="#e4ddd0" stroke="#9a9284" stroke-width="2"/><path d="M-70,-110 L-20,-96 L30,-120 L70,-104 M-40,-160 L-30,-60 M20,-40 L60,-10" stroke="#b8b0a2" stroke-width="1.5" fill="none"/>`, 'marble wall'],
+  ['passage opens out onto the burial chamber', 'end', .5, () => `<rect x="-70" y="-160" width="140" height="160" fill="#0a0806"/><path d="M-70,0 L-40,-30 H40 L70,0Z" fill="#3a3024"/><rect x="-30" y="-60" width="60" height="30" fill="#2a2018" opacity=".8"/>`, 'opening'],
+  // Beside the Wall: the timber hatch over the old barrel-shaft
+  ['timber hatch, three feet across', 'floor', .3, (m, ctx) => isOpen(ctx, 'timber hatch') ? HATCH_OPEN() : `<ellipse cx="0" cy="-6" rx="44" ry="13" fill="#7a5630" stroke="#3a2414" stroke-width="2.5"/>${[-26, -9, 9, 26].map(x => `<line x1="${x}" y1="${-17 + Math.abs(x) / 5}" x2="${x}" y2="${5 - Math.abs(x) / 5}" stroke="#4a3018" stroke-width="1.5"/>`).join('')}<rect x="-6" y="-9" width="12" height="5" fill="#5a5a5a"/>`, 'hatch', 1, { d: .7 }],
+  ['timber lid stands open', 'floor', .3, () => HATCH_OPEN(), 'hatch', 1, { d: .7 }],
   ['castle walls|arrowslits', 'band', .9, () => WS.castle(), 'walls'],
   ['crowded, bohemian|noisy, bustling|crowded', 'floor:back', .9, () => [-120, -70, 60, 120].map((x, i) => `<g transform="translate(${x} 0)">${S.table(46, '#e8e0d0')}<g transform="translate(${i % 2 ? 22 : -22} 0)"><rect x="-9" y="-74" width="18" height="40" rx="6" fill="${['#3a2a3a', '#5a3a2a', '#2a3a4a', '#4a4a2a'][i]}"/><circle cy="-82" r="8" fill="#d8b090"/></g></g>`).join(''), 'customers', 1, { d: .7 }],
   ['defaced door opens onto a staircase', 'wall', .3, () => DOOR_OPEN(), 'door'],
@@ -6256,7 +6272,7 @@ function sendCommand(cmd, src) {
   if (/^undo$/i.test(cmd.trim()) && /(Which do you mean|What do you want to|Whom do you want|Who do you want|What do you want)[^\n]*\?\s*>?\s*$/.test(S.lastText || '')) {
     zm.provideInput('zzqq'); zm.run(); zm.takeOutput();
   }
-  if (!smart || !S.parser || /^(save|restore|restart|quit|undo|q)$/i.test(cmd.trim())) {
+  if (!smart || !S.parser || src === 'raw' || /^(save|restore|restart|quit|undo|q)$/i.test(cmd.trim())) {
     const c = cmd.trim().toLowerCase();
     if (!/^(g|again)$/.test(c)) S.lastCmd = c;
     zm.provideInput(cmd); pump(); return;
@@ -7414,7 +7430,17 @@ function initPop() {
   $('#pop').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     hidePop();
-    if (b.dataset.cmd) Z().sendCommand(b.dataset.cmd);
+    if (b.dataset.cmd) {
+      const before = Z().S.lastText;
+      Z().sendCommand(b.dataset.cmd);
+      // a bug in Curses (Garvin's list): once a rod has a name, "featureless" still matches it, so the
+      // game keeps asking which rod is meant. The game itself accepts "a featureless mahogany rod" as
+      // the answer, so the menu gives that answer; typed commands are left exactly as the game has them.
+      if (/featureless/.test(b.dataset.cmd)) {
+        let n = 0; const t = setInterval(() => { const S = Z().S; if (++n > 40) clearInterval(t); if (!S.zm || S.zm.state !== 'input' || S.lastText === before) return; clearInterval(t);
+          if (/Which do you mean, the featureless mahogany rod/.test(S.lastText || '')) Z().sendCommand('a featureless mahogany rod', 'raw'); }, 100);
+      }
+    }
     else if (b.dataset.ins) { const i = $('#cmd'); i.value = (i.value ? i.value.trim() + ' ' : '') + b.dataset.ins; i.focus(); }
   });
   document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop') && !e.target.closest('.invItem')) hidePop(); });

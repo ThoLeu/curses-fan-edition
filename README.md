@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1712 – Abgleich mit dem rekonstruierten Quelltext
+26-11-13-1726 – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
 
 ## Ältere Versionen
 
+- [26-11-13-1712](archiv/26-11-13-1712.html) – Abgleich mit dem rekonstruierten Quelltext
 - [26-11-13-1658](archiv/26-11-13-1658.html) – Dinge, die man schiebt
 - [26-11-13-1549](archiv/26-11-13-1549.html) – Startbildschirm mit Spielen-Knopf
-- [26-11-13-1541](archiv/26-11-13-1541.html) – Inventar wie im Spiel
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -185,6 +185,15 @@ Allen Garvin hat Curses aus der Spieldatei dekompiliert und als Inform-6-Quellte
 - Auf der Insel Pharos sieht man den Schlüssel im Gang unter dem Gitter, bis man ihn holt.
 - In der Spirit World altert das Grab sichtbar, so wie der Text es beschreibt: mit jedem Jahrhundert mehr Risse, Staub und verblasste Farbe.
 - Die Stäbe im Bogen des Infinity Symbol lassen sich auch aus jeder Zahlenangabe des Textes ablesen. Austin sitzt in Alexandria auf dem Damm statt im Wasser.
+
+### 32. Seltene Zustände und Garvins Fehlerliste (13. November 2026)
+Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die man nur auf Umwegen erreicht. Jeder wurde einzeln im Spiel nachgestellt und angesehen.
+- Neben der Mauer (Beside the Wall): Wenn man den Strauch beiseiteschiebt, liegt da eine Holzluke. Geschlossen sieht man nur den Deckel, geöffnet den dunklen Fassschacht und den aufgeklappten Deckel daneben.
+- Weinkeller: Ist die Luke oben offen, fällt Tageslicht durch den Schacht herein, so wie der Text es sagt.
+- This Is The Death: Der Gang endet in einer Marmorwand, bis die Grabkammer darunter offen ist. Danach öffnet er sich.
+- Dienstbotenzimmer: Wer über die Dienstbotentreppe kommt, sieht die schmale Tür in der Nordwand offen stehen.
+- Garvins Fehlerliste zu Release 16 wurde durchgesehen. Ein Fehler betrifft die Bedienung: Sobald ein Stab einen Namen hat, passt „featureless“ immer noch auf ihn, und das Spiel fragt endlos, welcher Stab gemeint ist. Das Inventarmenü gibt deshalb selbst die Antwort, die das Spiel annimmt („a featureless mahogany rod“). Getippte Befehle bleiben, wie das Spiel sie behandelt.
+- Die übrigen Punkte der Liste ändern nichts am Bild. Der Kohlenbunker lässt sich von außen nie aufschließen, das Bild folgt dem Spielzustand. Der doppelt gezählte Stein ergibt am Ende 554 von 550 Punkten, auch auf dem Lösungsweg. Die Anzeige zeigt einfach die Zahl des Spiels.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
