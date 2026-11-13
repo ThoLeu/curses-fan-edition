@@ -1,6 +1,6 @@
-# Curses · a customized interpreter
+# Curses · an illustrated interpreter
 
-A customized Z-machine interpreter for Graham Nelson’s 1993 text adventure *Curses*, playable in the browser, with original room illustrations, an automatic map, generative music, inventory icons, translation help and a smart parser. No game text included – load your own `curses.z5`. Everything in a single HTML file, ready to play.
+An illustrated Z-machine interpreter for Graham Nelson’s 1993 text adventure *Curses*, playable in the browser, with original room illustrations, an automatic map, generative music, inventory icons, translation help and a smart parser. No game text included – load your own `curses.z5`. Everything in a single HTML file, ready to play.
 
 **Spielen / Play:** [index.html](index.html) (über GitHub Pages: `https://tholeu.github.io/curses-fan-edition/`)
 
@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1102 – Letzte Räume und sofortige Änderungen
+26-11-13-1109 – Neuer Titel: an illustrated interpreter
 
 ## Ältere Versionen
 
+- [26-11-13-1102](archiv/26-11-13-1102.html) – Letzte Räume und sofortige Änderungen
 - [26-11-13-0951](archiv/26-11-13-0951.html) – Bild nur noch Illustration
 - [26-11-13-0907](archiv/26-11-13-0907.html) – Zwanzig weitere Raumzustände
-- [26-11-13-0857](archiv/26-11-13-0857.html) – Dunkelkammer: rotes Licht erst mit der Lampe
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -148,6 +148,9 @@ Damit der Charakter des Textadventures erhalten bleibt, lässt sich im Bild nich
 
 ### 24. Die letzten Räume und sofortige Änderungen (13. November 2026)
 Auch die vier Räume abseits der Komplettlösung (Stream, Tree Planting, Up the Beanstalk, Heavenly Place) sind jetzt auf Gegenstände durchprobiert. In keinem ändert eine Handlung das Aussehen. Zwei Veränderungen meldet das Spiel nur in der Antwort auf eine Handlung: die Lücke in der Hecke des Croquet Lawn und den aufbrechenden Eingang der Spirit World. Sie erscheinen jetzt sofort im Bild, nicht erst nach dem nächsten Umsehen. Dafür übernimmt die gespeicherte Raumbeschreibung den Satz, mit dem das Spiel die Veränderung später selbst beschreibt.
+
+### 25. Neuer Titel: an illustrated interpreter (13. November 2026)
+Aus „Curses · a customized interpreter“ wird „Curses · an illustrated interpreter“. Seit die Bilder reine Illustration sind, beschreibt das Wort genau, was diesen Interpreter von anderen unterscheidet.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

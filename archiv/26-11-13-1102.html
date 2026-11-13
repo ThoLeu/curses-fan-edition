@@ -286,18 +286,12 @@ body.classic .cmdEcho{color:var(--ink);font-style:normal}
 #roomItems{display:flex;flex-wrap:wrap;gap:5px;padding:7px 2px 0;align-items:center}
 #roomItems::before{content:attr(data-label);font-size:12px;font-style:italic;color:var(--dim);margin-right:2px}
 #roomItems[hidden]{display:none}
-.riItem{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 5px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:inherit;font-size:12px;cursor:pointer;max-width:14em}
-.riItem:hover{border-color:var(--accent,#e8c47a)}
+.riItem{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 5px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:inherit;font-size:12px;cursor:default;max-width:14em}
 .riItem .ico{width:18px;height:18px;display:inline-flex}.riItem .ico svg{width:18px;height:18px}.riItem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pic{position:relative;aspect-ratio:400/260;border-radius:10px;overflow:hidden;background:#0d0a08;box-shadow:0 0 0 1px #4a3a28,0 0 0 5px #1a140e,0 0 0 6px #5a4630,0 10px 24px rgba(0,0,0,.5)}
 #pic .layer{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
 #pic .layer.on{opacity:1}
 #pic svg *{pointer-events:none}
-body.piclabels #pic .zi,body.piclabels #pic .zi *{pointer-events:auto;cursor:pointer}
-body.piclabels #pic .zi:hover{filter:brightness(1.3) drop-shadow(0 0 3px rgba(255,224,160,.9))}
-#picTip{position:absolute;z-index:4;pointer-events:none;background:rgba(20,15,10,.92);border:1px solid var(--acc);border-radius:8px;padding:5px 9px;box-shadow:0 6px 18px rgba(0,0,0,.5);max-width:220px}
-#picTip b{display:block;font-weight:normal;font-size:14px;color:#ffe7b5}
-#picTip small{display:block;font-size:11.5px;color:var(--dim);font-style:italic}
 #pic svg{width:100%;height:100%;display:block}
 #mapSvg{touch-action:none}#mapSvg .node{cursor:grab}#mapSvg.dragging,#mapSvg.dragging .node{cursor:grabbing}
 #pic .zu{pointer-events:none}
@@ -368,7 +362,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-0857</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1102</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +401,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-13-0857</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-13-1102</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -486,7 +480,6 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
       <label class="row"><span>Terminalfarbe</span><select data-p="classicColor"><option value="amber">Bernstein</option><option value="green">Grün</option><option value="white">Weiß</option></select></label>
       <h3>Eingabehilfen</h3>
       <label class="row"><span>Wörter antippen <small>ein Klick auf ein Wort im Text schlägt Befehle vor</small></span><input type="checkbox" data-p="wordClick"></label>
-      <label class="row"><span>Namen im Bild <small>beim Darüberfahren mit der Maus; ein Klick untersucht den Gegenstand</small></span><input type="checkbox" data-p="picLabels"></label>
       <label class="row"><span>Bekannte Wege als Knöpfe</span><input type="checkbox" data-p="exits"></label>
       <label class="row"><span>Autovervollständigung <small>nur Wörter, die schon im Text vorkamen</small></span><input type="checkbox" data-p="autocomplete"></label>
       <label class="row"><span>Punkteanzeige <small>kurzes „+5“, wenn der Punktestand steigt</small></span><input type="checkbox" data-p="scoreToast"></label>
@@ -2181,8 +2174,10 @@ B['East Annexe'] = { cat: 'attic', draw(h) {
     for (let k = 1; k < 4; k++) h.add(`<ellipse cx="${x + r * .6}" cy="${y}" rx="${r * .45 * k / 4}" ry="${r * k / 4}" fill="none" stroke="#b8963a" stroke-width="1"/>`);
     for (let k = 0; k < 8; k++) h.add(`<circle cx="${x - r + h.R(0, r * 1.6)}" cy="${y - r + h.R(0, r * 2)}" r="${h.R(1, 3)}" fill="#f0d88a" opacity=".6"/>`);
   }
-  // the attics to the west and south are dark
-  h.add(`<polygon points="0,0 120,96 120,196 0,260" fill="#000" opacity=".55"/><rect x="0" y="236" width="400" height="24" fill="#000" opacity=".4"/>`);
+  // the attics to the west and south are dark, until the hatchway in the dead end is open: then sunlight comes from the south, behind you
+  h.add(`<polygon points="0,0 120,96 120,196 0,260" fill="#000" opacity=".55"/>`);
+  if (/dead end south is bright/i.test(h.desc)) { h.add(`<rect x="0" y="170" width="400" height="90" fill="${h.lin('sbk', [[0, '#fff0c0', 0], [1, '#fff4d0', .6]])}"/>`); h.glow(200, 270, 220, '#fff0c0', .5); }
+  else h.add(`<rect x="0" y="236" width="400" height="24" fill="#000" opacity=".4"/>`);
 } };
 
 B['Dark Room'] = { cat: 'interior', draw(h) {
@@ -2342,7 +2337,10 @@ B['Inside Cupboard'] = { cat: 'interior', draw(h) {
   // gas mask on the floor
   if (h.st.here('gas mask')) h.add(h.tag('gas mask', `<ellipse cx="260" cy="226" rx="24" ry="18" fill="#4a5244"/><circle cx="250" cy="220" r="7" fill="#9ab0b8" stroke="#222" stroke-width="2"/><circle cx="270" cy="220" r="7" fill="#9ab0b8" stroke="#222" stroke-width="2"/><rect x="254" y="232" width="12" height="16" rx="3" fill="#2a2e28"/><path d="M260,248 q20,6 40,-4" stroke="#2a2e28" stroke-width="5" fill="none"/>`));
   h.add(`<rect x="335" y="88" width="6" height="110" fill="#000" opacity=".3"/>`);
-  h.glow(200, 140, 200, '#ffe2a6', .15);
+  // the blacked-out skylight lets no light in: only what you carry shows the room; open, the sky lights it
+  const sky = (h.st.known && h.st.open('skylight', false)) || /skylight above is open/i.test(h.desc);
+  if (sky) { h.add(`<polygon points="160,30 240,30 300,260 100,260" fill="#e8f0f8" opacity=".14"/>`); h.glow(200, 40, 220, '#f0f4ff', .35); }
+  else h.add(`<defs><radialGradient id="icDim" cx=".5" cy=".6" r=".6"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset=".6" stop-color="#000" stop-opacity=".72"/><stop offset="1" stop-color="#000" stop-opacity=".92"/></radialGradient></defs><rect width="400" height="260" fill="url(#icDim)"/>`);
 } };
 
 B['Roof'] = { cat: 'heights', draw(h) {
@@ -2401,9 +2399,11 @@ B["Alison's Writing Room"] = { cat: 'interior', draw(h) {
   // dice-motif wallpaper
   for (let y = 58; y < 196; y += 22) for (let x = 66 + ((y / 22) % 2) * 11; x < 336; x += 22) { const n = 1 + Math.floor(h.r() * 6); h.add(`<rect x="${x}" y="${y}" width="12" height="12" rx="2" fill="#efe6d4" stroke="#9a8a70" stroke-width=".6"/>${pips(x, y, n)}`); }
   function pips(x, y, n) { const P = { 1: [[6, 6]], 2: [[3, 3], [9, 9]], 3: [[3, 3], [6, 6], [9, 9]], 4: [[3, 3], [9, 3], [3, 9], [9, 9]], 5: [[3, 3], [9, 3], [6, 6], [3, 9], [9, 9]], 6: [[3, 3], [9, 3], [3, 6], [9, 6], [3, 9], [9, 9]] }; return P[n].map(([a, b]) => `<circle cx="${x + a}" cy="${y + b}" r=".9" fill="#5a4a3a"/>`).join(''); }
-  // latticed south windows showing blue sky (on the right wall)
+  // latticed south windows showing blue sky (on the right wall); opened, the casements swing into the room
   h.add(`<polygon points="352,60 392,40 392,170 352,170" fill="#8ac0e8"/>`);
-  for (let i = 0; i < 6; i++) h.add(`<line x1="352" y1="${60 + i * 22}" x2="392" y2="${40 + i * 26}" stroke="#1a1a1a" stroke-width="1.2"/><line x1="${352 + i * 8}" y1="${60 - i * 4}" x2="${352 + i * 8}" y2="170" stroke="#1a1a1a" stroke-width="1.2"/>`);
+  const winOpen = (h.st.known && h.st.open('windows', false)) || /latticed windows open on/i.test(h.desc);
+  if (winOpen) { h.add(`<path d="M360,120 q14,-20 30,-10 v60 h-30z" fill="#6aa850" opacity=".7"/>`); h.add(h.tag('windows', `<polygon points="352,60 330,72 330,176 352,170" fill="#8ac0e8" opacity=".35" stroke="#1a1a1a" stroke-width="2"/>${[0, 1, 2, 3, 4].map(i => `<line x1="330" y1="${72 + i * 24}" x2="352" y2="${60 + i * 24}" stroke="#1a1a1a" stroke-width="1.2"/>`).join('')}`)); h.glow(372, 110, 90, '#fff8d8', .35); }
+  else for (let i = 0; i < 6; i++) h.add(`<line x1="352" y1="${60 + i * 22}" x2="392" y2="${40 + i * 26}" stroke="#1a1a1a" stroke-width="1.2"/><line x1="${352 + i * 8}" y1="${60 - i * 4}" x2="${352 + i * 8}" y2="170" stroke="#1a1a1a" stroke-width="1.2"/>`);
   // engravings of four heroines
   for (let i = 0; i < 4; i++) { const x = 92 + i * 44; h.add(`<rect x="${x}" y="70" width="30" height="38" fill="#f4eee0" stroke="#3a2a1a" stroke-width="2"/><ellipse cx="${x + 15}" cy="${84}" rx="6" ry="7" fill="#8a8070"/><path d="M${x + 6},106 q9,-16 18,0" fill="#6a6050"/>`); }
   // small door with a square outline of sixes (on the left)
@@ -2411,6 +2411,9 @@ B["Alison's Writing Room"] = { cat: 'interior', draw(h) {
   // comfortable bed and long vanity mirror
   h.add(`<rect x="150" y="160" width="160" height="44" fill="#f0e8f0"/><rect x="146" y="140" width="10" height="76" fill="#6a4a30"/><rect x="304" y="150" width="10" height="66" fill="#6a4a30"/><path d="M180,170 Q240,156 304,170 L304,202 L180,202Z" fill="#c8a0b8"/><ellipse cx="174" cy="160" rx="18" ry="9" fill="#fff"/>`);
   h.add(`<rect x="318" y="96" width="24" height="104" rx="4" fill="#c8d8e0" stroke="#8a6a3a" stroke-width="3"/><path d="M324,104 l12,40" stroke="#fff" opacity=".6" stroke-width="2"/>`);
+  // the Merchant Navy flag spread out as a blanket on the bed
+  if (h.st.known ? h.st.inside('bed').some(n => /flag/i.test(n)) : /flag is spread out as a blanket|on the comfortable bed (is|you can see) a flag/i.test(h.desc))
+    h.add(h.tag('flag', `<path d="M184,168 Q240,156 300,168 L300,200 L184,200Z" fill="#c82a2a"/><rect x="186" y="168" width="40" height="18" fill="#1a3a8a"/><path d="M186,168 l40,18 M226,168 l-40,18 M206,168 v18 M186,177 h40" stroke="#fff" stroke-width="3"/><path d="M206,168 v18 M186,177 h40" stroke="#c82a2a" stroke-width="1.5"/>`));
   // mildew
   for (let i = 0; i < 12; i++) h.add(`<circle cx="${h.R(60, 340)}" cy="${h.R(50, 70)}" r="${h.R(3, 10)}" fill="#5a6a4a" opacity=".2"/>`);
 } };
@@ -2526,7 +2529,12 @@ B['The Octagon'] = { cat: 'interior', draw(h) {
   for (const x of [92, 290]) h.add(`<rect x="${x}" y="140" width="40" height="50" fill="#5a4a36" stroke="#2a2016"/><rect x="${x + 3}" y="120" width="34" height="22" fill="#8aa0a8" opacity=".25" stroke="#6a6a6a"/><path d="M${x + 12},140 l6,-12 l6,12z" fill="#8a7a5a"/>`);
   // the charcoal sketch, the gilded model coffin, the parchment scroll
   if (h.st.here('sketch')) h.add(h.tag('sketch', `<rect x="176" y="112" width="48" height="36" fill="#e8e0cc" stroke="#4a3a2a" stroke-width="2"/><path d="M182,142 q10,-20 18,-6 q8,-14 18,6" stroke="#2a2a2a" fill="none"/>`));
-  if (h.st.here('coffin')) h.add(h.tag('coffin', `<path d="M170,228 L190,212 L232,212 L246,228 L232,244 L190,244Z" fill="#d8a830" stroke="#8a6010" stroke-width="2"/><path d="M200,220 v16 M194,226 h12" stroke="#8a6010" stroke-width="2"/>`));
+  if (h.st.here('coffin')) {
+    const open = h.st.known ? h.st.open('coffin', false) : /coffin rests open/i.test(h.desc), power = !open && (/throbbing with electric power/i.test(h.desc) || !!(h.st.mentioned && h.st.mentioned('throbbing')));
+    if (open) h.add(h.tag('coffin', `<path d="M170,228 L190,212 L232,212 L246,228 L232,244 L190,244Z" fill="#8a6010" stroke="#6a4a08" stroke-width="2"/><path d="M178,228 L194,216 L228,216 L238,228 L228,240 L194,240Z" fill="#2a1a08"/><path d="M190,212 L198,186 L240,186 L232,212Z" fill="#d8a830" stroke="#8a6010" stroke-width="2"/><path d="M212,192 v14 M206,198 h12" stroke="#8a6010" stroke-width="2"/>`));
+    else h.add(h.tag('coffin', `<path d="M170,228 L190,212 L232,212 L246,228 L232,244 L190,244Z" fill="#d8a830" stroke="#8a6010" stroke-width="2"/><path d="M200,220 v16 M194,226 h12" stroke="#8a6010" stroke-width="2"/>`));
+    if (power) { h.glow(208, 228, 46, '#a8d8ff', .6); h.add(`<path d="M172,222 l-10,-8 l6,-2 l-10,-10 M244,222 l10,-8 l-6,-2 l10,-10 M208,210 l-4,-12 l6,2 l-2,-12" stroke="#d8f0ff" stroke-width="1.6" fill="none"/>`); }
+  }
   if (h.st.here('scroll')) h.add(h.tag('scroll', `<rect x="336" y="150" width="14" height="50" rx="5" fill="#f0e8d4" transform="rotate(8 343 175)"/><ellipse cx="346" cy="152" rx="9" ry="4" fill="#e8dcc0"/>`));
   // small window-vent high in the southwest wall
   h.add(`<rect x="20" y="70" width="26" height="12" fill="#3a3a3a" transform="skewY(-14)"/>`);
@@ -2539,11 +2547,14 @@ B['Garden Stream'] = { cat: 'garden', draw(h) {
   h.add(`<rect x="210" y="0" width="190" height="150" fill="#a8988a"/>`); stones(h, 210, 0, 400, 150, '#6a5a4e', .35);
   for (let i = 0; i < 3; i++) h.add(`<rect x="${236 + i * 54}" y="30" width="26" height="40" fill="#3a4a5a"/><rect x="${236 + i * 54}" y="90" width="26" height="40" fill="#3a4a5a"/>`);
   // coal bunker with shut loading door on the house wall
-  h.add(`<rect x="250" y="134" width="70" height="36" fill="#3a3a3a"/><polygon points="246,134 324,134 316,124 254,124" fill="#4a4a4a"/><rect x="270" y="142" width="30" height="20" fill="#2a2a2a" stroke="#555"/>`);
+  const bunkerOpen = h.st.known ? h.st.open('coal bunker', false) : /coal bunker, whose door stands open/i.test(h.desc);
+  h.add(h.tag('coal bunker', `<rect x="250" y="134" width="70" height="36" fill="#3a3a3a"/><polygon points="246,134 324,134 316,124 254,124" fill="#4a4a4a"/>${bunkerOpen ? `<rect x="270" y="142" width="30" height="20" fill="#050505"/><polygon points="270,142 300,142 304,130 266,130" fill="#2a2a2a" stroke="#555"/>${[0, 1, 2].map(i => `<circle cx="${276 + i * 8}" cy="160" r="3" fill="#111"/>`).join('')}` : `<rect x="270" y="142" width="30" height="20" fill="#2a2a2a" stroke="#555"/>`}`));
   h.add(`<path d="M0,150 Q200,140 400,160 L400,260 L0,260Z" fill="#5a8a46"/>`);
   for (let i = 0; i < 4; i++) h.tree(h.R(10, 190), h.R(150, 160), h.R(34, 50), '#3a6a32');
   // the meandering stream with reeds
   h.add(`<path d="M0,214 Q90,190 180,214 T400,206 L400,228 Q300,236 190,240 T0,236Z" fill="#7aaac8"/><path d="M20,222 q30,-6 60,0 M220,226 q40,-6 70,0" stroke="#e8f4ff" stroke-width="1.2" fill="none" opacity=".6"/>`);
+  // the skiff, moored on the stream
+  if (h.st.known ? h.st.here('skiff') : /skiff/i.test(h.desc)) h.add(h.tag('skiff', `<path d="M60,218 L170,218 L156,232 L72,232Z" fill="#6a4a2a" stroke="#3a2614"/><line x1="112" y1="218" x2="112" y2="140" stroke="#4a3018" stroke-width="3"/><path d="M115,146 Q150,180 115,212Z" fill="#e8dcc0"/><path d="M60,220 l-20,-10" stroke="#8a7a5a" stroke-width="1.2"/>`));
   for (let i = 0; i < 40; i++) { const x = h.R(0, 400), y = h.R(196, 250); h.add(`<line x1="${x}" y1="${y}" x2="${x + h.R(-4, 4)}" y2="${y - h.R(12, 28)}" stroke="#2f5a26" stroke-width="1.6"/>`); if (h.r() < .25) h.add(`<ellipse cx="${x}" cy="${y - 26}" rx="2" ry="6" fill="#6a4a2a"/>`); }
 } };
 
@@ -2674,6 +2685,10 @@ B['Croquet Lawn'] = { cat: 'garden', draw(h) {
   const hoops = [[110, 168, .7], [290, 168, .7], [150, 192, .85], [250, 192, .85], [90, 230, 1.1], [310, 230, 1.1]];
   for (const [x, y, s] of hoops) h.add(`<path d="M${x - 8 * s},${y} v${-14 * s} a${8 * s},${6 * s} 0 0 1 ${16 * s},0 v${14 * s}" stroke="#f4f4f4" stroke-width="${2 * s}" fill="none"/>`);
   h.add(`<circle cx="170" cy="214" r="5" fill="#3a6ac8"/><circle cx="236" cy="238" r="6" fill="#d83a2a"/>`);
+  // a gap in the hedge to the northwest, once the mallet has broken it
+  if (/hedge is broken slightly to the northwest/i.test(h.desc)) h.add(h.tag('hedge', `<path d="M40,148 L46,118 Q60,108 74,118 L80,148Z" fill="#3a5a2a"/><path d="M50,148 L54,124 Q60,118 68,124 L70,148Z" fill="#8ab4d8" opacity=".55"/><path d="M44,120 l-6,-6 M78,118 l6,-8 M60,112 v-8" stroke="#244a20" stroke-width="2"/>`));
+  // the hole you dug
+  if (h.st.known ? h.st.here('dug hole') && h.st.open('dug hole', false) : /hole you dug in the lawn is just here/i.test(h.desc)) h.add(h.tag('hole', `<ellipse cx="200" cy="244" rx="28" ry="8" fill="#2a1a0c"/><ellipse cx="200" cy="244" rx="22" ry="5" fill="#0a0604"/><path d="M168,248 q10,-8 22,-4 M212,240 q14,-2 22,6" stroke="#6a4a2a" stroke-width="5" fill="none"/>`));
 } };
 
 B['Folly'] = { cat: 'garden', draw(h) {
@@ -2784,6 +2799,8 @@ B['Aboard Ship'] = { cat: 'water', draw(h) {
   h.add(`<g transform="rotate(-8 200 200)"><polygon points="-40,190 440,190 420,280 -20,280" fill="#7a5a3a"/>${Array.from({ length: 12 }, (_, i) => `<line x1="${-40 + i * 42}" y1="190" x2="${-20 + i * 40}" y2="280" stroke="#5a3e24"/>`).join('')}<rect x="-40" y="176" width="480" height="6" fill="#4a3018"/>${Array.from({ length: 16 }, (_, i) => `<rect x="${-36 + i * 30}" y="182" width="4" height="10" fill="#4a3018"/>`).join('')}`);
   // the mast rising dizzyingly high, with rigging
   h.add(`<rect x="190" y="-80" width="12" height="270" fill="#5a3e24"/><line x1="196" y1="-60" x2="20" y2="186" stroke="#3a2a1a"/><line x1="196" y1="-60" x2="380" y2="186" stroke="#3a2a1a"/>${Array.from({ length: 6 }, (_, i) => `<line x1="${40 + i * 12}" y1="${160 - i * 30}" x2="${150 + i * 8}" y2="${160 - i * 30}" stroke="#3a2a1a" opacity=".6"/>`).join('')}</g>`);
+  if (h.st.known ? h.st.here('spar') : /broken flagpole/i.test(h.desc)) h.add(h.tag('flagpole', `<g transform="rotate(-8 200 200)"><rect x="220" y="196" width="130" height="7" rx="2" fill="#a07a4a" stroke="#5a3e24" transform="rotate(4 220 196)"/><path d="M350,200 l6,-4 l-2,6 l6,2z" fill="#a07a4a"/></g>`));
+  if (h.st.known ? h.st.here('flag') : /flag has fluttered to a heap/i.test(h.desc)) h.add(h.tag('flag', `<path d="M120,228 q10,-16 30,-12 q14,-10 30,4 q6,14 -12,16 q-24,6 -48,-8z" fill="#c82a2a"/><path d="M128,222 q10,-8 22,-6 l4,10 q-14,4 -26,-4z" fill="#1a3a8a"/><path d="M130,220 l20,8 M150,216 l-18,10" stroke="#fff" stroke-width="2"/>`));
   h.add(`<rect width="400" height="260" fill="#ffffff" opacity=".12"/>`);
 } };
 
@@ -2870,6 +2887,9 @@ h.add(h.open('moonstone'));   // the Moonstone: a raised door-sized flagstone in
     h.add(`<polygon points="160,206 240,206 236,162 164,162" fill="#8a8680" stroke="#4a4640" stroke-width="2"/><path d="M196,170 a12,12 0 1 0 10,20 a9,9 0 1 1 -10,-20z" fill="#d8dce8"/>`);
   } else h.add(`<polygon points="160,206 240,206 252,250 148,250" fill="#8a8680" stroke="#4a4640" stroke-width="2"/><path d="M196,214 a14,14 0 1 0 12,24 a11,11 0 1 1 -12,-24z" fill="#d8dce8"/>`);
   h.add('</g>');
+  // the High Rods of Life, Love and Death, leaning together in a pyramid at the top of the slope down
+  const hr = h.st.known ? ['Life', 'Love', 'Death'].filter(n => (h.st.hereList || []).includes(n)) : (/high rods of life, love and death lean together/i.test(h.desc) ? ['Life', 'Love', 'Death'] : []);
+  if (hr.length) h.add(h.tag('High Rods', hr.map((n, i) => { const col = { Life: '#4aa84a', Love: '#e87aa0', Death: '#2a2a30' }[n], x0 = [170, 200, 230][i]; return `<line x1="${x0}" y1="${i === 1 ? 250 : 246}" x2="${hr.length > 1 ? 200 : x0 + 6}" y2="168" stroke="#1a1410" stroke-width="7" stroke-linecap="round"/><line x1="${x0}" y1="${i === 1 ? 250 : 246}" x2="${hr.length > 1 ? 200 : x0 + 6}" y2="168" stroke="${col}" stroke-width="4.5" stroke-linecap="round"/>`; }).join('')));
   // narrow stair upward, side chapels
   h.add(`<rect x="360" y="40" width="34" height="140" fill="#0e0c0a"/><rect x="6" y="60" width="40" height="120" fill="#141210"/>`);
 } };
@@ -3260,7 +3280,7 @@ B['Maze Foundations'] = { cat: 'garden', draw(h) {
   // long ago, before the maze was grown: a grid of grass plots and seedbeds; fences and beds as the text says
   const d = (h.desc || '').toLowerCase();
   const side = w => new RegExp('(fence|fences)[^.]*\\b' + w).test(d) || new RegExp('fences to (\\w+ and )?' + w).test(d);
-  const bed = w => new RegExp('seedbed to the ' + w).test(d);
+  const bed = w => new RegExp('seedbeds? to the (\\w+ and )?' + w).test(d);
   sky(h, '#90b8d8', '#e8ecdc'); clouds(h, 4, 10, 60);
   h.add(`<path d="M0,120 Q200,112 400,122 L400,260 L0,260Z" fill="#7a9a5a"/>`);
   // a grid of plots receding
@@ -3482,15 +3502,29 @@ const MAT = {
 };
 
 // ---------------------------------------------------------------- the composer
+const LAYOUT = {};
 function compose(h, name, desc, cat) {
   if (!GT) return false;
   const rd = GT.reader(desc);
   if (rd.text.length < 30) return false;
-  const st = GT.stage(name, rd, cat);
-  const mat = GT.material(rd, cat, st);
-  const exits = GT.exits(rd), walls = GT.walls(rd);
+  // A room keeps its layout (stage, material, view, size, ways out) when its description changes
+  // because of something the player did; only a much fuller description lays it out anew.
+  // (a description is "much fuller" when it is longer and keeps less than half of the sentences the layout came from)
+  const sents = rd.text.toLowerCase().split(/(?<=[.!?])\s+/).filter(x => x.length > 12);
+  const L = LAYOUT[name], kept = L ? L.sents.filter(x => sents.includes(x)).length / Math.max(1, L.sents.length) : 0;
+  const fresh = !L || (rd.text.length > L.len * 1.3 && kept < .5);
+  const st = fresh ? GT.stage(name, rd, cat) : L.st;
+  const mat = fresh ? GT.material(rd, cat, st) : L.mat;
+  // people walking down the stairs are not a way out of their own
+  let exits = GT.exits(rd).filter(e => !/\b(strides?|strolls?|walks?|runs?|marche?s?|hurr(y|ies)|clatters?)\b/.test(e.clause)); const walls = GT.walls(rd);
+  if (!fresh) exits = L.exits.concat(exits.filter(e => !L.exits.some(x => x.dir === e.dir && x.vert === e.vert)));
+  // a staircase seen through an open door is drawn with the door, not as a way out of its own
+  if (rd.has('door opens onto a staircase')) exits = exits.filter(e => !(e.vert && /door opens onto/.test(e.clause)));
   const ctx = { h, rd, name, cat, st, mat, exits, walls, surf: {}, used: { back: [], high: [], left: [], right: [], floor: [], floorB: [], land: [] }, out: [] };
-  ctx.facing = facing(ctx);
+  ctx.facing = fresh ? facing(ctx) : L.facing;
+  if (!fresh) ctx.size = L.size;
+  if (fresh) LAYOUT[name] = { len: rd.text.length, sents, st, mat, exits: exits.slice(), facing: ctx.facing, size: null };
+  ctx.layout = LAYOUT[name];
   if (rd.has('only into a solid|leads only to a sealed wall|only to a sealed')) ctx.exits = ctx.exits.filter(e => e.dir !== ctx.facing);
   ctx.rel = d => d === null || d === undefined ? null : (d - ctx.facing + 8) % 8;
   if (/inside well/i.test(name) || rd.has('clinging perilously to the walls')) { P().SHAFT(ctx); P().PORTABLES(ctx); return true; }
@@ -3526,6 +3560,7 @@ function geo(ctx) {
   let size = rd.has('vast|great|spacious|large|huge|hall|cavernous') ? 'large' : rd.has('tiny|small|little room|cramped|low|claustrophobic|stooped|almost no room|no room|twelve feet') ? 'small' : 'normal';
   if (st === 'passage') size = 'deep';
   if (/revolving door|buried alive|sarcophagus|well/i.test(ctx.name)) size = 'small';
+  if (ctx.size) size = ctx.size; else if (ctx.layout) ctx.layout.size = size;
   const g = { large: [104, 60, 296, 166], normal: [74, 48, 326, 186], small: [50, 34, 350, 210], deep: [166, 92, 234, 146] }[size];
   const [bx0, by0, bx1, by1] = g;
   const sb = (bx1 - bx0) / W;
@@ -3794,7 +3829,7 @@ const S = {
   },
   sphinx: flip => `<g transform="scale(${flip ? -1 : 1} 1)"><rect x="-40" y="-12" width="80" height="12" fill="#a8885a"/><path d="M-34,-12 q4,-26 30,-26 h26 q10,0 12,10 l2,16z" fill="#c8a670"/><path d="M14,-38 q0,-24 14,-26 q14,2 14,24 l-4,16 h-20z" fill="#d0b07a"/><path d="M12,-56 l-6,20 M44,-56 l6,20" stroke="#a8885a" stroke-width="6"/><circle cx="24" cy="-48" r="2" fill="#2a1a0a"/><circle cx="34" cy="-48" r="2" fill="#2a1a0a"/><path d="M26,-40 h6" stroke="#5a3a1a" stroke-width="1.6"/><path d="M-34,-12 q-12,-4 -10,-18" stroke="#c8a670" stroke-width="4" fill="none"/></g>`,
   altar: flame => `<rect x="-52" y="-44" width="104" height="44" fill="#14121a"/><rect x="-56" y="-50" width="112" height="8" fill="#22202a"/><path d="M-40,-30 h80" stroke="#3a3848" stroke-width="1"/>${flame ? `<path d="M-14,-50 q-4,-22 14,-28 q18,6 14,28z" fill="#a8783a" stroke="#5a3a12" stroke-width="1.5"/><path d="M-10,-78 q10,-30 4,-46 q16,16 10,46z" fill="#ff9a30"/><path d="M-4,-78 q4,-16 2,-26 q8,10 6,26z" fill="#ffe08a"/>` : ''}`,
-  mummy: () => `<path d="M-90,-8 L-80,-40 Q-60,-52 60,-48 Q90,-44 92,-26 L84,-6Z" fill="#d8a830" stroke="#6a4a10" stroke-width="2"/><path d="M-70,-40 Q-20,-50 50,-46 L48,-14 L-72,-12Z" fill="#2a5aa8"/>${[-56, -40, -24, -8, 8, 24, 40].map(x => `<path d="M${x},-46 v34" stroke="#e8c040" stroke-width="3"/>`).join('')}<ellipse cx="70" cy="-30" rx="18" ry="15" fill="#e8c040" stroke="#6a4a10"/><circle cx="66" cy="-32" r="2" fill="#1a1a2a"/><circle cx="76" cy="-32" r="2" fill="#1a1a2a"/><rect x="-92" y="-8" width="186" height="8" fill="#5a4a2a"/>`,
+  mummy: (open) => open ? `<path d="M-90,-8 L-80,-40 Q-60,-52 60,-48 Q90,-44 92,-26 L84,-6Z" fill="#d8a830" stroke="#6a4a10" stroke-width="2"/><path d="M-74,-40 Q-20,-48 52,-45 Q76,-42 78,-28 L72,-14 L-76,-12Z" fill="#2a1a08"/><path d="M-70,-36 Q-20,-44 48,-41" stroke="#f0c850" stroke-width="2" fill="none" opacity=".7"/><g transform="translate(-6 -50) rotate(-16)"><path d="M-84,0 Q-60,-14 60,-10 Q90,-6 92,10 L-84,10Z" fill="#2a5aa8" stroke="#6a4a10" stroke-width="2"/>${[-60, -40, -20, 0, 20, 40].map(x => `<path d="M${x},-8 v16" stroke="#e8c040" stroke-width="3"/>`).join('')}<ellipse cx="72" cy="2" rx="16" ry="10" fill="#e8c040" stroke="#6a4a10"/></g><rect x="-92" y="-8" width="186" height="8" fill="#5a4a2a"/>` : `<path d="M-90,-8 L-80,-40 Q-60,-52 60,-48 Q90,-44 92,-26 L84,-6Z" fill="#d8a830" stroke="#6a4a10" stroke-width="2"/><path d="M-70,-40 Q-20,-50 50,-46 L48,-14 L-72,-12Z" fill="#2a5aa8"/>${[-56, -40, -24, -8, 8, 24, 40].map(x => `<path d="M${x},-46 v34" stroke="#e8c040" stroke-width="3"/>`).join('')}<ellipse cx="70" cy="-30" rx="18" ry="15" fill="#e8c040" stroke="#6a4a10"/><circle cx="66" cy="-32" r="2" fill="#1a1a2a"/><circle cx="76" cy="-32" r="2" fill="#1a1a2a"/><rect x="-92" y="-8" width="186" height="8" fill="#5a4a2a"/>`,
   // the adamantine knight on his tomb: headless, handless and heartless until the parts are fitted
   tombKnight: (parts = {}) => {
     let s = `<rect x="-90" y="-44" width="180" height="44" fill="#6a6660" stroke="#2a2826" stroke-width="2"/><rect x="-94" y="-50" width="188" height="8" fill="#7a766e"/><path d="M-60,-30 h120 M-60,-16 h120" stroke="#4a4844" stroke-width="1"/>`;
@@ -3874,10 +3909,42 @@ const WS = {
 
 // ---------------------------------------------------------------- what the room descriptions name
 // [pattern, where, width, draw(match, ctx) -> local svg, label]
+
+// Bohemia's mural: the style and subject come from the text ("an Impressionist mural painting of a yellow chair")
+function muralArt(t) {
+  const style = /pointillist/.test(t) ? 'dots' : /pre-raphaelite/.test(t) ? 'smooth' : /cubist/.test(t) ? 'cubes' : 'brush';
+  const subj = /park by a lake/.test(t) ? 'park' : /virgin mary/.test(t) ? 'virgin' : /plate of fish/.test(t) ? 'fish' : /waitress/.test(t) ? 'bar' : /parasol/.test(t) ? 'parasol' : /yellow chair/.test(t) ? 'chair' : /lilies/.test(t) ? 'lilies' : /bathers/.test(t) ? 'bathers' : /chateau/.test(t) ? 'chateau' : 'abstract';
+  const W = 260, H = 150, X = -130, Y = -170;
+  let bg = '#c8b890', s = '';
+  const sky = c => `<rect x="${X}" y="${Y}" width="${W}" height="${H * .55}" fill="${c}"/>`, ground = c => `<rect x="${X}" y="${Y + H * .55}" width="${W}" height="${H * .45}" fill="${c}"/>`;
+  const fig = (x, y, k, col, hat) => `<path d="M${x - 6 * k},${y} l${3 * k},${-26 * k} h${6 * k} l${3 * k},${26 * k}z" fill="${col}"/><circle cx="${x}" cy="${y - 31 * k}" r="${5 * k}" fill="#e0c0a0"/>${hat ? `<path d="M${x - 14 * k},${y - 40 * k} q14,-14 28,0z" fill="${hat}"/>` : ''}`;
+  if (subj === 'park') { s = sky('#a8c8e0') + ground('#6a9a4a') + `<ellipse cx="40" cy="${Y + H * .62}" rx="90" ry="12" fill="#4a7ab0"/>` + fig(-70, -36, 1.2, '#2a2a3a', '#2a2a3a') + fig(-40, -40, 1, '#6a3a5a') + `<circle cx="-100" cy="${Y + 40}" r="24" fill="#3a6a2a"/>`; }
+  else if (subj === 'virgin') { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="#3a4a6a"/><path d="M40,${Y} L-20,${Y + H}" stroke="#fff4c8" stroke-width="40" opacity=".25"/>` + `<path d="M-30,-20 q4,-70 30,-80 q26,10 30,80z" fill="#2a4aa8"/><circle cx="0" cy="-108" r="11" fill="#f0d8c0"/><circle cx="0" cy="-108" r="18" fill="none" stroke="#f0d060" stroke-width="3"/>`; }
+  else if (subj === 'fish') { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="#a89a7a"/>` + `<polygon points="-30,-20 -40,-90 0,-110 40,-90 30,-20" fill="#8a5a3a"/><polygon points="-14,-110 14,-110 20,-80 -20,-80" fill="#e0c0a0"/><ellipse cx="0" cy="-118" rx="34" ry="6" fill="#e8e8e8"/><path d="M-22,-124 q12,-8 24,0 l6,-5 v10 l-6,-5 q-12,8 -24,0z" fill="#8aa8b8"/>`; }
+  else if (subj === 'bar') { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="#3a3028"/><rect x="${X}" y="-60" width="${W}" height="40" fill="#6a4a2a"/>${[-100, -80, 70, 90, 110].map((x, i) => `<rect x="${x}" y="-84" width="8" height="24" rx="2" fill="${['#3a6a3a', '#c8a040', '#8a3a2a', '#c8a040', '#3a5a8a'][i]}"/>`).join('')}` + fig(0, -60, 1.6, '#2a2a3a') + `<circle cx="-60" cy="${Y + 24}" r="8" fill="#f0e0a0" opacity=".8"/><circle cx="50" cy="${Y + 20}" r="8" fill="#f0e0a0" opacity=".8"/>`; }
+  else if (subj === 'parasol') { s = sky('#b8d0e8') + ground('#9ab860') + fig(0, -40, 1.6, '#e8e8f0') + `<path d="M-34,-108 q34,-34 68,0z" fill="#5a8a5a"/><line x1="0" y1="-108" x2="0" y2="-80" stroke="#4a3a2a" stroke-width="2"/>`; }
+  else if (subj === 'chair') { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H * .6}" fill="#a8b8a0"/><rect x="${X}" y="${Y + H * .6}" width="${W}" height="${H * .4}" fill="#c88a4a"/><path d="M-26,-34 v-70 M26,-34 v-70 M-26,-60 h52 M-26,-80 h52 M-26,-100 h52" stroke="#e8c030" stroke-width="7"/><path d="M-34,-60 h68 v8 h-68z M-30,-52 v30 M30,-52 v30" fill="#e8c030" stroke="#e8c030" stroke-width="6"/>`; }
+  else if (subj === 'lilies') { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="#4a7a8a"/>${[[-90, -120], [-30, -80], [40, -130], [90, -60], [-80, -40], [10, -40]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="22" ry="7" fill="#4a8a4a"/><circle cx="${x + 4}" cy="${y - 3}" r="4" fill="#f0c8d8"/>`).join('')}`; }
+  else if (subj === 'bathers') { s = sky('#a8c0d8') + `<rect x="${X}" y="${Y + H * .55}" width="${W}" height="${H * .45}" fill="#5a8ab0"/>` + `<circle cx="-110" cy="${Y + 30}" r="30" fill="#4a7a3a"/><circle cx="110" cy="${Y + 26}" r="34" fill="#4a7a3a"/>` + [-60, -20, 30, 70].map(x => `<ellipse cx="${x}" cy="-50" rx="6" ry="14" fill="#e0b090" opacity=".8"/><circle cx="${x}" cy="-68" r="5" fill="#e0b090"/>`).join(''); }
+  else if (subj === 'chateau') { s = sky('#b8c8e0') + ground('#a8a050') + `<rect x="-50" y="-110" width="100" height="56" fill="#e8d8b8"/><polygon points="-56,-110 0,-140 56,-110" fill="#b85a3a"/>${[-34, -10, 14, 38].map(x => `<rect x="${x - 4}" y="-96" width="8" height="12" fill="#5a4a3a"/>`).join('')}<path d="M${X},-60 q60,-30 130,-10 q60,-20 130,6" stroke="#6a8a3a" stroke-width="8" fill="none"/>`; }
+  else { s = `<rect x="${X}" y="${Y}" width="${W}" height="${H}" fill="#c8b890"/>`; }
+  if (style === 'cubes' || subj === 'abstract') for (let i = 0; i < 14; i++) { const x = X + (i * 37) % W, y = Y + (i * 53) % (H - 30); s += `<polygon points="${x},${y} ${x + 30},${y + 8} ${x + 22},${y + 36} ${x - 6},${y + 26}" fill="${['#8a5a3a', '#6a7a8a', '#c8a050', '#4a4a3a'][i % 4]}" opacity="${subj === 'abstract' ? .85 : .3}"/>`; }
+  if (style === 'dots') for (let i = 0; i < 160; i++) { const x = X + 4 + (i * 41) % (W - 8), y = Y + 4 + (i * 67) % (H - 8); s += `<circle cx="${x}" cy="${y}" r="2.2" fill="${['#f0e0a0', '#a8d0f0', '#8ab870', '#f0b0a0'][i % 4]}" opacity=".7"/>`; }
+  if (style === 'brush') for (let i = 0; i < 18; i++) { const x = X + 8 + (i * 47) % (W - 30), y = Y + 8 + (i * 31) % (H - 16); s += `<path d="M${x},${y} q8,-4 16,0" stroke="#fff8e0" stroke-width="3" opacity=".25" fill="none"/>`; }
+  return `<g transform="translate(0 -20)"><rect x="${X - 6}" y="${Y - 6}" width="${W + 12}" height="${H + 12}" fill="#7a6a5a"/>${s}</g>`;
+}
+
+// the game's own state wins over a description the player has not refreshed yet (opened since the last look)
+const DOOR_OPEN = () => `<rect x="-38" y="-150" width="76" height="150" fill="#0e0a06"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${-30 + i * 4},${-8 - i * 22} h${60 - i * 8}" stroke="#6a5a44" stroke-width="5"/>`).join('')}<path d="M-38,-150 L-62,-140 L-62,-6 L-38,0Z" fill="#5a4a34" stroke="#2a2014" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(r => `<path d="M-58,${-128 + r * 20} l18,${2 + r % 2}" stroke="#1a1008" stroke-width="2" opacity=".7"/>`).join('')}`;
+const MURAL_ASIDE = () => `<rect x="-150" y="-200" width="160" height="200" fill="#0a0806"/>${[0, 1, 2, 3].map(i => `<path d="M${-136 + i * 10},${-30 - i * 26} h${120 - i * 20}" stroke="#4a3e30" stroke-width="5"/>`).join('')}<g transform="translate(110 0)">${WS.mural()}</g>`;
+const COVER_RAISED = () => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
+const isOpen = (ctx, obj) => !!(ctx.h.st && ctx.h.st.known && ctx.h.st.open(obj, false));
 const FEAT = [
   ['revolving door', 'special', 0, (m, ctx) => { const { h } = ctx; h.add(`<path d="M60,0 Q20,130 60,260 M340,0 Q380,130 340,260" stroke="#c8d8e0" stroke-width="5" fill="none" opacity=".5"/><rect x="60" y="0" width="280" height="260" fill="#a8c0d0" opacity=".1"/><path d="M200,10 V250" stroke="#2a2a2a" stroke-width="6"/><path d="M90,20 l40,200 M300,30 l-30,180" stroke="#fff" stroke-width="2" opacity=".2"/>`); return ''; }],
-  ['bronze mural', 'wall:south', .78, () => WS.mural(), 'mural'],
-  ['impressionist mural|mural painting', 'wall', .8, () => `<g transform="translate(0 -20)"><rect x="-130" y="-170" width="260" height="150" fill="#c8b890"/><rect x="-130" y="-60" width="260" height="40" fill="#6a3a24"/><path d="M-130,-60 h260" stroke="#8a5a34" stroke-width="5"/>${[-110, -80, -50, 60, 90, 110].map((x, i) => `<rect x="${x}" y="-100" width="10" height="40" rx="2" fill="${['#3a6a3a', '#c8a040', '#8a3a2a', '#3a5a8a', '#c8a040', '#3a6a3a'][i]}" opacity=".8"/>`).join('')}<path d="M-14,-60 l4,-58 q10,-10 20,0 l4,58z" fill="#2a2a3a"/><circle cx="0" cy="-128" r="10" fill="#e8c8a8"/><path d="M-10,-136 q10,-10 20,0" fill="#c89040"/><path d="M-120,-160 q60,-10 100,6 M30,-164 q50,-6 90,8" stroke="#e8d8a8" stroke-width="6" fill="none" opacity=".5"/></g>`, 'mural'],
+  ['mural stands slightly to one side', 'wall:south', .78, () => MURAL_ASIDE(), 'mural'],
+  ['bronze mural', 'wall:south', .78, (m, ctx) => isOpen(ctx, 'bronze mural') ? MURAL_ASIDE() : WS.mural(), 'mural'],
+  ['mural painting', 'wall', .8, (m, ctx) => muralArt(ctx.rd.t), 'mural'],
+  ['impressionist mural', 'wall', .8, () => `<g transform="translate(0 -20)"><rect x="-130" y="-170" width="260" height="150" fill="#c8b890"/><rect x="-130" y="-60" width="260" height="40" fill="#6a3a24"/><path d="M-130,-60 h260" stroke="#8a5a34" stroke-width="5"/>${[-110, -80, -50, 60, 90, 110].map((x, i) => `<rect x="${x}" y="-100" width="10" height="40" rx="2" fill="${['#3a6a3a', '#c8a040', '#8a3a2a', '#3a5a8a', '#c8a040', '#3a6a3a'][i]}" opacity=".8"/>`).join('')}<path d="M-14,-60 l4,-58 q10,-10 20,0 l4,58z" fill="#2a2a3a"/><circle cx="0" cy="-128" r="10" fill="#e8c8a8"/><path d="M-10,-136 q10,-10 20,0" fill="#c89040"/><path d="M-120,-160 q60,-10 100,6 M30,-164 q50,-6 90,8" stroke="#e8d8a8" stroke-width="6" fill="none" opacity=".5"/></g>`, 'mural'],
   ['bronze mirror', 'wall', .9, () => `<rect x="-160" y="-212" width="320" height="208" fill="${'#b88a4a'}"/><rect x="-150" y="-202" width="300" height="188" fill="#8a6a3a" opacity=".55"/><path d="M-130,-190 l60,170 M40,-200 l50,160" stroke="#f0d8a0" stroke-width="6" opacity=".25"/>`, 'mirror'],
   ['see-saw', 'floor:back', .6, () => `<rect x="-140" y="-150" width="280" height="150" fill="#a8c0b0" opacity=".18" stroke="#c8d8d0" stroke-width="2"/><path d="M-90,-40 L90,-70" stroke="#7a5430" stroke-width="7"/><path d="M-6,0 L0,-56 L6,0Z" fill="#5a3a1a"/><path d="M-110,-40 q20,26 40,0z M70,-70 q20,26 40,0z" fill="#8a5a2a" stroke="#4a2a10"/>`, 'see-saw', 1, { d: .7 }],
   ['iron panel', 'floor', .3, () => `<rect x="-40" y="-110" width="80" height="54" fill="#4a4a50" stroke="#1a1a1e" stroke-width="3"/>${Array.from({ length: 15 }, (_, i) => `<rect x="${-34 + (i % 5) * 14}" y="${-104 + Math.floor(i / 5) * 16}" width="10" height="12" fill="#2a2a2e" stroke="#6a6a72"/>`).join('')}<rect x="-4" y="-56" width="8" height="56" fill="#3a3a40"/>`, 'panel', 1, { d: .3 }],
@@ -3913,24 +3980,26 @@ const FEAT = [
   ['metal barrier', 'end', .5, () => WS.metalBarrier(), 'barrier'],
   ['castle walls|arrowslits', 'band', .9, () => WS.castle(), 'walls'],
   ['crowded, bohemian|noisy, bustling|crowded', 'floor:back', .9, () => [-120, -70, 60, 120].map((x, i) => `<g transform="translate(${x} 0)">${S.table(46, '#e8e0d0')}<g transform="translate(${i % 2 ? 22 : -22} 0)"><rect x="-9" y="-74" width="18" height="40" rx="6" fill="${['#3a2a3a', '#5a3a2a', '#2a3a4a', '#4a4a2a'][i]}"/><circle cy="-82" r="8" fill="#d8b090"/></g></g>`).join(''), 'customers', 1, { d: .7 }],
-  ['door heavily defaced', 'wall', .3, () => `<rect x="-38" y="-150" width="76" height="150" fill="#5a4a34" stroke="#2a2014" stroke-width="3"/>${Array.from({ length: 9 }, (_, r) => `<path d="M-32,${-140 + r * 15} ${Array.from({ length: 7 }, (_, i) => `l${7 + (i * 5 + r) % 4},${((i + r) % 3) - 1}`).join(' ')}" stroke="#1a1008" stroke-width="2" fill="none" opacity=".7"/>`).join('')}`, 'door'],
+  ['defaced door opens onto a staircase', 'wall', .3, () => DOOR_OPEN(), 'door'],
+  ['door heavily defaced', 'wall', .3, (m, ctx) => isOpen(ctx, 'defaced door') ? DOOR_OPEN() : `<rect x="-38" y="-150" width="76" height="150" fill="#5a4a34" stroke="#2a2014" stroke-width="3"/>${Array.from({ length: 9 }, (_, r) => `<path d="M-32,${-140 + r * 15} ${Array.from({ length: 7 }, (_, i) => `l${7 + (i * 5 + r) % 4},${((i + r) % 3) - 1}`).join(' ')}" stroke="#1a1008" stroke-width="2" fill="none" opacity=".7"/>`).join('')}`, 'door'],
   ['cell door|only door is shut|the only door', 'wall', .3, (m, ctx) => `<rect x="-38" y="-150" width="76" height="150" fill="#060504"/><rect x="-35" y="-147" width="70" height="147" fill="#5a3a20" stroke="#2a180c" stroke-width="2"/>${/cell/.test(m) ? `<rect x="-16" y="-128" width="32" height="24" fill="#0a0806"/><path d="M-8,-128v24M0,-128v24M8,-128v24" stroke="#6a6a6a" stroke-width="2"/>` : ''}<circle cx="24" cy="-74" r="3" fill="#c8a060"/>`, 'door'],
   ['natural pillars of rock', 'rockpillars', 0, null, 'pillars'],
   ['columns|pillars?(?! of rock)|colonnaded|colonnade|ringed with columns', 'columns', 0, null, 'columns'],
   ['twisty little passages|maze of', 'maze', 0, null, 'passages'],
   ['bathed in hostile light|hostile light', 'hostile', 0, null, 'light'],
   ['hundreds of thousands of books|thousands of books', 'band', .9, () => WS.shelves(300, true), 'books'],
-  ['hinged wooden cover', 'floor', .3, () => `<path d="M-50,0 L-36,-26 H36 L50,0Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2"/><path d="M-30,-8 h60 M-24,-18 h48" stroke="#3a2614" stroke-width="2"/><rect x="30" y="-10" width="10" height="4" fill="#8a8a8a"/>`, 'cover', 1, { d: .25 }],
+  ['cover is raised, revealing a circular well', 'floor', .3, () => COVER_RAISED(), 'cover', 1, { d: .25 }],
+  ['hinged wooden cover', 'floor', .3, (m, ctx) => isOpen(ctx, 'kitchen well') ? COVER_RAISED() : `<path d="M-50,0 L-36,-26 H36 L50,0Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2"/><path d="M-30,-8 h60 M-24,-18 h48" stroke="#3a2614" stroke-width="2"/><rect x="30" y="-10" width="10" height="4" fill="#8a8a8a"/>`, 'cover', 1, { d: .25 }],
   ['vents in the roof', 'ceilvents', 0, null, 'vents'],
   ['entirely filled with dry sand', 'fillsand', 0, null, 'sand'],
   ['fallen tombstone', 'floor', .7, () => `<path d="M-120,0 L-90,-30 H90 L120,0Z" fill="#6a6660" stroke="#3a3834" stroke-width="2"/><path d="M0,-26 v20 M-12,-18 h24" stroke="#3a3834" stroke-width="3"/><path d="M-70,-12 h40 M40,-12 h40" stroke="#4a4844" stroke-width="2"/>`, 'tombstone', 1, { d: .12 }],
   ['lamps chained|trestle lamps', 'ceil', 0, null, 'lamps'],
-  ['square hole in the roof|light streams in|hole through which', 'beam', 0, null, 'hole'],
+  ['square hole in the roof|light streams in(?!, searing)|hole through which', 'beam', 0, null, 'hole'],
   ['mosaic', 'floorpat', 0, null, 'mosaic'],
   ['strewn with leaves', 'leaves', 0, null, 'leaves'],
   ['sand spills|filled with dry sand|dry sand', 'sand', 0, null, 'sand'],
   ['bone pit|broken bones|crushed', 'bonepit', 0, null, 'bones'],
-  ['glass cabinets|cabinets', 'floor:back', .5, () => [-62, 0, 62].map(x => `<g transform="translate(${x} 0)">${S.cabinet()}</g>`).join(''), 'cabinets', 1, { d: .7 }],
+  ['glass cabinets|cabinets', 'floor:back', .5, (m, ctx) => [-62, 0, 62].map((x, i) => `<g transform="translate(${x} 0)">${S.cabinet()}${i === 1 && (ctx.rd.has('broken glass cabinet') || isOpen(ctx, 'glass cabinet')) ? `<rect x="-21" y="-112" width="42" height="96" fill="#1a120a" opacity=".55"/><path d="M-21,-112 l12,30 l-6,22 M21,-112 l-14,26 l8,18 M-21,-30 l16,-14 l10,10" stroke="#d8e8f0" stroke-width="1.5" fill="none"/><path d="M-30,2 l8,-4 l4,4z M14,2 l10,-5 l3,5z M-6,2 l6,-3 l2,3z" fill="#c8dce8" opacity=".8"/>` : ''}</g>`).join(''), 'cabinets', 1, { d: .7 }],
   ['crate after crate|crates', 'floor', .7, () => S.crates(4), 'crates', 1, { d: .45, surf: [-62, -96] }],
   ['display table', 'floor', .3, () => S.table(70, '#3a2a4a'), 'table', 1, { d: .5, surf: [0, -52] }],
   ['trestle table', 'floor', .5, () => S.trestle(), 'table', 1, { d: .55, surf: [0, -56] }],
@@ -3957,7 +4026,7 @@ const FEAT = [
   }, 'opening', 1, { d: .3 }],
   ['sphinxes|sphinx', 'sphinxes', 0, null, 'sphinxes'],
   ['altar stone|altar', 'floor', .34, (m, ctx) => S.altar(ctx.rd.has('flaming')), 'altar', 1, { d: .5 }],
-  ['mummy case|sarcophagus, rests|gold and blue', 'floor', .6, () => S.mummy(), 'mummy case', 1, { d: .55 }],
+  ['mummy case|sarcophagus, rests|gold and blue|lid of the coffin is open', 'floor', .6, (m, ctx) => S.mummy((ctx.h.st.known && ctx.h.st.open('mummy case', false)) || ctx.rd.has('lid of the coffin is open')), 'mummy case', 1, { d: .55 }],
   ['easels|brushes', 'floor', .5, () => `<g transform="translate(-50 0)">${S.easel(0)}</g><g transform="translate(50 6)">${S.easel(1)}</g>${[-80, -20, 30, 90].map((x, i) => `<rect x="${x}" y="-3" width="20" height="3" fill="${['#c84a3a', '#3a7ab8', '#e8b040', '#3a8a5a'][i]}" transform="rotate(${i * 30} ${x} 0)"/>`).join('')}`, 'easels', 1, { d: .45 }],
   ['kiosk', 'floor', .34, () => S.kiosk(), 'kiosk', 1, { d: .5 }],
   ['ticket gates', 'floor:back', .6, () => [-80, -40, 0, 40, 80].map(x => `<rect x="${x - 4}" y="-50" width="8" height="50" fill="#6a6a70"/><rect x="${x + 4}" y="-34" width="30" height="5" fill="#a8a8b0"/>`).join(''), 'gates', 1, { d: .75 }],
@@ -4068,7 +4137,14 @@ function FEATURES(ctx, pass) {
       if (opt && opt.surf) ctx.surf[label] = { x: p.x + opt.surf[0] * p.s, y: p.y + opt.surf[1] * p.s, s: p.s };
     }
   }
-  if (!ctx.exits.some(e => e.type === 'stairs') && rd.has('flight of steps|staircase|stairs|steps')) Gx().drawExit(ctx, { dir: null, vert: rd.has('down') && !rd.has('steps up|leads up|back up') ? 'down' : 'up', type: 'stairs' });
+  if (!ctx.exits.some(e => e.type === 'stairs') && rd.has('flight of steps|staircase|stairs|steps') && !rd.has('door opens onto a staircase')) {
+    // the way the steps go is kept with the room's layout, so a later "strides down the stairs" does not turn them round
+    const L = ctx.layout || {}, vert = L.stairsVert || (rd.has('down') && !rd.has('steps up|leads up|back up') ? 'down' : 'up');
+    L.stairsVert = vert;
+    Gx().drawExit(ctx, { dir: null, vert, type: 'stairs' });
+  }
+  // the sealed entrance at the top of the steps burst open: daylight pours down them
+  if (rd.has('entrance bursts open|light streams in, searing')) { add(`<rect width="400" height="260" fill="#fff0c8" opacity=".12"/>`); ctx.h.glow(30, 60, 160, '#fff4d0', .7); }
 }
 const claim = (...a) => Gx().claim(...a);
 const poly = (pts, attrs) => `<polygon points="${pts.map(p => p.join(',')).join(' ')}" ${attrs}/>`;
@@ -4112,7 +4188,10 @@ const PORT = [
   ['inscribed six-sided die|six-sided die', 'inscribed die', 'inscribed die', 'on:table'],
   ['bunch of nuts', 'bunch of nuts', 'nuts', 'nest'],
   ['adamantine hand', 'adamantine hand', 'adamantine hand', 'vane'],
-  ['a fig\\b', 'fig', 'fig', 'tree']
+  ['a fig\\b', 'fig', 'fig', 'tree'],
+  // washed up by the harbour in Alexandria
+  ['iron key(?= seems to have washed up)', 'rusty iron key', 'rusty iron key'],
+  ['strange stone(?= again)', 'smooth round stone', 'smooth round stone']
 ];
 function PORTABLES(ctx) {
   const { h, rd } = ctx, { add, tag } = h; const st = h.st;
@@ -4308,11 +4387,17 @@ function LAND(ctx) {
     placed.push(x);
     const big = { palace: 1, stadium: 1, theatre: 1, city: 1, warehouses: 1, thorns: 1, campring: 1, hall: high ? .5 : 1, temple: 1, villa: 1, taverna: 1 }[key];
     const sc = (high ? .55 : .85) * (big ? 1 : .9) * (key === 'thorns' && !/thorns|sacred/i.test(name) ? .45 : 1) * (key === 'hall' && /spire/i.test(name) ? .5 : 1);
-    const baseY = key === 'boat' ? (ctx.riverY || (seaW ? hz + 26 : hz + 10)) : key === 'campring' ? hz + 60 : hz + (high ? 6 : 10);
+    // the tourist boat, once waved over, lies moored close to this bank instead of on the far one
+    const sOpen = o => !!(h.st && h.st.known && h.st.open(o, false));
+    const near = key === 'boat' && (rd.has('moored close to the bank') || sOpen('tourist boat'));
+    let baseY = key === 'boat' ? (ctx.riverY || (seaW ? hz + 26 : hz + 10)) : key === 'campring' ? hz + 60 : hz + (high ? 6 : 10);
+    if (near) { baseY += 46; x = 200; }
     if (seaW && !/lighthouse|boat|cave|city|warehouses/.test(key)) add(`<ellipse cx="${f1(x)}" cy="${f1(baseY + 2)}" rx="${f1(120 * sc)}" ry="${f1(14 * sc)}" fill="${night ? '#1e2218' : '#6a7a4a'}"/>`);
     if (key === 'dolmen') { ctx.surf = ctx.surf || {}; ctx.surf.dolmen = { x, y: baseY - 98 * sc, s: sc }; }
-    const body = (D[key] || (() => ''))(night, anc);
-    add(tag(m.w.replace(/^(the|a|an|side of an|side of a) /, ''), at(key === 'city' || key === 'warehouses' || key === 'thorns' ? 200 : x, baseY, sc * (key === 'city' ? 1 : 1), body)));
+    let body = (D[key] || (() => ''))(night, anc);
+    // the ragged gap burnt out of the thorns
+    if (key === 'thorns' && (rd.has('ragged gap in the wall') || sOpen('wall of thorns'))) body += `<path d="M-34,0 L-30,-30 L-18,-50 L-4,-58 L10,-52 L22,-40 L32,-18 L36,0Z" fill="${night ? '#0e1018' : '#4a6a3a'}"/><path d="M-34,0 L-30,-30 L-18,-50 L-4,-58 L10,-52 L22,-40 L32,-18 L36,0" stroke="#1a1410" stroke-width="5" fill="none"/>${[[-26, -34], [-10, -54], [18, -44], [30, -16]].map(([px, py]) => `<circle cx="${px}" cy="${py}" r="4" fill="#3a2a20" opacity=".8"/>`).join('')}`;
+    add(tag(m.w.replace(/^(the|a|an|side of an|side of a) /, ''), at(key === 'city' || key === 'warehouses' || key === 'thorns' ? 200 : x, baseY, sc * (near ? 1.7 : 1), body)));
     if (key === 'campring' || key === 'lighthouse' && night) h.glow(x, baseY - 30, 140, '#ff9a40', .25);
   }
   // ways out across the ground
@@ -5019,6 +5104,7 @@ const TINTS = ['#c8a050', '#b8604a', '#6a9ab8', '#8ab070', '#a878b8', '#d8b878',
 
 // each entry: [regex on the lower-case name, function(tint) -> svg body in a 40x40 box]
 const LIB = [
+  [/smooth round stone/, () => `<ellipse cx="20" cy="24" rx="13" ry="10" fill="#8a8a86" stroke="#4a4a46" stroke-width="1.5"/><ellipse cx="16" cy="20" rx="5" ry="3" fill="#c8c8c4" opacity=".6"/>`],
   // items that also appear in the room pictures: same colours as there
   [/\btube\b/, () => `<rect x="14" y="5" width="12" height="30" rx="5" fill="#a8784a" stroke="#5a3a1a" transform="rotate(20 20 20)"/><ellipse cx="25" cy="7" rx="6" ry="2.5" fill="#c89860" stroke="#5a3a1a" transform="rotate(20 20 20)"/>`],
   // the Tarot cards: the same picture as their close-up, small
@@ -6250,6 +6336,7 @@ function detectRoom() {
   }
   room.visits = (room.visits || 0) + (name !== prev ? 1 : 0);
   saveMap();
+  noteEvents(name, S.turnText || '');
   showRoom(name, desc, false);
   renderMap();
 }
@@ -6402,7 +6489,7 @@ function renderRoomItems() {
   if (sig === box.dataset.sig) return;
   box.dataset.sig = sig;
   const q = s => esc(String(s)).replace(/"/g, '&quot;');
-  box.innerHTML = items.map(n => `<button class="riItem" data-item="${q(n)}" title="${q(n)} · ${q(T('von dir hierher gebracht'))}"><span class="ico">${ZIcons.icon(n)}</span><span class="nm">${esc(n)}</span></button>`).join('');
+  box.innerHTML = items.map(n => `<span class="riItem" data-item="${q(n)}" title="${q(n)} · ${q(T('von dir hierher gebracht'))}"><span class="ico">${ZIcons.icon(n)}</span><span class="nm">${esc(n)}</span></span>`).join('');
   box.dataset.label = T('Hier abgelegt:');
   box.hidden = !items.length;
 }
@@ -6527,6 +6614,21 @@ function roomDesc(name, desc) {
     return desc;
   }
   return S.descs[name] || desc;
+}
+// Some changes the game only reports in the answer to an action, and puts into the room's description
+// at the next look. When such an answer has been printed, the room's stored description takes in the
+// sentence the game itself will use for it, so the picture follows at once.
+const EVENTS = [
+  { room: /^Croquet Lawn$/, when: /uncovering a tiny gap through the hedge/i, add: 'The hedge is broken slightly to the northwest.' },
+  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' }
+];
+function noteEvents(name, text) {
+  if (!text || !name) return;
+  roomDesc(name, '');
+  const cur = S.descs && S.descs[name]; if (!cur) return;
+  let d = cur;
+  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add;
+  if (d !== cur) { S.descs[name] = d; LS.set('zp:desc:' + S.serial, JSON.stringify(S.descs)); }
 }
 function showRoom(name, desc, dark) {
   if (!dark) desc = roomDesc(name, desc);
@@ -6991,7 +7093,7 @@ const LS = {
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const Z = () => window.__zp;
-const DEF = { sayBrackets: false, picLabels: true, trCol: false, lang: 'de', smartParser: true, germanInput: true, wordClick: true, autocomplete: true, scoreToast: true, exits: true, sfx: true, sfxVol: .5, classic: false, classicColor: 'amber', fontSize: 17, width: 'mittel', theme: 'dark' };
+const DEF = { sayBrackets: false, trCol: false, lang: 'de', smartParser: true, germanInput: true, wordClick: true, autocomplete: true, scoreToast: true, exits: true, sfx: true, sfxVol: .5, classic: false, classicColor: 'amber', fontSize: 17, width: 'mittel', theme: 'dark' };
 let P = Object.assign({}, DEF, JSON.parse(LS.get('zp:prefs') || '{}'));
 const saveP = () => LS.set('zp:prefs', JSON.stringify(P));
 
@@ -7005,7 +7107,6 @@ function applyPrefs() {
   document.documentElement.style.setProperty('--fs', P.fontSize + 'px');
   document.documentElement.style.setProperty('--tw', { schmal: '58ch', mittel: '72ch', breit: '92ch' }[P.width] || '72ch');
   b.classList.toggle('wordclick', !!P.wordClick);
-  b.classList.toggle('piclabels', !!P.picLabels && !P.classic);
   $('#exitBar').hidden = !P.exits || !!P.classic;
   const zp = Z(); if (zp && zp.S.music) { zp.S.music.setIntensity(.3); zp.S.music.sfxVol = P.sfx && !P.classic ? P.sfxVol : 0; zp.S.music.updateSfx && zp.S.music.updateSfx(); }
   if (P.classic && zp && zp.S.music.enabled) { $('#musicBtn').click(); }
@@ -7119,10 +7220,9 @@ function initPop() {
     if (b.dataset.cmd) Z().sendCommand(b.dataset.cmd);
     else if (b.dataset.ins) { const i = $('#cmd'); i.value = (i.value ? i.value.trim() + ' ' : '') + b.dataset.ins; i.focus(); }
   });
-  document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop') && !e.target.closest('.invItem') && !e.target.closest('.riItem')) hidePop(); });
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop') && !e.target.closest('.invItem')) hidePop(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hidePop(); });
   $('#invList').addEventListener('click', e => { const b = e.target.closest('.invItem'); if (b) itemMenu(b, b.dataset.item); });
-  document.addEventListener('click', e => { const b = e.target.closest('.riItem'); if (!b) return; const name = b.dataset.item, noun = Z().nounFor(name); showPop(b, name, [['take', 'take ' + noun], ['examine', 'examine ' + noun]]); });
   // word taps in the transcript
   $('#transcript').addEventListener('click', e => {
     if (!P.wordClick || P.classic) return;
@@ -7483,39 +7583,8 @@ function initTr() {
   setTrCol(P.trCol && !P.classic);
 }
 
-// ---------------- names in the picture ----------------
-function initPicLabels() {
-  const pic = $('#pic'), tip = document.createElement('div');
-  tip.id = 'picTip'; tip.hidden = true; pic.appendChild(tip);
-  const resolve = key => {
-    const zp = Z(), name = zp.statusRoom && zp.statusRoom();
-    const st = name ? zp.roomState(name) : null;
-    const k = key.toLowerCase();
-    const hit = st && [...st.here].filter(n => n.toLowerCase().includes(k)).sort((a, b) => a.length - b.length)[0];
-    return hit || key;
-  };
-  const show = e => {
-    const el = !P.picLabels || P.classic ? null : e.target.closest && e.target.closest('.zi');
-    if (!el) { tip.hidden = true; pic.classList.remove('hovering'); return; }
-    const nm = resolve(el.dataset.k);
-    tip.innerHTML = `<b>${esc(nm)}</b><small>${esc(T('Klick: untersuchen'))}</small>`;
-    tip.hidden = false; pic.classList.add('hovering');
-    const r = pic.getBoundingClientRect();
-    let x = e.clientX - r.left + 14, y = e.clientY - r.top + 12;
-    if (x + tip.offsetWidth > r.width - 6) x = e.clientX - r.left - tip.offsetWidth - 10;
-    if (y + tip.offsetHeight > r.height - 6) y = e.clientY - r.top - tip.offsetHeight - 10;
-    tip.style.left = x + 'px'; tip.style.top = y + 'px';
-  };
-  pic.addEventListener('pointermove', show);
-  pic.addEventListener('pointerleave', () => { tip.hidden = true; });
-  pic.addEventListener('click', e => {
-    if (!P.picLabels || P.classic) return;
-    const el = e.target.closest && e.target.closest('.zi'); if (!el) return;
-    const zm = Z().S.zm; if (!zm || zm.state !== 'input') return;
-    tip.hidden = true;
-    Z().sendCommand('examine ' + Z().nounFor(resolve(el.dataset.k)));
-  });
-}
+// The picture is an illustration only: it names nothing and cannot be clicked, so that
+// finding out what is there stays the player's work in the text.
 
 // ---------------- per-turn hook ----------------
 function afterTurn(info) {
@@ -7547,7 +7616,7 @@ function resetRun() {
 }
 window.ZFeat = { resetRun, afterTurn, save: ioSave, restore: ioRestore, prefs: () => P, notes, applyPrefs, commit: () => { saveP(); applyPrefs(); setTrCol(P.trCol && !P.classic); } };
 function init() {
-  initSettings(); initTabs(); initPop(); initExits(); initAC(); initNotes(); initSaves(); initTr(); initPicLabels();
+  initSettings(); initTabs(); initPop(); initExits(); initAC(); initNotes(); initSaves(); initTr();
   applyPrefs();
   // audio needs a user gesture before sound effects can play
   document.addEventListener('pointerdown', () => { if (P.sfx && !P.classic && Z() && Z().S.music.initSfx) Z().S.music.initSfx(); }, { once: true });
