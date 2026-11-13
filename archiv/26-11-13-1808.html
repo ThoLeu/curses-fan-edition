@@ -296,6 +296,12 @@ body.classic .cmdEcho{color:var(--ink);font-style:normal}
 #pic{position:relative;aspect-ratio:400/260;border-radius:10px;overflow:hidden;background:#0d0a08;box-shadow:0 0 0 1px #4a3a28,0 0 0 5px #1a140e,0 0 0 6px #5a4630,0 10px 24px rgba(0,0,0,.5)}
 #pic .layer{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
 #pic .layer.on{opacity:1}
+#pic .layer{transition:opacity 1.1s ease,filter 2.6s ease}
+#pic.ended .layer{filter:grayscale(.85) brightness(.42) contrast(.9)}
+#endScene{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity 2.2s ease 0.6s}
+#endScene.on{opacity:1}
+#endScene[hidden]{display:none}
+#endScene svg{width:100%;height:100%;display:block}
 #pic svg *{pointer-events:none}
 #pic svg{width:100%;height:100%;display:block}
 #mapSvg{touch-action:none}#mapSvg .node{cursor:grab}#mapSvg.dragging,#mapSvg.dragging .node{cursor:grabbing}
@@ -367,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1712</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1808</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +413,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1712</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1808</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -448,7 +454,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
       <div id="trInputBar"><form id="trForm" autocomplete="off"><label for="trCmd" title="Deutsche Eingabe">DE ›</label><input id="trCmd" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Was tust du? (auf Deutsch)"></form></div>
     </section>
     <aside id="right">
-      <div id="picWrap"><div id="pic"></div><div id="closeUp" hidden title=""></div></div>
+      <div id="picWrap"><div id="pic"><div id="endScene" hidden></div></div><div id="closeUp" hidden title=""></div></div>
       <div id="cap" style="padding-left:16px;padding-right:16px"><span id="roomName">…</span><span id="moodChip">♪</span></div>
       <div id="sideBox">
         <div id="sideTabs"><button data-pane="paneMap" class="sel">Karte</button><button data-pane="paneInv">Inventar <span id="invCount"></span></button><button data-pane="paneNotes">Notizen</button></div>
@@ -2015,6 +2021,8 @@ B["Servant's Room"] = { cat: 'interior', draw(h) {
   add(`<rect x="56" y="96" width="4" height="6" fill="#222"/>`);
   if (h.st.here('scarf')) for (let i = 0; i < 7; i++) add(`<rect x="57" y="${102 + i * 9}" width="10" height="9" fill="${['#a8322a', '#e8d8b0', '#2a4a7a'][i % 3]}"/>`);
   if (h.st.here('scarf')) add(h.tag('scarf', `<path d="M52,160 q10,-3 20,0 v3 q-10,-3 -20,0z" fill="#2a4ab0"/>${[['#2a4ab0', 0], ['#2a8a5a', 1], ['#4a4a52', 2], ['#c8282a', 3]].map(([c, i]) => `<rect x="56" y="${163 + i * 3}" width="5" height="3" fill="${c}"/>`).join('')}`));
+  // reached by the servants' staircase, a tight door stands open in the northern wall (it never closes)
+  if (/tight door stands open/i.test(h.desc) || (h.st.known && h.st.here('tight door'))) add(h.open('tight door') + `<rect x="232" y="88" width="40" height="106" fill="#0a0604"/><polygon points="232,88 220,84 220,200 232,194" fill="#5a3a20" stroke="#2a180c" stroke-width="1.5"/>${[0, 1, 2, 3].map(k => `<rect x="${238 + k * 7}" y="${180 - k * 18}" width="28" height="4" fill="#2a1a10" opacity="${.7 - k * .12}"/>`).join('')}</g>`);
   // the bed
 h.add(h.open('bed'));   add(`<rect x="130" y="150" width="190" height="50" fill="#e4d6b8"/><rect x="130" y="150" width="190" height="16" fill="#d0c0a0"/><rect x="128" y="128" width="10" height="92" fill="#5a3a20"/><rect x="314" y="140" width="10" height="80" fill="#5a3a20"/><rect x="128" y="196" width="196" height="16" fill="#6a4628"/><ellipse cx="160" cy="146" rx="22" ry="10" fill="#f0e8d4"/>`);
   add(`<path d="M180,166 Q240,150 314,166 L314,198 L180,198Z" fill="#8a5a6a"/><path d="M190,176 h110 M190,186 h110" stroke="#6a3a4a" stroke-width="1"/>`); h.add('</g>');
@@ -2547,7 +2555,11 @@ B['Wine Cellars'] = { cat: 'cellar', draw(h) {
     else if (h.r() < .15) h.add(`<circle cx="${cx + 2}" cy="${cy + 2}" r="1.5" fill="#8a8070"/>`);
   }
   h.add(`<rect x="60" y="196" width="280" height="6" fill="#3a2818"/>`);
-  h.glow(300, 120, 120, '#ffb070', .18);
+  // the barrel-shaft to the north lets in daylight only once the timber hatch above is open
+  if (/bright light floods in/i.test(h.desc) || (h.st && h.st.known && h.st.open('timber hatch', false))) {
+    h.add(`<polygon points="200,0 250,0 300,260 120,260" fill="#fff2c8" opacity=".16"/><polygon points="212,0 238,0 268,260 150,260" fill="#fff8e0" opacity=".14"/>`);
+    h.glow(210, 230, 110, '#fff0c0', .3);
+  } else h.glow(300, 120, 120, '#ffb070', .18);
 } };
 
 B['Cellar West'] = { cat: 'cellar', draw(h) {
@@ -3352,6 +3364,11 @@ B['Beside the Wall'] = { cat: 'garden', draw(h) {
   h.add(h.open('carved wall') + `<rect x="120" y="96" width="280" height="104" fill="#c8bca4"/>${[0, 1, 2, 3, 4].map(i => `<path d="M${150 + i * 52},170 q10,-40 20,0 q10,-40 20,0" stroke="#8a7e66" stroke-width="3" fill="none"/><circle cx="${170 + i * 52}" cy="122" r="9" fill="none" stroke="#8a7e66" stroke-width="3"/>`).join('')}<rect x="120" y="90" width="280" height="8" fill="#a89a80"/>` + '</g>');
   h.add(`<polygon points="0,200 400,200 400,260 0,260" fill="#b8a88a"/><polygon points="120,200 400,200 400,260 60,260" fill="#c8b898" opacity=".6"/>`);
   h.add(h.open('shrub') + `<ellipse cx="240" cy="232" rx="56" ry="12" fill="#6a4a2a"/><rect x="184" y="206" width="112" height="26" fill="#7a5632"/><ellipse cx="240" cy="206" rx="56" ry="10" fill="#5a3a20"/><circle cx="240" cy="176" r="34" fill="#3a6a30"/><circle cx="216" cy="188" r="20" fill="#2e5a28"/><circle cx="264" cy="186" r="22" fill="#2a5226"/>` + '</g>');
+  // the timber hatch beside the shrub, once the text has named it; open, it shows the dark barrel-shaft
+  const hOpen = /timber lid stands open/i.test(h.desc) || (h.st && h.st.known && h.st.open('timber hatch', false));
+  if (hOpen || /timber hatch/i.test(h.desc)) h.add(h.open('timber hatch') + (hOpen
+    ? `<ellipse cx="96" cy="238" rx="40" ry="11" fill="#2a2016" stroke="#3a2414" stroke-width="2.5"/><ellipse cx="96" cy="239" rx="32" ry="7.5" fill="#030201"/><path d="M58,214 L62,236 L132,236 L136,214Z" fill="#7a5630" stroke="#3a2414" stroke-width="2"/>${[76, 96, 116].map(x => `<line x1="${x}" y1="215" x2="${x}" y2="235" stroke="#4a3018" stroke-width="1.5"/>`).join('')}`
+    : `<ellipse cx="96" cy="238" rx="40" ry="11" fill="#7a5630" stroke="#3a2414" stroke-width="2.5"/>${[-24, -8, 8, 24].map(x => `<line x1="${96 + x}" y1="${228 + Math.abs(x) / 5}" x2="${96 + x}" y2="${248 - Math.abs(x) / 5}" stroke="#4a3018" stroke-width="1.5"/>`).join('')}<rect x="90" y="235" width="12" height="5" fill="#5a5a5a"/>`) + '</g>');
 } };
 
 B['Up the Beanstalk'] = { cat: 'heights', draw(h) {
@@ -4033,7 +4050,8 @@ function muralArt(t) {
 // the game's own state wins over a description the player has not refreshed yet (opened since the last look)
 const DOOR_OPEN = () => `<rect x="-38" y="-150" width="76" height="150" fill="#0e0a06"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${-30 + i * 4},${-8 - i * 22} h${60 - i * 8}" stroke="#6a5a44" stroke-width="5"/>`).join('')}<path d="M-38,-150 L-62,-140 L-62,-6 L-38,0Z" fill="#5a4a34" stroke="#2a2014" stroke-width="2"/>${[0, 1, 2, 3, 4, 5].map(r => `<path d="M-58,${-128 + r * 20} l18,${2 + r % 2}" stroke="#1a1008" stroke-width="2" opacity=".7"/>`).join('')}`;
 const MURAL_ASIDE = () => `<rect x="-150" y="-200" width="160" height="200" fill="#0a0806"/>${[0, 1, 2, 3].map(i => `<path d="M${-136 + i * 10},${-30 - i * 26} h${120 - i * 20}" stroke="#4a3e30" stroke-width="5"/>`).join('')}<g transform="translate(110 0)">${WS.mural()}</g>`;
-const COVER_RAISED = () => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
+const HATCH_OPEN = () => `<ellipse cx="0" cy="-6" rx="44" ry="13" fill="#2a2016" stroke="#3a2414" stroke-width="2.5"/><ellipse cx="0" cy="-5" rx="36" ry="9" fill="#030201"/><path d="M-36,-5 Q0,8 36,-5" stroke="#4a3018" stroke-width="2" fill="none" opacity=".7"/><g transform="translate(54 -8) rotate(-8)"><ellipse cx="0" cy="0" rx="20" ry="6" fill="#7a5630" stroke="#3a2414" stroke-width="2"/></g>`;
+const COVER_RAISED =() => `<ellipse cx="0" cy="-12" rx="40" ry="13" fill="#4a4036" stroke="#2a221a" stroke-width="3"/><ellipse cx="0" cy="-12" rx="32" ry="9" fill="#020202"/><path d="M-50,-14 L-36,-70 H36 L50,-14Z" fill="#6a4a28" stroke="#2a180a" stroke-width="2" transform="translate(0 -6)"/><path d="M-30,-44 h60 M-24,-62 h48" stroke="#3a2614" stroke-width="2"/>`;
 // the Spirit World tomb ages as you lie in it: cracks, dust and faded paint grow with the centuries
 const TOMB_AGE = [['beautifully well-preserved', 0], ['older now, weighed under with centuries', 1], ['swelters now, a thousand years old', 2], ['two thousand years old', 3], ['at last it has been opened', 4]];
 const tombAge = ctx => { const h = ctx.h, t = ctx.rd.t; let a = -1; for (const [p, n] of TOMB_AGE) if (t.includes(p)) a = Math.max(a, n); if (a <= 0) return;
@@ -4081,6 +4099,12 @@ const FEAT = [
   ['amber-coloured metal', 'wall:north', .9, () => WS.amberSheet(), 'metal'],
   ['sealed by an ingenious stone slab|stone slab', 'wall', .3, () => WS.slab(), 'slab'],
   ['metal barrier', 'end', .5, () => WS.metalBarrier(), 'barrier'],
+  // This Is The Death: the passage ends in marble until the burial chamber is opened
+  ['slants down only into a solid marble wall', 'end', .5, () => `<rect x="-70" y="-160" width="140" height="160" fill="#e4ddd0" stroke="#9a9284" stroke-width="2"/><path d="M-70,-110 L-20,-96 L30,-120 L70,-104 M-40,-160 L-30,-60 M20,-40 L60,-10" stroke="#b8b0a2" stroke-width="1.5" fill="none"/>`, 'marble wall'],
+  ['passage opens out onto the burial chamber', 'end', .5, () => `<rect x="-70" y="-160" width="140" height="160" fill="#0a0806"/><path d="M-70,0 L-40,-30 H40 L70,0Z" fill="#3a3024"/><rect x="-30" y="-60" width="60" height="30" fill="#2a2018" opacity=".8"/>`, 'opening'],
+  // Beside the Wall: the timber hatch over the old barrel-shaft
+  ['timber hatch, three feet across', 'floor', .3, (m, ctx) => isOpen(ctx, 'timber hatch') ? HATCH_OPEN() : `<ellipse cx="0" cy="-6" rx="44" ry="13" fill="#7a5630" stroke="#3a2414" stroke-width="2.5"/>${[-26, -9, 9, 26].map(x => `<line x1="${x}" y1="${-17 + Math.abs(x) / 5}" x2="${x}" y2="${5 - Math.abs(x) / 5}" stroke="#4a3018" stroke-width="1.5"/>`).join('')}<rect x="-6" y="-9" width="12" height="5" fill="#5a5a5a"/>`, 'hatch', 1, { d: .7 }],
+  ['timber lid stands open', 'floor', .3, () => HATCH_OPEN(), 'hatch', 1, { d: .7 }],
   ['castle walls|arrowslits', 'band', .9, () => WS.castle(), 'walls'],
   ['crowded, bohemian|noisy, bustling|crowded', 'floor:back', .9, () => [-120, -70, 60, 120].map((x, i) => `<g transform="translate(${x} 0)">${S.table(46, '#e8e0d0')}<g transform="translate(${i % 2 ? 22 : -22} 0)"><rect x="-9" y="-74" width="18" height="40" rx="6" fill="${['#3a2a3a', '#5a3a2a', '#2a3a4a', '#4a4a2a'][i]}"/><circle cy="-82" r="8" fill="#d8b090"/></g></g>`).join(''), 'customers', 1, { d: .7 }],
   ['defaced door opens onto a staircase', 'wall', .3, () => DOOR_OPEN(), 'door'],
@@ -4768,6 +4792,189 @@ function find(text) {
 const api = { find, card, rod };
 if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.ZClose = api;
 })(typeof window !== 'undefined' ? window : this);
+</script>
+<script>// Pictures for the ways the game can end. Every ending first fades the room picture (dark, drained of
+// colour); twelve memorable ones get a picture of their own, drawn only from what the ending text says,
+// kept shadowy and rather comic: no blood, no bodies. Original artwork; no game text is stored here,
+// only short words to recognise which ending the game has just printed.
+(function (root) {
+'use strict';
+let uid = 0;
+const W = 400, H = 260;
+const svg = (body, defs) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs>${defs || ''}</defs>${body}</svg>`;
+const lin = (id, stops, x2 = 0, y2 = 1) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ''}/>`).join('')}</linearGradient>`;
+const rad = (id, stops, cx = .5, cy = .5, r = .5) => `<radialGradient id="${id}" cx="${cx}" cy="${cy}" r="${r}">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ''}/>`).join('')}</radialGradient>`;
+// a small seeded random, so a picture looks the same every time
+const rng = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+const vign = id => `<rect width="${W}" height="${H}" fill="url(#${id}v)"/>`;
+const vdef = id => rad(id + 'v', [[.55, '#000', 0], [1, '#000', .75]], .5, .5, .75);
+
+const SCENES = {
+  // the library pipe bursts: water everywhere, dripping through the ceiling, a sodden book
+  flood(id) {
+    const r = rng(7); let drops = '';
+    for (let i = 0; i < 70; i++) { const x = 60 + r() * 300, y = 40 + r() * 200; drops += `<path d="M${x},${y} q2,6 0,9 q-2,-3 0,-9z" fill="#9ad0f0" opacity="${(.4 + r() * .5).toFixed(2)}"/>`; }
+    let spray = ''; for (let i = 0; i < 14; i++) { const a = -2.6 + i * .37; spray += `<path d="M206,84 q${Math.cos(a) * 60},${Math.sin(a) * 40 - 20} ${Math.cos(a) * 130},${Math.sin(a) * 60 + 70}" stroke="#bfe4f8" stroke-width="${2 + (i % 3)}" fill="none" opacity=".6"/>`; }
+    return svg(`<rect width="400" height="260" fill="url(#${id}w)"/>
+<rect x="0" y="72" width="400" height="22" fill="#5a5a60"/><rect x="0" y="76" width="400" height="6" fill="#7a7a82"/>
+<path d="M196,78 l8,-6 l6,10 l-6,8z" fill="#2a2a30"/>${spray}
+<rect x="300" y="120" width="70" height="90" fill="#3a2a1e"/><rect x="306" y="126" width="58" height="34" fill="#2a1e14"/>
+<path d="M0,214 Q100,204 200,214 T400,212 V260 H0Z" fill="url(#${id}f)"/>
+${[[70, 228], [180, 236], [300, 230]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="${30}" ry="4" fill="none" stroke="#d8f0ff" stroke-width="1.5" opacity=".6"/>`).join('')}
+<g transform="translate(150 218) rotate(-12)"><rect x="-22" y="-8" width="44" height="14" rx="2" fill="#6a3a3a"/><rect x="-20" y="-6" width="40" height="4" fill="#e8dcc0" opacity=".6"/></g>
+${drops}
+${[90, 160, 250, 330].map(x => `<path d="M${x},94 v${30 + (x % 40)}" stroke="#9ad0f0" stroke-width="2" stroke-dasharray="4 7" opacity=".7"/>`).join('')}
+${vign(id)}`, lin(id + 'w', [[0, '#2a3a48'], [1, '#1a2430']]) + lin(id + 'f', [[0, '#4a7a9a', .85], [1, '#1a3a5a', .95]]) + vdef(id));
+  },
+  // darkness, icy cold, whispers; a great bear rears up and sweeps its paw
+  bear(id) {
+    const r = rng(11); let breath = '', whisper = '';
+    for (let i = 0; i < 26; i++) { const x = r() * 400, y = r() * 260; breath += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(1 + r() * 2).toFixed(1)}" fill="#b8d8f0" opacity="${(.15 + r() * .35).toFixed(2)}"/>`; }
+    for (let i = 0; i < 6; i++) whisper += `<path d="M${30 + i * 60},${40 + (i % 3) * 30} q20,-10 40,0 t40,0" stroke="#8ab0d0" stroke-width="1.2" fill="none" opacity=".25"/>`;
+    return svg(`<rect width="400" height="260" fill="#04060a"/>${whisper}${breath}
+<g opacity=".92"><path d="M150,260 C140,200 150,140 180,110 C170,90 175,66 196,62 C204,52 222,52 230,62 C252,66 258,92 246,112 C280,140 288,200 280,260Z" fill="#0e1218"/>
+<circle cx="192" cy="58" r="10" fill="#0e1218"/><circle cx="236" cy="58" r="10" fill="#0e1218"/>
+<path d="M246,124 C290,100 320,70 338,40 C344,30 356,34 352,46 C340,80 310,118 262,146Z" fill="#0e1218"/>
+${[0, 1, 2, 3].map(k => `<path d="M${340 + k * 5},${36 - k * 2} l${6 + k},-14" stroke="#c8d0d8" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>`).join('')}
+<circle cx="204" cy="84" r="3" fill="#e8f0ff" opacity=".8"/><circle cx="224" cy="84" r="3" fill="#e8f0ff" opacity=".8"/></g>
+<path d="M300,30 q30,40 50,10" stroke="#e8f0ff" stroke-width="2" fill="none" opacity=".35"/><path d="M290,52 q36,40 64,8" stroke="#e8f0ff" stroke-width="1.5" fill="none" opacity=".25"/>
+${vign(id)}`, vdef(id));
+  },
+  // the opening crushes together, and so do the walls: dust, and nothing left between them
+  crush(id) {
+    const r = rng(5); let dust = '';
+    for (let i = 0; i < 90; i++) dust += `<circle cx="${(170 + r() * 60).toFixed(0)}" cy="${(30 + r() * 220).toFixed(0)}" r="${(1 + r() * 3).toFixed(1)}" fill="#c8b48a" opacity="${(.2 + r() * .5).toFixed(2)}"/>`;
+    const wall = (x0, x1, dir) => `<polygon points="${x0},0 ${x1},20 ${x1},240 ${x0},260" fill="url(#${id}s)"/>${Array.from({ length: 8 }, (_, k) => `<line x1="${x0}" y1="${k * 33}" x2="${x1}" y2="${20 + k * 28}" stroke="#2a2418" stroke-width="1.5" opacity=".6"/>`).join('')}`;
+    return svg(`<rect width="400" height="260" fill="#1a1610"/>${wall(0, 186)}${wall(400, 214)}
+<rect x="186" y="20" width="28" height="220" fill="#0a0806"/>${dust}
+${[0, 1, 2].map(k => `<path d="M${120 - k * 30},130 h-24 m10,-8 l-10,8 l10,8" stroke="#e8d8b0" stroke-width="2" fill="none" opacity=".5"/><path d="M${280 + k * 30},130 h24 m-10,-8 l10,8 l-10,8" stroke="#e8d8b0" stroke-width="2" fill="none" opacity=".5"/>`).join('')}
+${vign(id)}`, lin(id + 's', [[0, '#8a7a5a'], [1, '#5a4e38']], 1, 0) + vdef(id));
+  },
+  // Zeus' thunderbolt from the sky, straight into your back on the path to the temple
+  zeus(id) {
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/>
+<path d="M40,60 Q120,20 200,50 T380,40 L400,0 H0Z" fill="#2a2440" opacity=".8"/>
+<polygon points="250,150 250,118 330,96 400,118 400,150" fill="#d8d4c8" opacity=".5"/>${[262, 286, 310, 334, 358, 382].map(x => `<rect x="${x}" y="${108 + (x - 262) * -.05}" width="7" height="44" fill="#e8e4d8" opacity=".45"/>`).join('')}
+<path d="M0,190 Q200,170 400,186 V260 H0Z" fill="#3a4a2a"/><path d="M150,260 L200,150 L230,150 L260,260Z" fill="#8a7a5a" opacity=".7"/>
+<path d="M170,0 L196,64 L178,70 L214,140 L196,144 L222,206" stroke="#fff8c0" stroke-width="7" fill="none" stroke-linejoin="bevel"/>
+<path d="M170,0 L196,64 L178,70 L214,140 L196,144 L222,206" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linejoin="bevel"/>
+<circle cx="222" cy="206" r="40" fill="url(#${id}g)"/>
+${[0, 1, 2, 3, 4, 5, 6, 7].map(k => { const a = k * .785; return `<line x1="${222 + Math.cos(a) * 20}" y1="${206 + Math.sin(a) * 16}" x2="${222 + Math.cos(a) * 46}" y2="${206 + Math.sin(a) * 34}" stroke="#fff4b0" stroke-width="2" opacity=".7"/>`; }).join('')}
+${vign(id)}`, lin(id + 'k', [[0, '#1a1830'], [1, '#4a4060']]) + rad(id + 'g', [[0, '#ffffff', .95], [.4, '#fff0a0', .6], [1, '#fff0a0', 0]]) + vdef(id));
+  },
+  // a freak accident, one of five, as the text says: meteorite, chasm, volcano, lightning or spears
+  freak(id, t) {
+    const sky = lin(id + 'k', [[0, '#1a2040'], [1, '#5a5070']]);
+    const ground = `<path d="M0,196 Q200,184 400,196 V260 H0Z" fill="#3a3a2e"/>`;
+    let b;
+    if (/meteorite/i.test(t)) b = `${ground}<path d="M330,0 L214,190" stroke="url(#${id}t)" stroke-width="16" stroke-linecap="round"/><circle cx="212" cy="192" r="12" fill="#ffd080"/><circle cx="212" cy="192" r="34" fill="url(#${id}g)"/>${[0, 1, 2, 3, 4].map(k => `<circle cx="${200 + k * 7}" cy="${178 - k * 5}" r="${2 + k % 2}" fill="#ffb060" opacity=".7"/>`).join('')}`;
+    else if (/earthquake/i.test(t)) b = `<path d="M0,196 Q200,184 400,196 V260 H0Z" fill="#3a3a2e"/><path d="M140,260 L170,214 L156,200 L190,190 L214,206 L236,196 L250,222 L270,260Z" fill="#050403"/>${[60, 120, 300, 350].map(x => `<polygon points="${x},196 ${x + 14},150 ${x + 30},196" fill="#5a5048" transform="rotate(${x % 2 ? 12 : -14} ${x + 15} 196)"/>`).join('')}`;
+    else if (/volcano/i.test(t)) b = `${ground}<path d="M120,260 Q200,170 280,260Z" fill="#4a2a1a"/><path d="M196,200 Q170,120 120,40 M204,200 Q230,110 290,30 M200,200 V20" stroke="#ff7a2a" stroke-width="6" fill="none" opacity=".8"/><circle cx="200" cy="200" r="60" fill="url(#${id}g)"/>`;
+    else if (/lightning/i.test(t)) b = `${ground}<path d="M220,0 L196,80 L216,84 L188,190" stroke="#e8f0ff" stroke-width="6" fill="none"/><circle cx="188" cy="190" r="30" fill="url(#${id}g)"/>${[0, 1, 2, 3, 4, 5].map(k => `<path d="M${180 + k * 4},176 l${(k - 2.5) * 5},-22" stroke="#e8f0ff" stroke-width="1.5" opacity=".6"/>`).join('')}`;
+    else b = `${ground}${Array.from({ length: 22 }, (_, k) => `<line x1="${20 + k * 17}" y1="${30 + (k % 4) * 10}" x2="${120 + k * 7}" y2="${180 + (k % 3) * 6}" stroke="#a89060" stroke-width="2.5" opacity=".8"/><path d="M${120 + k * 7},${180 + (k % 3) * 6} l-3,-9 l7,2z" fill="#c8c0b0"/>`).join('')}`;
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/>${b}${vign(id)}`, sky + lin(id + 't', [[0, '#ff6a2a', 0], [1, '#ffe0a0', 1]], 1, 1) + rad(id + 'g', [[0, '#fff4c0', .9], [.5, '#ffa040', .5], [1, '#ff6020', 0]]) + vdef(id));
+  },
+  // diving into the sea below Andromeda's rock: a Kraken wakes from the depths
+  kraken(id) {
+    const tent = (x, h, s) => `<path d="M${x},260 C${x - 20 * s},${260 - h * .4} ${x + 30 * s},${260 - h * .7} ${x + 6 * s},${260 - h} q${10 * s},-8 ${14 * s},4 C${x + 46 * s},${260 - h * .6} ${x + 14 * s},${260 - h * .3} ${x + 26},260Z" fill="#2a3a3a"/>${Array.from({ length: 4 }, (_, k) => `<circle cx="${x + 8 + k * 3 * s}" cy="${260 - h * (.25 + k * .15)}" r="2.5" fill="#6a8a80" opacity=".7"/>`).join('')}`;
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/><circle cx="70" cy="60" r="22" fill="#ffe0a0" opacity=".6"/>
+<path d="M300,60 L340,40 L380,70 L400,60 V170 H290Z" fill="#3a342e"/>
+<g opacity=".55"><path d="M346,72 q-6,14 0,30" stroke="#d8c0a0" stroke-width="6" fill="none"/><circle cx="346" cy="66" r="6" fill="#d8c0a0"/><path d="M340,64 q-8,10 -4,30" stroke="#5a3a1e" stroke-width="5" fill="none"/><path d="M352,80 l12,-14" stroke="#8a8a90" stroke-width="1.5"/></g>
+<path d="M0,150 Q100,140 200,150 T400,150 V260 H0Z" fill="url(#${id}s)"/>
+${tent(110, 150, 1)}${tent(200, 190, -1)}${tent(260, 120, 1)}
+<path d="M150,150 q10,-30 20,0" stroke="#e8f0f8" stroke-width="2" fill="none" opacity=".6"/>${[60, 150, 240, 330].map(x => `<path d="M${x},${156 + (x % 3) * 4} q10,-5 20,0" stroke="#c8e0e8" stroke-width="1.5" fill="none" opacity=".5"/>`).join('')}
+${vign(id)}`, lin(id + 'k', [[0, '#e8a870'], [.6, '#a8a0b0'], [1, '#6a7a90']]) + lin(id + 's', [[0, '#2a5a6a'], [1, '#0a1a2a']]) + vdef(id));
+  },
+  // fire: spontaneous combustion, or a great conflagration
+  fire(id) {
+    const r = rng(3); let fl = '', sp = '';
+    for (let i = 0; i < 9; i++) { const x = 40 + i * 42 + r() * 10, h = 90 + r() * 120; fl += `<path d="M${x - 30},260 C${x - 30},${260 - h * .5} ${x - 6},${260 - h * .6} ${x},${260 - h} C${x + 8},${260 - h * .6} ${x + 30},${260 - h * .5} ${x + 30},260Z" fill="url(#${id}f)" opacity=".9"/>`; }
+    for (let i = 0; i < 40; i++) sp += `<circle cx="${(r() * 400).toFixed(0)}" cy="${(r() * 200).toFixed(0)}" r="${(1 + r() * 1.6).toFixed(1)}" fill="#ffd070" opacity="${(.3 + r() * .6).toFixed(2)}"/>`;
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/>${fl}${sp}<path d="M0,0 Q120,60 200,30 T400,40 V0Z" fill="#2a1a14" opacity=".7"/>${vign(id)}`,
+      lin(id + 'k', [[0, '#2a1410'], [1, '#6a2a10']]) + lin(id + 'f', [[0, '#fff0a0'], [.4, '#ff9a2a'], [1, '#c8301a']]) + vdef(id));
+  },
+  // the bomb explodes
+  bomb(id) {
+    let rays = ''; for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8; rays += `<polygon points="200,140 ${200 + Math.cos(a - .08) * 260},${140 + Math.sin(a - .08) * 260} ${200 + Math.cos(a + .08) * 260},${140 + Math.sin(a + .08) * 260}" fill="#fff0b0" opacity=".25"/>`; }
+    const puff = (x, y, rr, c) => `<circle cx="${x}" cy="${y}" r="${rr}" fill="${c}"/>`;
+    return svg(`<rect width="400" height="260" fill="#3a1a10"/>${rays}
+${puff(200, 140, 90, '#7a4a2a')}${puff(150, 120, 50, '#9a6a3a')}${puff(250, 112, 56, '#9a6a3a')}${puff(200, 90, 50, '#b88a4a')}${puff(200, 140, 46, 'url(#' + id + 'g)')}
+${[[60, 60, 20], [340, 70, -30], [90, 200, 50], [320, 210, -60], [200, 20, 10]].map(([x, y, a]) => `<rect x="${x}" y="${y}" width="16" height="6" fill="#2a1a10" transform="rotate(${a} ${x} ${y})"/>`).join('')}
+${[[120, 40], [290, 50], [60, 150], [350, 160]].map(([x, y]) => `<path d="M${x},${y} q6,-8 12,0" stroke="#3a6a3a" stroke-width="2" fill="none"/><path d="M${x + 4},${y + 6} q6,-8 12,0" stroke="#c83a2a" stroke-width="2" fill="none"/>`).join('')}
+${vign(id)}`, rad(id + 'g', [[0, '#ffffff'], [.5, '#ffe080'], [1, '#ff8a2a', 0]]) + vdef(id));
+  },
+  // someone sees you with the bomb: a foreign prison, twenty-five years
+  prison(id) {
+    let tally = ''; for (let g = 0; g < 5; g++) { const x = 60 + g * 30; for (let k = 0; k < 4; k++) tally += `<line x1="${x + k * 5}" y1="70" x2="${x + k * 5}" y2="94" stroke="#e8dcc0" stroke-width="2" opacity=".6"/>`; tally += `<line x1="${x - 3}" y1="90" x2="${x + 19}" y2="74" stroke="#e8dcc0" stroke-width="2" opacity=".6"/>`; }
+    return svg(`<rect width="400" height="260" fill="url(#${id}w)"/>${tally}
+<rect x="250" y="40" width="90" height="70" fill="#8ab0d8" opacity=".5"/>${[262, 280, 298, 316, 334].map(x => `<rect x="${x}" y="40" width="5" height="70" fill="#2a2a2e"/>`).join('')}
+<polygon points="250,110 340,110 380,260 210,260" fill="#c8d8f0" opacity=".08"/>
+<rect x="0" y="210" width="400" height="50" fill="#2a2620"/><rect x="40" y="190" width="120" height="20" fill="#5a4a38"/><rect x="40" y="206" width="8" height="16" fill="#3a2e22"/><rect x="152" y="206" width="8" height="16" fill="#3a2e22"/>
+${Array.from({ length: 13 }, (_, k) => `<rect x="${4 + k * 31}" y="0" width="7" height="260" fill="url(#${id}b)"/>`).join('')}
+<rect x="0" y="20" width="400" height="6" fill="#4a4a50"/><rect x="0" y="236" width="400" height="6" fill="#4a4a50"/>
+${vign(id)}`, lin(id + 'w', [[0, '#4a4440'], [1, '#2a2622']]) + lin(id + 'b', [[0, '#2a2a30'], [.5, '#7a7a82'], [1, '#2a2a30']], 1, 0) + vdef(id));
+  },
+  // the flagpole cracks, and you fall head over heels to the deck below
+  mastfall(id) {
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/>
+<rect x="196" y="0" width="14" height="260" fill="#6a4a2a"/><rect x="120" y="40" width="170" height="6" fill="#5a3a1e"/>
+<path d="M210,96 L300,88" stroke="#7a5a32" stroke-width="7"/><path d="M300,88 l8,-6 l-2,10 l8,2" stroke="#7a5a32" stroke-width="4" fill="none"/>
+<g transform="translate(330 130) rotate(40)"><rect x="-40" y="-3" width="80" height="6" fill="#7a5a32"/></g>
+<g transform="translate(280 150) rotate(-20)"><rect x="0" y="0" width="40" height="24" fill="#1a2a6a"/><path d="M0,0 L40,24 M40,0 L0,24" stroke="#e8e8f0" stroke-width="5"/><path d="M0,0 L40,24 M40,0 L0,24" stroke="#c82a2a" stroke-width="2"/><path d="M20,0 V24 M0,12 H40" stroke="#e8e8f0" stroke-width="7"/><path d="M20,0 V24 M0,12 H40" stroke="#c82a2a" stroke-width="4"/></g>
+${[0, 1, 2].map(k => `<path d="M${250 + k * 16},${110 + k * 10} q-10,30 4,60" stroke="#e8f0f8" stroke-width="1.5" fill="none" opacity=".5"/>`).join('')}
+<path d="M0,226 L400,214 V260 H0Z" fill="#8a6a40"/>${[40, 120, 200, 280, 360].map(x => `<line x1="${x}" y1="${226 - x * .03}" x2="${x - 20}" y2="260" stroke="#5a4428" stroke-width="2"/>`).join('')}
+<circle cx="120" cy="222" r="8" fill="#3a3a3e"/><rect x="250" y="210" width="20" height="10" fill="#3a3a3e"/>
+${vign(id)}`, lin(id + 'k', [[0, '#6a8ac0'], [1, '#c8d8e8']]) + vdef(id));
+  },
+  // the ghost swoops around and through you; you never venture into the attic again
+  spooked(id) {
+    const r = rng(9); let swirl = '';
+    for (let i = 0; i < 5; i++) swirl += `<path d="M${200 - 120 + i * 10},${140 - i * 6} C${120 + i * 8},${40 + i * 6} ${300 - i * 8},${30 + i * 10} ${290 - i * 10},${150 - i * 4} S${150 + i * 6},${220 - i * 6} ${180 + i * 6},${150}" stroke="#d8e8f0" stroke-width="${6 - i}" fill="none" opacity="${(.12 + i * .06).toFixed(2)}"/>`;
+    let motes = ''; for (let i = 0; i < 30; i++) motes += `<circle cx="${(r() * 400).toFixed(0)}" cy="${(r() * 260).toFixed(0)}" r="1.3" fill="#e8f0f8" opacity="${(.2 + r() * .4).toFixed(2)}"/>`;
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/>
+<polygon points="0,40 400,10 400,60 0,90" fill="#2a2420"/>${[60, 160, 260, 360].map(x => `<rect x="${x}" y="0" width="14" height="${80 - x * .08}" fill="#1a1612"/>`).join('')}
+${swirl}
+<g opacity=".55"><path d="M236,80 C236,58 268,58 268,80 V130 l-6,-8 l-5,8 l-5,-8 l-5,8 l-5,-8 l-6,8Z" fill="#e8f0f8"/><circle cx="246" cy="84" r="3" fill="#1a2430"/><circle cx="258" cy="84" r="3" fill="#1a2430"/><ellipse cx="252" cy="98" rx="4" ry="6" fill="#1a2430"/></g>
+${motes}
+<path d="M0,214 L400,200 V260 H0Z" fill="#2e2620"/>${vign(id)}`, lin(id + 'k', [[0, '#3a4450'], [1, '#1e2228']]) + vdef(id));
+  },
+  // transported to Australia: a ship under full sail towards a far, sun-baked shore
+  australia(id) {
+    return svg(`<rect width="400" height="260" fill="url(#${id}k)"/><circle cx="320" cy="60" r="30" fill="#fff0b0"/><circle cx="320" cy="60" r="60" fill="url(#${id}g)"/>
+<path d="M240,150 Q300,132 360,140 T400,138 V152 H240Z" fill="#c88a4a"/>
+<path d="M0,150 H400 V260 H0Z" fill="url(#${id}s)"/>
+<g transform="translate(120 150)"><path d="M-60,0 L60,0 L48,22 L-48,22Z" fill="#4a2e1a"/>${[-30, 0, 30].map(x => `<rect x="${x - 1.5}" y="-96" width="3" height="96" fill="#3a2a1a"/><path d="M${x - 22},-86 Q${x},-74 ${x + 22},-86 L${x + 20},-40 Q${x},-30 ${x - 20},-40Z" fill="#e8e0cc"/>`).join('')}
+${[-40, -20, 0, 20, 40].map(x => `<rect x="${x - 3}" y="6" width="6" height="6" fill="#1a120a"/>`).join('')}</g>
+${[40, 200, 300].map(x => `<path d="M${x},${180 + (x % 7) * 3} q10,-5 20,0" stroke="#e8f0f8" stroke-width="1.5" fill="none" opacity=".5"/>`).join('')}
+${vign(id)}`, lin(id + 'k', [[0, '#5a9ad8'], [1, '#e8d8a8']]) + lin(id + 's', [[0, '#2a6a9a'], [1, '#0a2a4a']]) + rad(id + 'g', [[0, '#fff0b0', .6], [1, '#fff0b0', 0]]) + vdef(id));
+  },
+};
+
+// which ending the game has just printed: short words only, from the death texts
+const MATCH = [
+  ['flood', /pipe bursts/i],
+  ['bear', /great bear rears up/i],
+  ['crush', /powdered dog biscuit/i],
+  ['zeus', /Zeus'? (has worked out|thunderbolt strikes you)/i],
+  ['freak', /astonishing freak accident/i],
+  ['kraken', /Kraken wakes/i],
+  ['fire', /spontaneously combusted|great conflagration/i],
+  ['bomb', /the bomb explodes/i],
+  ['prison', /catches sight of you with the bomb/i],
+  ['mastfall', /colourful demise on the deck|head over heels to the hard wooden deck/i],
+  ['spooked', /swoops around and through you/i],
+  ['australia', /transported to Australia/i],
+];
+// the banner the game prints when it ends, other than the win
+const END = /\*{3}\s*You have (?!won)[^*\n]{3,80}\*{3}/;
+
+function find(text) {
+  if (!text || !END.test(text)) return null;
+  for (const [k, re] of MATCH) if (re.test(text)) { const id = 'en' + (++uid); return { key: k, svg: SCENES[k](id, text) }; }
+  return { key: null, svg: null };
+}
+root.ZEnd = { find, END, keys: MATCH.map(m => m[0]), scene: (k, t) => SCENES[k]('en' + (++uid), t || '') };
+})(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>// Procedural room illustrations: original SVG scenes chosen by keywords.
 (function (root) {
@@ -5748,6 +5955,82 @@ class Music {
     else if (kind === 'step') { for (let i = 0; i < 3; i++) this.noiseHit(t + i * .22, .09, 500 + Math.random() * 200, 1.2, .14, 'lowpass'); }
     else if (kind === 'chime') { [0, .12, .24].forEach((d, i) => this.tone(t + d, [784, 988, 1319][i], 0, 1.2, .07, 'sine')); }
   }
+  // a short sound for an ending with a picture of its own: under two seconds, quiet, more comic than grim
+  endSfx(key) {
+    if (!this.ctx || !this.sfxBus || !this.sfxVol) return;
+    const ctx = this.ctx, out = this.sfxBus, t = ctx.currentTime + .05;
+    if (!this.whiteBuf) { const len = ctx.sampleRate * 3, b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; this.whiteBuf = b; }
+    if (!this.noiseBuf) this.noiseBuf = this.makeNoise();
+    // noise through a filter, with an envelope: a = attack, h = hold, r = release; f0 to f1 sweeps the filter
+    const nz = (t0, a, h, r, vol, type, f0, f1, q, white) => {
+      const s = ctx.createBufferSource(); s.buffer = white ? this.whiteBuf : this.noiseBuf;
+      const f = ctx.createBiquadFilter(); f.type = type; f.Q.value = q || 1; f.frequency.setValueAtTime(f0, t0); if (f1) f.frequency.exponentialRampToValueAtTime(f1, t0 + a + h + r);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + a); g.gain.setValueAtTime(vol, t0 + a + h); g.gain.exponentialRampToValueAtTime(.0001, t0 + a + h + r);
+      s.connect(f); f.connect(g); g.connect(out); s.start(t0, Math.random()); s.stop(t0 + a + h + r + .05);
+    };
+    const tn = (t0, f0, f1, dur, vol, type, a) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type || 'sine';
+      o.frequency.setValueAtTime(f0, t0); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + (a || .01)); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + dur + .05);
+    };
+    // a struck piece of metal: a few inharmonic partials that ring out
+    const metal = (t0, base, dur, vol) => [1, 2.76, 5.4, 8.93].forEach((m, i) => tn(t0, base * m, 0, dur / (1 + i * .5), vol / (1 + i), 'sine', .002));
+    if (key === 'flood') {
+      metal(t, 260, .5, .12); nz(t, .005, .02, .1, .25, 'bandpass', 900, 0, 2);
+      nz(t + .05, .08, 1.0, .5, .24, 'bandpass', 3800, 2600, 1.2, true);
+      for (let i = 0; i < 7; i++) tn(t + .35 + i * .19 + Math.random() * .06, 1500 + Math.random() * 500, 700, .08, .06);
+    } else if (key === 'bear') {
+      const o = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(85, t); o.frequency.linearRampToValueAtTime(62, t + 1.2);
+      lfo.frequency.value = 23; lg.gain.value = .08; lfo.connect(lg); lg.connect(g.gain);
+      f.type = 'lowpass'; f.frequency.value = 420; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.14, t + .25); g.gain.exponentialRampToValueAtTime(.0001, t + 1.4);
+      o.connect(f); f.connect(g); g.connect(out); o.start(t); lfo.start(t); o.stop(t + 1.5); lfo.stop(t + 1.5);
+      nz(t + .9, .05, .1, .3, .22, 'bandpass', 300, 2600, 1.5, true);
+    } else if (key === 'crush') {
+      const s = ctx.createBufferSource(); s.buffer = this.noiseBuf; const f = ctx.createBiquadFilter(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+      f.type = 'lowpass'; f.frequency.setValueAtTime(180, t); f.frequency.linearRampToValueAtTime(520, t + 1.1);
+      lfo.frequency.value = 13; lg.gain.value = .12; lfo.connect(lg); lg.connect(g.gain);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.12);
+      s.connect(f); f.connect(g); g.connect(out); s.start(t); lfo.start(t); s.stop(t + 1.2); lfo.stop(t + 1.2);
+      tn(t + 1.1, 120, 40, .4, .3); nz(t + 1.1, .003, .02, .35, .25, 'lowpass', 900);
+      for (let i = 0; i < 6; i++) nz(t + 1.2 + i * .07, .002, 0, .05, .08, 'bandpass', 2000 + i * 300, 0, 3, true);
+    } else if (key === 'zeus') {
+      nz(t, .002, .03, .12, .3, 'highpass', 2500, 0, .7, true);
+      nz(t + .05, .04, .3, 1.5, .3, 'lowpass', 260, 90, .8);
+      tn(t + .05, 60, 35, 1.2, .2);
+    } else if (key === 'freak') {
+      nz(t, .6, .1, .05, .14, 'bandpass', 3000, 400, 2, true);
+      tn(t + .75, 90, 30, 1.1, .32); nz(t + .75, .005, .1, 1.0, .25, 'lowpass', 500, 120);
+    } else if (key === 'kraken') {
+      nz(t, .01, .05, .45, .26, 'bandpass', 1200, 500, 1, true); tn(t, 140, 60, .4, .18);
+      for (let i = 0; i < 9; i++) tn(t + .3 + i * .1 + Math.random() * .04, 280 + Math.random() * 200, 700 + Math.random() * 400, .07, .06);
+      tn(t + .2, 55, 45, 1.6, .14, 'sine', .4);
+    } else if (key === 'fire') {
+      nz(t, .3, .9, .6, .3, 'lowpass', 500, 900, 1);
+      for (let i = 0; i < 26; i++) nz(t + Math.random() * 1.6, .001, 0, .02 + Math.random() * .03, .16 + Math.random() * .14, 'bandpass', 1500 + Math.random() * 3500, 0, 4, true);
+    } else if (key === 'bomb') {
+      tn(t, 90, 28, 1.4, .34); nz(t, .004, .08, 1.4, .3, 'lowpass', 700, 90, .7);
+      for (let i = 0; i < 8; i++) nz(t + .35 + Math.random() * .9, .002, 0, .05, .06, 'bandpass', 1800 + Math.random() * 2000, 0, 3, true);
+    } else if (key === 'prison') {
+      metal(t, 110, 1.6, .2); nz(t, .002, .02, .12, .2, 'bandpass', 700, 0, 1.5);
+      nz(t + .55, .001, 0, .04, .16, 'bandpass', 3200, 0, 6, true); metal(t + .58, 620, .3, .06);
+    } else if (key === 'mastfall') {
+      nz(t, .002, .03, .15, .28, 'highpass', 1500, 0, .7, true); tn(t, 300, 120, .15, .14, 'square');
+      tn(t + .2, 1300, 260, .9, .07, 'sine', .05);
+      tn(t + 1.12, 110, 45, .35, .32); nz(t + 1.12, .003, .02, .3, .26, 'lowpass', 800);
+    } else if (key === 'spooked') {
+      const o = ctx.createOscillator(), v = ctx.createOscillator(), vg = ctx.createGain(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(420, t); o.frequency.linearRampToValueAtTime(760, t + .6); o.frequency.linearRampToValueAtTime(380, t + 1.6);
+      v.frequency.value = 6; vg.gain.value = 18; v.connect(vg); vg.connect(o.frequency);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.1, t + .3); g.gain.linearRampToValueAtTime(.08, t + 1.2); g.gain.exponentialRampToValueAtTime(.0001, t + 1.8);
+      o.connect(g); g.connect(out); g.connect(this.reverb || out); o.start(t); v.start(t); o.stop(t + 1.9); v.stop(t + 1.9);
+      nz(t + .1, .4, .3, .8, .16, 'bandpass', 600, 2400, 2, true);
+    } else if (key === 'australia') {
+      metal(t, 880, 1.4, .16); metal(t + .45, 880, 1.4, .14);
+      nz(t + .2, .5, .3, .9, .18, 'lowpass', 500, 300, 1);
+    }
+  }
   ambience(kind) {
     if (kind === this.ambKind) return;
     const ctx = this.ctx;
@@ -5786,7 +6069,7 @@ class Music {
     if (!this.ctx || !this.enabled || !this.current) { if (scoreUp) this.spark = 1; return; }
     const t = this.ctx.currentTime;
     if (scoreUp) { this.spark = 1; this.flourish(t + .2, 'rise'); }
-    if (/\*\*\* You have died|You have died/.test(text)) { this.tension = 1; this.flourish(t + .1, 'fall'); }
+    if (/\*\*\* You have (?!won)|You have died/.test(text)) { this.tension = 1; this.flourish(t + .1, 'fall'); }
     else if (/\b(die|dies|death|dead|kill|scream|danger|terror|tremble|shiver|horrible|ghastly|wail|cold here|fall to|plummet|crumble)\b/i.test(text)) this.tension = Math.max(this.tension, .7);
     if (/\b(glow|glows|glowing|shimmer|sparkl|magic|golden|wonder|marvellous|enchant|radiant|bright light|light streams)\w*/i.test(text)) this.spark = Math.max(this.spark, .6);
     if (/\*\*\* You have won/.test(text)) { this.tension = 0; this.spark = 1; this.flourish(t + .2, 'win'); }
@@ -6131,7 +6414,7 @@ function musicByDefault() {
 function startGame(bytes, resume, opts) {
   if (S.previewTimer) S.previewTimer();
   setTimeout(musicByDefault, 0);
-  S.bytes = bytes; S.objIds = null;
+  S.bytes = bytes; S.objIds = null; try { clearEnding(); } catch (e) {}
   const info = storyInfo(bytes);
   S.serial = info.id;
   $('#start').hidden = true; $('#game').hidden = false;
@@ -6191,6 +6474,8 @@ function pump(pre) {
   noteWords(text);
   try { S.music.react(text, false); } catch (e) {}
   try { closeUp(text); } catch (e) {}
+  S.endBuf = ((S.endBuf || '') + text).slice(-4000);
+  try { ending(S.endBuf, text); } catch (e) {}
   renderOutput(out);
   renderUpper();
   S.turnText += text;
@@ -6228,6 +6513,30 @@ function autosave() {
   } catch (e) {}
 }
 
+// when the game ends (other than by winning) the room picture fades to grey; twelve endings have a
+// picture of their own. It stays while the game asks RESTART/RESTORE/UNDO and goes with whatever follows.
+function ending(buf, text) {
+  const pic = $('#pic'); if (!pic) return;
+  let el = $('#endScene'); if (!el) { el = document.createElement('div'); el.id = 'endScene'; el.hidden = true; pic.appendChild(el); }
+  const e = !S.ended && window.ZEnd ? ZEnd.find(buf) : null;
+  if (e) {
+    S.ended = true; pic.classList.add('ended');
+    if (e.key) try { S.music.endSfx(e.key); } catch (err) {}
+    if (e.svg) { el.innerHTML = e.svg; el.hidden = false; el.classList.remove('on'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on'))); }
+    else { el.hidden = true; el.innerHTML = ''; }
+    const cu = $('#closeUp'); if (cu) { cu.hidden = true; cu.innerHTML = ''; }
+    return;
+  }
+  if (!S.ended || !text || !text.trim()) return;
+  if ( /Would you like to RESTART|Please give one of the answers above/.test(text) && !/Previous turn undone/.test(text)) return;
+  clearEnding();
+}
+function clearEnding() {
+  S.ended = false;
+  const pic = $('#pic'), el = $('#endScene');
+  if (pic) pic.classList.remove('ended');
+  if (el) { el.classList.remove('on'); el.hidden = true; el.innerHTML = ''; }
+}
 // a close-up of a Tarot card or a rod when the game describes one; it goes with the next command or a click
 function closeUp(text) {
   const el = document.getElementById('closeUp'); if (!el || !window.ZClose) return;
@@ -6243,7 +6552,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { const el =
 function sendCommand(cmd, src) {
   const zm = S.zm;
   if (!zm || zm.state !== 'input') return;
-  S.lastShownCmd = cmd; S.lastSrc = src || 'main';
+  S.lastShownCmd = cmd; S.lastSrc = src || 'main'; S.endBuf = '';
   appendCmd(cmd);
   if (cmd.trim()) { S.history.push(cmd); if (S.history.length > 200) S.history.shift(); }
   S.hIdx = -1;
@@ -6256,7 +6565,7 @@ function sendCommand(cmd, src) {
   if (/^undo$/i.test(cmd.trim()) && /(Which do you mean|What do you want to|Whom do you want|Who do you want|What do you want)[^\n]*\?\s*>?\s*$/.test(S.lastText || '')) {
     zm.provideInput('zzqq'); zm.run(); zm.takeOutput();
   }
-  if (!smart || !S.parser || /^(save|restore|restart|quit|undo|q)$/i.test(cmd.trim())) {
+  if (!smart || !S.parser || src === 'raw' || /^(save|restore|restart|quit|undo|q)$/i.test(cmd.trim())) {
     const c = cmd.trim().toLowerCase();
     if (!/^(g|again)$/.test(c)) S.lastCmd = c;
     zm.provideInput(cmd); pump(); return;
@@ -7414,7 +7723,17 @@ function initPop() {
   $('#pop').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     hidePop();
-    if (b.dataset.cmd) Z().sendCommand(b.dataset.cmd);
+    if (b.dataset.cmd) {
+      const before = Z().S.lastText;
+      Z().sendCommand(b.dataset.cmd);
+      // a bug in Curses (Garvin's list): once a rod has a name, "featureless" still matches it, so the
+      // game keeps asking which rod is meant. The game itself accepts "a featureless mahogany rod" as
+      // the answer, so the menu gives that answer; typed commands are left exactly as the game has them.
+      if (/featureless/.test(b.dataset.cmd)) {
+        let n = 0; const t = setInterval(() => { const S = Z().S; if (++n > 40) clearInterval(t); if (!S.zm || S.zm.state !== 'input' || S.lastText === before) return; clearInterval(t);
+          if (/Which do you mean, the featureless mahogany rod/.test(S.lastText || '')) Z().sendCommand('a featureless mahogany rod', 'raw'); }, 100);
+      }
+    }
     else if (b.dataset.ins) { const i = $('#cmd'); i.value = (i.value ? i.value.trim() + ' ' : '') + b.dataset.ins; i.focus(); }
   });
   document.addEventListener('pointerdown', e => { if (!e.target.closest('#pop') && !e.target.closest('.invItem')) hidePop(); });

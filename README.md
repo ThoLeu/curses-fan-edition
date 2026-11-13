@@ -8,15 +8,17 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 *Curses* © Graham Nelson. The game is free and may be distributed without profit, as its README says; this interpreter is a separate, unofficial player and does not include it.
 
+**Rückmeldung / Feedback:** Fehler gefunden oder eine Idee? Gerne über [Issues](https://github.com/ThoLeu/curses-fan-edition/issues/new/choose), mit Vorlagen für Fehler und Ideen. Bitte keine persönlichen Daten und keine längeren Spieltexte hineinkopieren. / Found a bug or have an idea? Please open an [issue](https://github.com/ThoLeu/curses-fan-edition/issues/new/choose).
+
 ## Aktuelle Version
 
-26-11-13-1808 – Klänge für die Spielenden
+26-11-13-1815 – Rückmeldung über GitHub-Issues
 
 ## Ältere Versionen
 
+- [26-11-13-1808](archiv/26-11-13-1808.html) – Klänge für die Spielenden
 - [26-11-13-1757](archiv/26-11-13-1757.html) – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
 - [26-11-13-1726](archiv/26-11-13-1726.html) – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
-- [26-11-13-1712](archiv/26-11-13-1712.html) – Abgleich mit dem rekonstruierten Quelltext
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -220,6 +222,11 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Die zwölf Enden mit eigenem Bild haben jetzt auch einen eigenen kurzen Klang, im Browser erzeugt wie alle Geräusche: Zischen und Tropfen beim Rohr, Knurren beim Bären, Mahlen der Wände, Donner, ein Einschlag beim Zufall, Platschen beim Kraken, Knistern, ein dumpfer Knall, eine zufallende Zellentür, ein brechender Mast mit fallendem Pfeifen, ein kurzes Geisterheulen und die Schiffsglocke vor Australien.
 - Jeder Klang dauert höchstens zwei Sekunden, die Lautstärken sind angeglichen. Sie laufen über die Geräusch-Lautstärke und schweigen, wenn Geräusche aus sind oder klassisch gespielt wird.
 - Die fallende Tonfolge der Musik erklingt jetzt bei jedem Ende außer dem Sieg, nicht nur bei „You have died“.
+
+### 35. Rückmeldungen (13. November 2026)
+- Wer einen Fehler findet oder eine Idee hat, kann sie über die Issues dieses Repositorys schicken. Es gibt je eine Vorlage für Fehler und für Ideen, auf Deutsch und Englisch. Die Vorlage für Fehler fragt nach dem Versionsstempel, dem Raum und dem Browser.
+- Auf der Startseite steht unter „Über das Spiel“ der Link „Rückmeldung auf GitHub“.
+- Die Rückmeldungen werden gesammelt und gemeinsam besprochen. Was umgesetzt wird, entscheidet der Projektinhaber.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

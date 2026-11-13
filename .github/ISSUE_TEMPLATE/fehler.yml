@@ -1,0 +1,33 @@
+name: Fehler melden / Report a bug
+description: Etwas funktioniert nicht oder sieht falsch aus. / Something doesn't work or looks wrong.
+labels: ["fehler"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke fürs Melden! Bitte keine persönlichen Daten und keine längeren Spieltexte hineinkopieren, eine kurze Beschreibung reicht.
+        Thanks for reporting! Please don't include personal data or long passages of game text; a short description is enough.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Der kleine Stempel neben dem Titel oben links, z. B. 26-11-13-1808. / The small stamp next to the title.
+    validations:
+      required: false
+  - type: input
+    id: room
+    attributes:
+      label: Raum / Room
+      description: Wo im Spiel ist es passiert? / Where in the game did it happen?
+  - type: textarea
+    id: what
+    attributes:
+      label: Was ist passiert? / What happened?
+      description: Was hast du getan, was hast du erwartet, was kam stattdessen? Ein Screenshot hilft sehr. / What did you do, what did you expect, what happened instead? A screenshot helps a lot.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser und Gerät / Browser and device
+      description: z. B. Chrome auf Windows, Safari auf dem iPhone

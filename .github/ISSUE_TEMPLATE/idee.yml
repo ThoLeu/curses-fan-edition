@@ -1,0 +1,19 @@
+name: Idee oder Wunsch / Idea or wish
+description: Ein Vorschlag, was besser oder anders sein könnte. / A suggestion for something better or different.
+labels: ["idee"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für deine Idee! Bitte bedenke die Grundsätze des Projekts: kein Spieltext in der Seite, und ein Bild zeigt nur, was der Text schon beschrieben hat.
+        Thanks for your idea! Please keep the project's principles in mind: no game text in the page, and a picture only shows what the text has already described.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Deine Idee / Your idea
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Warum wäre das gut? / Why would it help?
