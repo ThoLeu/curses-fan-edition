@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-2058 – Wege-Knöpfe mit englischen Richtungen
+26-11-13-2106 – Lair-Pflanzen vorn, saubere Statuszeile
 
 ## Ältere Versionen
 
+- [26-11-13-2058](archiv/26-11-13-2058.html) – Wege-Knöpfe mit englischen Richtungen
 - [26-11-13-1931](archiv/26-11-13-1931.html) – Musik auf dem Handy ohne Knarzen
 - [26-11-13-1926](archiv/26-11-13-1926.html) – Bild sofort beim Fortsetzen
-- [26-11-13-1923](archiv/26-11-13-1923.html) – Übersetzung zeilen- und satzweise
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -244,6 +244,10 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 
 ### 40. Richtungen wie im Spiel (13. November 2026)
 - Die Knöpfe „Bekannte Wege“ zeigten deutsche Abkürzungen, zum Beispiel O für Osten, getippt werden muss im Spiel aber E für east. Sie zeigen jetzt in beiden Sprachen, was man im Spiel eingibt: N, S, E, W, NE, NW, SE, SW, ↑ U, ↓ D, in, out. Der Tooltip nennt das Ziel und den Befehl.
+
+### 41. Pflanzen vorn, saubere Statuszeile (13. November 2026)
+- In Aunt Jemima's Lair standen die Töpfe mit Gänseblümchen hinter der Tür und der Treppe. Jetzt stehen sie davor.
+- Seit Abschnitt 38 wurde die gespeicherte Statuszeile beim Fortsetzen wiederhergestellt. Sie stammte aber manchmal aus einer anderen Fensterbreite, und es blieben Reste wie ein doppeltes Datum stehen. Die Seite stellt sie jetzt nicht mehr her. Bis das Spiel den Raumnamen selbst wieder schreibt, nimmt sie den gespeicherten Raum. Das Bild erscheint also weiterhin sofort.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

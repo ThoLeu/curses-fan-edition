@@ -1,4 +1,4 @@
+26-11-13-2106	Lair-Pflanzen vorn, saubere Statuszeile
 26-11-13-2058	Wege-Knöpfe mit englischen Richtungen
 26-11-13-1931	Musik auf dem Handy ohne Knarzen
 26-11-13-1926	Bild sofort beim Fortsetzen
-26-11-13-1923	Übersetzung zeilen- und satzweise
