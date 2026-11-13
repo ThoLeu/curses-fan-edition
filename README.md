@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-0907 – Zwanzig weitere Raumzustände
+26-11-13-0951 – Bild nur noch Illustration
 
 ## Ältere Versionen
 
+- [26-11-13-0907](archiv/26-11-13-0907.html) – Zwanzig weitere Raumzustände
 - [26-11-13-0857](archiv/26-11-13-0857.html) – Dunkelkammer: rotes Licht erst mit der Lampe
 - [26-11-12-2001](archiv/26-11-12-2001.html) – Gegenstände verändern Räume: sieben Szenen
-- [26-11-12-1944](archiv/26-11-12-1944.html) – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -142,6 +142,9 @@ Die Räume zeigen jetzt auch diese Veränderungen, sobald das Spiel sie beschrei
 - Hinzugekommen oder verschwunden: die Flagge als Decke auf Alisons Bett, Fahnenmast und Flagge an Deck des Schiffs, das Segelboot am Garden Stream, das gegrabene Loch und die Lücke in der Hecke auf dem Croquet Lawn, die drei High Rods in der Parish Church, das Ausflugsboot am Ufer (Down by River), Schlüssel und Stein am Hafen in Alexandria, die verbrannte Lücke in der Dornenhecke.
 - Das Wandbild in Bohemia zeigt jeweils Stil und Motiv, die der Text nennt (zehn Varianten). Im Feld des Gartenrasters (Maze Foundations) stimmen die Beete jetzt mit allen Richtungsangaben überein.
 - Räume, die aus ihrer Beschreibung zusammengesetzt werden, behalten ihren Aufbau, wenn sich die Beschreibung durch eine Handlung ändert. Nur das Veränderte wird neu gezeichnet. Wo das Spiel einen Zustand kennt (offen, an, eingesteckt), gilt dieser sofort, auch bevor man sich erneut umsieht.
+
+### 23. Das Bild ist nur noch Illustration (13. November 2026)
+Damit der Charakter des Textadventures erhalten bleibt, lässt sich im Bild nichts mehr anklicken. Fährt man mit der Maus darüber, erscheinen keine Namen mehr, und der Mauszeiger verrät nicht mehr, wo etwas liegt. Die Einstellung „Namen im Bild“ ist entfernt. Die Leiste „Hier abgelegt“ unter dem Bild zeigt weiterhin, was man selbst dort abgelegt hat, öffnet aber kein Befehlsmenü mehr. Was im Raum ist und was man damit tut, findet man allein über den Text heraus.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
