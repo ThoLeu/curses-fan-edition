@@ -368,7 +368,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-12-2001</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-0857</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,7 +407,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-12-2001</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-13-0857</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -2187,13 +2187,19 @@ B['East Annexe'] = { cat: 'attic', draw(h) {
 
 B['Dark Room'] = { cat: 'interior', draw(h) {
   const { add } = h;
+  // The red developing lamp only glows once the cord has been pulled (the lamp then hangs in the room).
+  // Before that the room has no light of its own: what you carry shows it dimly, in plain colours.
+  const red = h.st.known ? h.st.here('red lamp') : /eerie, reddish light/i.test(h.desc);
+  const c = (r, p) => red ? r : p;
   // roughly furnished photographer's darkroom, very dim
-  add(`<rect width="400" height="260" fill="#1a0806"/>`);
-  add(`<polygon points="0,0 400,0 340,50 60,50" fill="#120403"/><polygon points="0,0 60,50 60,200 0,260" fill="#220a08"/><polygon points="400,0 340,50 340,200 400,260" fill="#1e0807"/><rect x="60" y="50" width="280" height="150" fill="#2e100c"/><polygon points="60,200 340,200 400,260 0,260" fill="#240c09"/>`);
+  add(`<rect width="400" height="260" fill="${c('#1a0806', '#121110')}"/>`);
+  add(`<polygon points="0,0 400,0 340,50 60,50" fill="${c('#120403', '#0c0b0a')}"/><polygon points="0,0 60,50 60,200 0,260" fill="${c('#220a08', '#1a1816')}"/><polygon points="400,0 340,50 340,200 400,260" fill="${c('#1e0807', '#171513')}"/><rect x="60" y="50" width="280" height="150" fill="${c('#2e100c', '#262320')}"/><polygon points="60,200 340,200 400,260 0,260" fill="${c('#240c09', '#1c1a17')}"/>`);
   for (let x = 70; x < 340; x += 16) add(`<line x1="${x}" y1="50" x2="${x}" y2="200" stroke="#000" opacity=".2"/>`);
   // the cord you keep bumping into
 h.add(h.open('cord'));   add(`<path d="M140,0 Q142,60 138,104" stroke="#d8c8a8" stroke-width="1.4" fill="none"/><circle cx="138" cy="106" r="3" fill="#d8c8a8"/>`); h.add('</g>');
-  if (h.st.known && h.st.here('golden orb')) { h.glow(138, 114, 30, '#ffd86a', .6); add(`<circle cx="138" cy="114" r="6" fill="#e8c040"/>`); }
+  // the developing lamp on the ceiling, lit
+  if (red) { h.glow(200, 14, 150, '#ff2a1a', .55); add(h.tag('lamp', `<path d="M186,0 v6 h28 v-6z" fill="#2a1a18"/><path d="M188,6 q12,16 24,0z" fill="#ff4a2a"/><ellipse cx="200" cy="10" rx="8" ry="4" fill="#ffb090"/>`)); }
+  if (h.st.known && h.st.here('golden orb') && h.st.mentioned && h.st.mentioned('golden orb')) { h.glow(138, 114, 30, '#ffd86a', .6); add(`<circle cx="138" cy="114" r="6" fill="#e8c040"/>`); }
   // a rough bench and a shelf (chemicals long gone)
   add(`<rect x="70" y="150" width="190" height="8" fill="#4a2418"/><rect x="76" y="158" width="6" height="42" fill="#3a1a10"/><rect x="250" y="158" width="6" height="42" fill="#3a1a10"/>`);
   add(`<rect x="270" y="110" width="66" height="5" fill="#4a2418"/><rect x="270" y="150" width="66" height="5" fill="#4a2418"/>`);
@@ -2204,7 +2210,11 @@ h.add(h.open('cord'));   add(`<path d="M140,0 Q142,60 138,104" stroke="#d8c8a8" 
   if (h.st.here('photograph')) add(h.tag('photograph', `<path d="M176,130 Q178,108 192,104 Q206,108 208,130Z" fill="#6a4a2a"/><ellipse cx="192" cy="94" rx="9" ry="11" fill="#8a6a44"/><path d="M182,90 Q192,78 202,90 Q198,84 192,84 Q186,84 182,90Z" fill="#4a3218"/><path d="M186,100 q6,4 12,0" stroke="#5a3a1a" stroke-width="1.6" fill="none"/>`));
   if (h.st.here('photograph')) add(h.tag('photograph', `<rect x="168" y="72" width="48" height="58" fill="#8a5a2a" opacity=".25"/>`));
   add(`<rect x="180" y="140" width="24" height="6" fill="#c8903a"/>`);
-  add(`<rect width="400" height="260" fill="#ff2a1a" opacity=".08"/>`);
+  if (red) add(`<rect width="400" height="260" fill="#ff2a1a" opacity=".1"/>`);
+  else {
+    // only a little carried light: the walls fall away into darkness, the room's contents are mere shapes
+    add(`<defs><radialGradient id="drDim" cx=".5" cy=".55" r=".6"><stop offset="0" stop-color="#000" stop-opacity=".25"/><stop offset=".6" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity=".92"/></radialGradient></defs><rect width="400" height="260" fill="url(#drDim)"/>`);
+  }
 } };
 
 B['Souvenirs Room'] = { cat: 'interior', draw(h) {

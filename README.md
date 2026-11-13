@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-12-2001 – Gegenstände verändern Räume: sieben Szenen
+26-11-13-0857 – Dunkelkammer: rotes Licht erst mit der Lampe
 
 ## Ältere Versionen
 
+- [26-11-12-2001](archiv/26-11-12-2001.html) – Gegenstände verändern Räume: sieben Szenen
 - [26-11-12-1944](archiv/26-11-12-1944.html) – Miniatur hochkant, Miniatur und Skizze durchscheinend wie Dias
 - [26-11-12-1940](archiv/26-11-12-1940.html) – Projektor wirft die ganze Tarotkarte, leicht durchscheinend
-- [26-11-12-1936](archiv/26-11-12-1936.html) – Diaprojektor zeigt das eingelegte Dia; Strahl im Observatorium
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -131,6 +131,9 @@ Sieben weitere Räume zeigen jetzt, was der Spieler darin bewirkt hat. Gezeichne
 - Cross Centre: die Öffnung im Boden und der Stein, der sie verschließt.
 - East Side Chapel: die Marmorrose im Haar der Diana.
 - Parish Church: der geöffnete Moonstone mit dem Kristalltor.
+
+### 21. Die Dunkelkammer (13. November 2026)
+Die Dunkelkammer leuchtet erst rot, wenn man an der Schnur zieht und die Entwicklerlampe angeht. Vorher erhellt sie nur die mitgebrachte Taschenlampe, und der Raum ist in gedämpften Farben nur schemenhaft zu erkennen. Die goldene Kugel an der Schnur erscheint erst, wenn der Text sie erwähnt hat. Ein neues Prüfwerkzeug (tools/poke.js) probiert in jedem Raum die üblichen Handlungen aus und vergleicht Beschreibung und Bild vorher und nachher.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
