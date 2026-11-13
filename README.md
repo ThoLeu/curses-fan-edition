@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1525 – Breite Prüfung, Behälter und alle Lichtstrahlen
+26-11-13-1541 – Inventar wie im Spiel
 
 ## Ältere Versionen
 
+- [26-11-13-1525](archiv/26-11-13-1525.html) – Breite Prüfung, Behälter und alle Lichtstrahlen
 - [26-11-13-1430](archiv/26-11-13-1430.html) – Die Spatzen
 - [26-11-13-1109](archiv/26-11-13-1109.html) – Neuer Titel: an illustrated interpreter
-- [26-11-13-1102](archiv/26-11-13-1102.html) – Letzte Räume und sofortige Änderungen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -159,6 +159,14 @@ Die Spatzen kommen an zwei Orten vor, im Hedgery und im Summer House. Im Hedgery
 Statt das Spiel ohne Lösung zu spielen, was bei Curses Tausende Züge bräuchte, prüft ein breiterer Suchlauf, ob alles, was man tun kann, im Bild ankommt. In jedem Raum werden an drei Zeitpunkten gut 60 Verben auf jedes Ding angewendet. Jeder getragene Gegenstand wird mit jedem Ding kombiniert (hineinlegen, damit schlagen, festbinden, aufschließen, darauf zeigen, werfen, geben …), und jeder Stab wird angeschlagen und auf jedes Ding gerichtet. Insgesamt sind das rund 81.000 Befehle. Verglichen werden die Beschreibung und der Spielzustand des Raums, und nach jeder Veränderung auch die Beschreibungen aller Räume bis zwei Schritte entfernt (Fernwirkungen).
 - Was man in die Teekisten auf dem Dachboden, in den Schirmständer im White Hallway oder in den offenen Modellsarg im Octagon legt, ist jetzt darin zu sehen.
 - Das Observatorium zeigt alle vier Strahlen, die das Spiel je nach Dia im Projektor kennt: auf ein Sternzeichen gelenkt, als Regenbogenspektrum an der Decke, wild wirbelnd wie ein Stroboskop und als kreisender gelber Suchscheinwerfer.
+
+### 28. Das Inventar spricht wie das Spiel (13. November 2026)
+Die Inventarliste stammt jetzt vom Spiel selbst. Nach jedem Zug spielt der Interpreter unsichtbar den Befehl „inventory“ und stellt danach alles exakt wieder her: Spielstand, Undo, Bildschirm und Zufallszahlen. So stehen in der Liste dieselben Namen, Gruppen und Zustände, die das Spiel nennen würde:
+- Die Namen sind die des Spiels. Ein Stab heißt „featureless mahogany rod“, bis er einen Namen hat, und erst dann „Rod of Fire“. Der Spaten heißt so, wie das Spiel ihn nennt („bladed agricultural implement“). Die internen Kurznamen der Spieldatei verraten nichts mehr.
+- Zustände wie im Spiel, auf Deutsch: leuchtet, getragen, um den Hals, hinterm Ohr, offen, leer, geschlossen, verschlossen, geladen.
+- Tarotkarten und Stäbe erscheinen als aufklappbare Gruppen, wie das Spiel sie zusammenfasst. Volle Behälter wie der Rucksack lassen sich zuklappen. Die Zahl am Reiter zählt alle Gegenstände.
+- Das Menü beim Antippen schlägt nur noch vor, was nichts verrät: untersuchen, ablegen und das Rückgängigmachen eines angezeigten Zustands (ausziehen, ausschalten, öffnen, schließen).
+- Eigene Symbole für die Miniatur, den Holzbalken und das Papyrusfragment. Auch die Leiste „Hier abgelegt“ verwendet die Namen des Spiels.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
