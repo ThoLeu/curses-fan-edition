@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1815 – Rückmeldung über GitHub-Issues
+26-11-13-1921 – Pause nach Überschriften beim Vorlesen
 
 ## Ältere Versionen
 
+- [26-11-13-1815](archiv/26-11-13-1815.html) – Rückmeldung über GitHub-Issues
 - [26-11-13-1808](archiv/26-11-13-1808.html) – Klänge für die Spielenden
 - [26-11-13-1757](archiv/26-11-13-1757.html) – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
-- [26-11-13-1726](archiv/26-11-13-1726.html) – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -227,6 +227,9 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Wer einen Fehler findet oder eine Idee hat, kann sie über die Issues dieses Repositorys schicken. Es gibt je eine Vorlage für Fehler und für Ideen, auf Deutsch und Englisch. Die Vorlage für Fehler fragt nach dem Versionsstempel, dem Raum und dem Browser.
 - Auf der Startseite steht unter „Über das Spiel“ der Link „Rückmeldung auf GitHub“.
 - Die Rückmeldungen werden gesammelt und gemeinsam besprochen. Was umgesetzt wird, entscheidet der Projektinhaber.
+
+### 36. Pausen beim Vorlesen (13. November 2026)
+- Beim Vorlesen werden Zeilen ohne Satzzeichen am Ende, etwa ein Raumname oder ein Titel, als eigener Satz mit Punkt gesprochen. Die Stimme macht dadurch zwischen Überschrift und Text eine Pause. Auch jeder Absatz wird jetzt für sich gelesen. Das gilt für den Spieltext und für die Übersetzungsspalte.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
