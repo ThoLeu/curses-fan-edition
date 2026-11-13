@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1430 – Die Spatzen
+26-11-13-1525 – Breite Prüfung, Behälter und alle Lichtstrahlen
 
 ## Ältere Versionen
 
+- [26-11-13-1430](archiv/26-11-13-1430.html) – Die Spatzen
 - [26-11-13-1109](archiv/26-11-13-1109.html) – Neuer Titel: an illustrated interpreter
 - [26-11-13-1102](archiv/26-11-13-1102.html) – Letzte Räume und sofortige Änderungen
-- [26-11-13-0951](archiv/26-11-13-0951.html) – Bild nur noch Illustration
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -154,6 +154,11 @@ Aus „Curses · a customized interpreter“ wird „Curses · an illustrated in
 
 ### 26. Die Spatzen (13. November 2026)
 Die Spatzen kommen an zwei Orten vor, im Hedgery und im Summer House. Im Hedgery drängen sie sich an der Dachrinne des Gartenhauses, wie der Text es sagt. Im Summer House zeigt das Bild jetzt die beiden Zustände der Beschreibung: aufgeschreckt kreisen die Spatzen hoch am Himmel über dem Glasdach, ruhig sitzen sie zwitschernd an der Dachrinne. Nach der Vogelpfeife fliegen sie sofort auf. Die goldene Uhr, die sie dabei losschlagen, hängt danach nicht mehr am Dach, sondern liegt am Boden.
+
+### 27. Breite Prüfung, Behälter und alle Lichtstrahlen (13. November 2026)
+Statt das Spiel ohne Lösung zu spielen, was bei Curses Tausende Züge bräuchte, prüft ein breiterer Suchlauf, ob alles, was man tun kann, im Bild ankommt. In jedem Raum werden an drei Zeitpunkten gut 60 Verben auf jedes Ding angewendet. Jeder getragene Gegenstand wird mit jedem Ding kombiniert (hineinlegen, damit schlagen, festbinden, aufschließen, darauf zeigen, werfen, geben …), und jeder Stab wird angeschlagen und auf jedes Ding gerichtet. Insgesamt sind das rund 81.000 Befehle. Verglichen werden die Beschreibung und der Spielzustand des Raums, und nach jeder Veränderung auch die Beschreibungen aller Räume bis zwei Schritte entfernt (Fernwirkungen).
+- Was man in die Teekisten auf dem Dachboden, in den Schirmständer im White Hallway oder in den offenen Modellsarg im Octagon legt, ist jetzt darin zu sehen.
+- Das Observatorium zeigt alle vier Strahlen, die das Spiel je nach Dia im Projektor kennt: auf ein Sternzeichen gelenkt, als Regenbogenspektrum an der Decke, wild wirbelnd wie ein Stroboskop und als kreisender gelber Suchscheinwerfer.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
