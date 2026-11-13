@@ -1,4 +1,4 @@
+26-11-13-1808	Klänge für die Spielenden
 26-11-13-1757	Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
 26-11-13-1726	Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
 26-11-13-1712	Abgleich mit dem rekonstruierten Quelltext
-26-11-13-1658	Dinge, die man schiebt

@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1757 – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
+26-11-13-1808 – Klänge für die Spielenden
 
 ## Ältere Versionen
 
+- [26-11-13-1757](archiv/26-11-13-1757.html) – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
 - [26-11-13-1726](archiv/26-11-13-1726.html) – Seltene Zustände: Holzluke, Weinkeller-Licht, Marmorwand, Dienstbotentür; Stab-Rückfrage im Inventarmenü
 - [26-11-13-1712](archiv/26-11-13-1712.html) – Abgleich mit dem rekonstruierten Quelltext
-- [26-11-13-1658](archiv/26-11-13-1658.html) – Dinge, die man schiebt
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -215,6 +215,11 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Zwölf auffällige Enden haben ein eigenes Bild, gezeichnet nach dem, was der Schlusstext sagt, schemenhaft und eher komisch: das geplatzte Rohr in der Bibliothek, der Bär im Dunkeln, die zusammenrückenden Wände, Zeus' Blitz, der unglaubliche Zufall (Meteorit, Erdbeben, Vulkan, Blitz oder Speere, je nach Text), der Krake vor Andromedas Felsen, Feuer, die explodierende Bombe, das Gefängnis nach dem Griff zur Bombe, der Sturz vom Fahnenmast, der Geist auf den Zinnen und die Verbannung nach Australien.
 - Das Bild bleibt, solange das Spiel nach RESTART, RESTORE oder UNDO fragt, und verschwindet mit dem nächsten Zug, etwa nach „undo“.
 - Elf der zwölf Enden wurden im laufenden Spiel ausgelöst und geprüft. Der Bär ließ sich nicht herbeiführen, weil das Spiel fast jeden Schritt im Dunkeln als „Too risky“ ablehnt. Sein Bild ist nur einzeln geprüft.
+
+### 34. Klänge zu den Enden (13. November 2026)
+- Die zwölf Enden mit eigenem Bild haben jetzt auch einen eigenen kurzen Klang, im Browser erzeugt wie alle Geräusche: Zischen und Tropfen beim Rohr, Knurren beim Bären, Mahlen der Wände, Donner, ein Einschlag beim Zufall, Platschen beim Kraken, Knistern, ein dumpfer Knall, eine zufallende Zellentür, ein brechender Mast mit fallendem Pfeifen, ein kurzes Geisterheulen und die Schiffsglocke vor Australien.
+- Jeder Klang dauert höchstens zwei Sekunden, die Lautstärken sind angeglichen. Sie laufen über die Geräusch-Lautstärke und schweigen, wenn Geräusche aus sind oder klassisch gespielt wird.
+- Die fallende Tonfolge der Musik erklingt jetzt bei jedem Ende außer dem Sieg, nicht nur bei „You have died“.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
