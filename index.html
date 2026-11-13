@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1921</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1923</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -414,7 +414,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1921</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1923</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -8010,10 +8010,22 @@ function renderTr() {
 function trTranslate(b) {
   TR.busy = TR.busy.then(async () => {
     try {
-      const parts = b.text.split(/\n\s*\n/);
-      const res = [];
-      for (const part of parts) res.push(part.trim() ? await TR.translator.translate(part) : '');
-      b.out = res.join('\n\n');
+      // The browser's translator loses line breaks and can drop whole sentences from a long piece.
+      // So every line goes on its own (a room name stays a heading), and a long line is sent in
+      // pieces of a few sentences; the pieces are joined again in the original layout.
+      TR.cache = TR.cache || new Map();
+      const tr = async x => { if (TR.cache.has(x)) return TR.cache.get(x); const y = await TR.translator.translate(x); if (TR.cache.size > 2000) TR.cache.clear(); TR.cache.set(x, y); return y; };
+      const lines = [];
+      for (const line of b.text.split('\n')) {
+        if (!line.trim()) { lines.push(''); continue; }
+        const sents = line.trim().split(/(?<=[.!?…])\s+(?=["'“‘(]?[A-Z0-9])/);
+        const pieces = []; let cur = '';
+        for (const x of sents) { if (cur && (cur + ' ' + x).length > 160) { pieces.push(cur); cur = x; } else cur = cur ? cur + ' ' + x : x; }
+        if (cur) pieces.push(cur);
+        const outp = []; for (const x of pieces) outp.push(await tr(x));
+        lines.push(outp.join(' '));
+      }
+      b.out = lines.join('\n').replace(/\n{3,}/g, '\n\n');
     } catch (e) { $('#trStatus').textContent = T('Übersetzung fehlgeschlagen'); }
     renderTr();
   });

@@ -1,4 +1,4 @@
+26-11-13-1923	Übersetzung zeilen- und satzweise
 26-11-13-1921	Pause nach Überschriften beim Vorlesen
 26-11-13-1815	Rückmeldung über GitHub-Issues
 26-11-13-1808	Klänge für die Spielenden
-26-11-13-1757	Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten

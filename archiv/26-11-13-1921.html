@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1757</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1921</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -407,13 +407,14 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
     <div class="about">
       <p><b>Über das Spiel:</b> <i>Curses</i> von Graham Nelson (1993) ist Freeware und eines der Spiele, mit denen die Programmiersprache Inform bekannt wurde. <a href="https://ifdb.org/viewgame?id=plvzam05bmz3enh8" target="_blank" rel="noopener">IFDB</a> · <a href="https://ifarchive.org/if-archive/games/zcode/" target="_blank" rel="noopener">IF Archive</a> · <a href="https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt" target="_blank" rel="noopener">README des Autors</a></p>
       <p>Ein inoffizieller Fan-Spieler, nicht von Graham Nelson. Das Spiel bleibt sein Werk: Du lädst deine eigene Kopie, diese Seite enthält keinen Text daraus. Andere Z-Code-Spiele (Version 3 bis 5) laufen auch, nur ohne die Curses-Extras.</p>
+      <p>Fehler gefunden oder eine Idee? <a href="https://github.com/ThoLeu/curses-fan-edition/issues/new/choose" target="_blank" rel="noopener">Rückmeldung auf GitHub</a> (mit einem kostenlosen GitHub-Konto).</p>
     </div>
   </div>
 </section>
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1757</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1921</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -569,6 +570,7 @@ const EN = {
   'curses.z5 hier ablegen': 'Drop curses.z5 here', 'Andere Story-Datei laden': 'Load another story file', 'oder klicken, um die Datei auszuwählen': 'or click to choose the file',
   'Illustriert': 'Illustrated', 'Raumbilder, Musik, Karte und Inventar.': 'Room pictures, music, map and inventory.', 'Klassisch': 'Classic', 'Wie 1993: nur Text, Leuchtschrift, keine Hilfen.': 'Like 1993: text only, glowing letters, no aids.',
   'Mit Hilfen': 'With aids', 'Übersetzungsspalte, deutsche Befehle, Hinweise.': 'Translation column, German commands, hints.', 'Übersetzungsspalte': 'Translation column', '♫ Stimmung anhören': '♫ Hear the mood', '■ Hörprobe stoppen': '■ Stop the preview',
+  'Fehler gefunden oder eine Idee?': 'Found a bug or have an idea?', 'Rückmeldung auf GitHub': 'Feedback on GitHub', '(mit einem kostenlosen GitHub-Konto).': '(with a free GitHub account).',
   'Über das Spiel:': 'About the game:', 'von Graham Nelson (1993) ist Freeware und eines der Spiele, mit denen die Programmiersprache Inform bekannt wurde.': 'by Graham Nelson (1993) is freeware and one of the games that made the Inform language known.',
   'Ein inoffizieller Fan-Spieler, nicht von Graham Nelson. Das Spiel bleibt sein Werk: Du lädst deine eigene Kopie, diese Seite enthält keinen Text daraus. Andere Z-Code-Spiele (Version 3 bis 5) laufen auch, nur ohne die Curses-Extras.': 'An unofficial fan-made player, not by Graham Nelson. The game remains his work: you load your own copy, and this page contains no text from it. Other Z-code games (versions 3 to 5) also run, just without the Curses extras.',
   '▶ Weiterspielen': '▶ Continue', '▶ Spielen': '▶ Play', 'Neues Spiel': 'New game', 'Zuletzt gespielt': 'Last played', 'Punkte': 'points', 'Züge': 'turns', 'zuletzt': 'last played', 'Trotzdem spielen': 'Play anyway',
@@ -5955,6 +5957,82 @@ class Music {
     else if (kind === 'step') { for (let i = 0; i < 3; i++) this.noiseHit(t + i * .22, .09, 500 + Math.random() * 200, 1.2, .14, 'lowpass'); }
     else if (kind === 'chime') { [0, .12, .24].forEach((d, i) => this.tone(t + d, [784, 988, 1319][i], 0, 1.2, .07, 'sine')); }
   }
+  // a short sound for an ending with a picture of its own: under two seconds, quiet, more comic than grim
+  endSfx(key) {
+    if (!this.ctx || !this.sfxBus || !this.sfxVol) return;
+    const ctx = this.ctx, out = this.sfxBus, t = ctx.currentTime + .05;
+    if (!this.whiteBuf) { const len = ctx.sampleRate * 3, b = ctx.createBuffer(1, len, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; this.whiteBuf = b; }
+    if (!this.noiseBuf) this.noiseBuf = this.makeNoise();
+    // noise through a filter, with an envelope: a = attack, h = hold, r = release; f0 to f1 sweeps the filter
+    const nz = (t0, a, h, r, vol, type, f0, f1, q, white) => {
+      const s = ctx.createBufferSource(); s.buffer = white ? this.whiteBuf : this.noiseBuf;
+      const f = ctx.createBiquadFilter(); f.type = type; f.Q.value = q || 1; f.frequency.setValueAtTime(f0, t0); if (f1) f.frequency.exponentialRampToValueAtTime(f1, t0 + a + h + r);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + a); g.gain.setValueAtTime(vol, t0 + a + h); g.gain.exponentialRampToValueAtTime(.0001, t0 + a + h + r);
+      s.connect(f); f.connect(g); g.connect(out); s.start(t0, Math.random()); s.stop(t0 + a + h + r + .05);
+    };
+    const tn = (t0, f0, f1, dur, vol, type, a) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type || 'sine';
+      o.frequency.setValueAtTime(f0, t0); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + (a || .01)); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + dur + .05);
+    };
+    // a struck piece of metal: a few inharmonic partials that ring out
+    const metal = (t0, base, dur, vol) => [1, 2.76, 5.4, 8.93].forEach((m, i) => tn(t0, base * m, 0, dur / (1 + i * .5), vol / (1 + i), 'sine', .002));
+    if (key === 'flood') {
+      metal(t, 260, .5, .12); nz(t, .005, .02, .1, .25, 'bandpass', 900, 0, 2);
+      nz(t + .05, .08, 1.0, .5, .24, 'bandpass', 3800, 2600, 1.2, true);
+      for (let i = 0; i < 7; i++) tn(t + .35 + i * .19 + Math.random() * .06, 1500 + Math.random() * 500, 700, .08, .06);
+    } else if (key === 'bear') {
+      const o = ctx.createOscillator(), lfo = ctx.createOscillator(), lg = ctx.createGain(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(85, t); o.frequency.linearRampToValueAtTime(62, t + 1.2);
+      lfo.frequency.value = 23; lg.gain.value = .08; lfo.connect(lg); lg.connect(g.gain);
+      f.type = 'lowpass'; f.frequency.value = 420; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.14, t + .25); g.gain.exponentialRampToValueAtTime(.0001, t + 1.4);
+      o.connect(f); f.connect(g); g.connect(out); o.start(t); lfo.start(t); o.stop(t + 1.5); lfo.stop(t + 1.5);
+      nz(t + .9, .05, .1, .3, .22, 'bandpass', 300, 2600, 1.5, true);
+    } else if (key === 'crush') {
+      const s = ctx.createBufferSource(); s.buffer = this.noiseBuf; const f = ctx.createBiquadFilter(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+      f.type = 'lowpass'; f.frequency.setValueAtTime(180, t); f.frequency.linearRampToValueAtTime(520, t + 1.1);
+      lfo.frequency.value = 13; lg.gain.value = .12; lfo.connect(lg); lg.connect(g.gain);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.2, t + 1.0); g.gain.linearRampToValueAtTime(0, t + 1.12);
+      s.connect(f); f.connect(g); g.connect(out); s.start(t); lfo.start(t); s.stop(t + 1.2); lfo.stop(t + 1.2);
+      tn(t + 1.1, 120, 40, .4, .3); nz(t + 1.1, .003, .02, .35, .25, 'lowpass', 900);
+      for (let i = 0; i < 6; i++) nz(t + 1.2 + i * .07, .002, 0, .05, .08, 'bandpass', 2000 + i * 300, 0, 3, true);
+    } else if (key === 'zeus') {
+      nz(t, .002, .03, .12, .3, 'highpass', 2500, 0, .7, true);
+      nz(t + .05, .04, .3, 1.5, .3, 'lowpass', 260, 90, .8);
+      tn(t + .05, 60, 35, 1.2, .2);
+    } else if (key === 'freak') {
+      nz(t, .6, .1, .05, .14, 'bandpass', 3000, 400, 2, true);
+      tn(t + .75, 90, 30, 1.1, .32); nz(t + .75, .005, .1, 1.0, .25, 'lowpass', 500, 120);
+    } else if (key === 'kraken') {
+      nz(t, .01, .05, .45, .26, 'bandpass', 1200, 500, 1, true); tn(t, 140, 60, .4, .18);
+      for (let i = 0; i < 9; i++) tn(t + .3 + i * .1 + Math.random() * .04, 280 + Math.random() * 200, 700 + Math.random() * 400, .07, .06);
+      tn(t + .2, 55, 45, 1.6, .14, 'sine', .4);
+    } else if (key === 'fire') {
+      nz(t, .3, .9, .6, .3, 'lowpass', 500, 900, 1);
+      for (let i = 0; i < 26; i++) nz(t + Math.random() * 1.6, .001, 0, .02 + Math.random() * .03, .16 + Math.random() * .14, 'bandpass', 1500 + Math.random() * 3500, 0, 4, true);
+    } else if (key === 'bomb') {
+      tn(t, 90, 28, 1.4, .34); nz(t, .004, .08, 1.4, .3, 'lowpass', 700, 90, .7);
+      for (let i = 0; i < 8; i++) nz(t + .35 + Math.random() * .9, .002, 0, .05, .06, 'bandpass', 1800 + Math.random() * 2000, 0, 3, true);
+    } else if (key === 'prison') {
+      metal(t, 110, 1.6, .2); nz(t, .002, .02, .12, .2, 'bandpass', 700, 0, 1.5);
+      nz(t + .55, .001, 0, .04, .16, 'bandpass', 3200, 0, 6, true); metal(t + .58, 620, .3, .06);
+    } else if (key === 'mastfall') {
+      nz(t, .002, .03, .15, .28, 'highpass', 1500, 0, .7, true); tn(t, 300, 120, .15, .14, 'square');
+      tn(t + .2, 1300, 260, .9, .07, 'sine', .05);
+      tn(t + 1.12, 110, 45, .35, .32); nz(t + 1.12, .003, .02, .3, .26, 'lowpass', 800);
+    } else if (key === 'spooked') {
+      const o = ctx.createOscillator(), v = ctx.createOscillator(), vg = ctx.createGain(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(420, t); o.frequency.linearRampToValueAtTime(760, t + .6); o.frequency.linearRampToValueAtTime(380, t + 1.6);
+      v.frequency.value = 6; vg.gain.value = 18; v.connect(vg); vg.connect(o.frequency);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.1, t + .3); g.gain.linearRampToValueAtTime(.08, t + 1.2); g.gain.exponentialRampToValueAtTime(.0001, t + 1.8);
+      o.connect(g); g.connect(out); g.connect(this.reverb || out); o.start(t); v.start(t); o.stop(t + 1.9); v.stop(t + 1.9);
+      nz(t + .1, .4, .3, .8, .16, 'bandpass', 600, 2400, 2, true);
+    } else if (key === 'australia') {
+      metal(t, 880, 1.4, .16); metal(t + .45, 880, 1.4, .14);
+      nz(t + .2, .5, .3, .9, .18, 'lowpass', 500, 300, 1);
+    }
+  }
   ambience(kind) {
     if (kind === this.ambKind) return;
     const ctx = this.ctx;
@@ -5993,7 +6071,7 @@ class Music {
     if (!this.ctx || !this.enabled || !this.current) { if (scoreUp) this.spark = 1; return; }
     const t = this.ctx.currentTime;
     if (scoreUp) { this.spark = 1; this.flourish(t + .2, 'rise'); }
-    if (/\*\*\* You have died|You have died/.test(text)) { this.tension = 1; this.flourish(t + .1, 'fall'); }
+    if (/\*\*\* You have (?!won)|You have died/.test(text)) { this.tension = 1; this.flourish(t + .1, 'fall'); }
     else if (/\b(die|dies|death|dead|kill|scream|danger|terror|tremble|shiver|horrible|ghastly|wail|cold here|fall to|plummet|crumble)\b/i.test(text)) this.tension = Math.max(this.tension, .7);
     if (/\b(glow|glows|glowing|shimmer|sparkl|magic|golden|wonder|marvellous|enchant|radiant|bright light|light streams)\w*/i.test(text)) this.spark = Math.max(this.spark, .6);
     if (/\*\*\* You have won/.test(text)) { this.tension = 0; this.spark = 1; this.flourish(t + .2, 'win'); }
@@ -6445,6 +6523,7 @@ function ending(buf, text) {
   const e = !S.ended && window.ZEnd ? ZEnd.find(buf) : null;
   if (e) {
     S.ended = true; pic.classList.add('ended');
+    if (e.key) try { S.music.endSfx(e.key); } catch (err) {}
     if (e.svg) { el.innerHTML = e.svg; el.hidden = false; el.classList.remove('on'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on'))); }
     else { el.hidden = true; el.innerHTML = ''; }
     const cu = $('#closeUp'); if (cu) { cu.hidden = true; cu.innerHTML = ''; }
@@ -7033,13 +7112,21 @@ function blockText(block) {
   return s.split('\n').filter(l => l.trim() !== '>' ).join('\n')
     .replace(/^\s*>\s*$/gm, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
+// Lines without closing punctuation (a room name, a title) are spoken as utterances of their own,
+// with a full stop, so that the voice pauses before the text goes on.
 function chunkText(text) {
-  const parts = text.split(/\n\s*\n|(?<=[.!?…:;])\s+/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const out = []; let cur = '';
-  for (const p of parts) {
-    if ((cur + ' ' + p).length > 220 && cur) { out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p;
+  const flush = () => { if (cur) { out.push(cur); cur = ''; } };
+  for (const para of text.split(/\n\s*\n/)) {
+    for (const line of para.split('\n')) {
+      const l = line.replace(/\s+/g, ' ').trim(); if (!l) continue;
+      if (l.length <= 80 && !/[.!?…:;,"'”’)\]]$/.test(l)) { flush(); out.push(l + '.'); continue; }
+      for (const p of l.split(/(?<=[.!?…:;])\s+/).filter(Boolean)) {
+        if ((cur + ' ' + p).length > 220 && cur) { out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p;
+      }
+    }
+    flush();
   }
-  if (cur) out.push(cur);
   return out;
 }
 function pickVoice() {

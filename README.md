@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1921 – Pause nach Überschriften beim Vorlesen
+26-11-13-1923 – Übersetzung zeilen- und satzweise
 
 ## Ältere Versionen
 
+- [26-11-13-1921](archiv/26-11-13-1921.html) – Pause nach Überschriften beim Vorlesen
 - [26-11-13-1815](archiv/26-11-13-1815.html) – Rückmeldung über GitHub-Issues
 - [26-11-13-1808](archiv/26-11-13-1808.html) – Klänge für die Spielenden
-- [26-11-13-1757](archiv/26-11-13-1757.html) – Bilder für die Spielenden; vollständiger Entwicklungsverlauf mit Daten
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -230,6 +230,9 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 
 ### 36. Pausen beim Vorlesen (13. November 2026)
 - Beim Vorlesen werden Zeilen ohne Satzzeichen am Ende, etwa ein Raumname oder ein Titel, als eigener Satz mit Punkt gesprochen. Die Stimme macht dadurch zwischen Überschrift und Text eine Pause. Auch jeder Absatz wird jetzt für sich gelesen. Das gilt für den Spieltext und für die Übersetzungsspalte.
+
+### 37. Vollständige Übersetzung (13. November 2026)
+- Die eingebaute Übersetzung des Browsers verlor bei längeren Abschnitten Zeilenumbrüche und ließ manchmal ganze Sätze weg, zum Beispiel den Satz über die alte Verkabelung auf dem Dachboden. Jetzt wird jede Zeile für sich übersetzt und eine lange Zeile in Stücken aus wenigen Sätzen. Danach wird alles im ursprünglichen Aufbau wieder zusammengesetzt. Raumnamen bleiben so eigene Überschriften, und schon übersetzte Stücke werden wiederverwendet.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
