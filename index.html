@@ -362,7 +362,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-0951</div>
+    <h1>Curses<em>a customized interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1102</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -401,7 +401,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-13-0951</span></div>
+    <div class="t">Curses <em>· a customized interpreter</em><span class="ver" title="Version">26-11-13-1102</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -4142,9 +4142,9 @@ function FEATURES(ctx, pass) {
     const L = ctx.layout || {}, vert = L.stairsVert || (rd.has('down') && !rd.has('steps up|leads up|back up') ? 'down' : 'up');
     L.stairsVert = vert;
     Gx().drawExit(ctx, { dir: null, vert, type: 'stairs' });
-    // the sealed entrance at the top of the steps burst open: daylight pours down them
-    if (vert === 'up' && rd.has('entrance bursts open|light streams in, searing')) add(`<rect width="400" height="260" fill="#fff0c8" opacity=".12"/>`), ctx.h.glow(30, 60, 160, '#fff4d0', .7);
   }
+  // the sealed entrance at the top of the steps burst open: daylight pours down them
+  if (rd.has('entrance bursts open|light streams in, searing')) { add(`<rect width="400" height="260" fill="#fff0c8" opacity=".12"/>`); ctx.h.glow(30, 60, 160, '#fff4d0', .7); }
 }
 const claim = (...a) => Gx().claim(...a);
 const poly = (pts, attrs) => `<polygon points="${pts.map(p => p.join(',')).join(' ')}" ${attrs}/>`;
@@ -6336,6 +6336,7 @@ function detectRoom() {
   }
   room.visits = (room.visits || 0) + (name !== prev ? 1 : 0);
   saveMap();
+  noteEvents(name, S.turnText || '');
   showRoom(name, desc, false);
   renderMap();
 }
@@ -6613,6 +6614,21 @@ function roomDesc(name, desc) {
     return desc;
   }
   return S.descs[name] || desc;
+}
+// Some changes the game only reports in the answer to an action, and puts into the room's description
+// at the next look. When such an answer has been printed, the room's stored description takes in the
+// sentence the game itself will use for it, so the picture follows at once.
+const EVENTS = [
+  { room: /^Croquet Lawn$/, when: /uncovering a tiny gap through the hedge/i, add: 'The hedge is broken slightly to the northwest.' },
+  { room: /^The Spirit World$/, when: /entrance bursts open/i, add: 'The entrance bursts open in a shower of plaster! Light streams in, searing your eyes.' }
+];
+function noteEvents(name, text) {
+  if (!text || !name) return;
+  roomDesc(name, '');
+  const cur = S.descs && S.descs[name]; if (!cur) return;
+  let d = cur;
+  for (const e of EVENTS) if (e.room.test(name) && e.when.test(text) && !d.includes(e.add)) d = d.replace(/\s*(\n>\s*)?$/, '') + '\n\n' + e.add;
+  if (d !== cur) { S.descs[name] = d; LS.set('zp:desc:' + S.serial, JSON.stringify(S.descs)); }
 }
 function showRoom(name, desc, dark) {
   if (!dark) desc = roomDesc(name, desc);

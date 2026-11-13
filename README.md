@@ -10,13 +10,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-0951 – Bild nur noch Illustration
+26-11-13-1102 – Letzte Räume und sofortige Änderungen
 
 ## Ältere Versionen
 
+- [26-11-13-0951](archiv/26-11-13-0951.html) – Bild nur noch Illustration
 - [26-11-13-0907](archiv/26-11-13-0907.html) – Zwanzig weitere Raumzustände
 - [26-11-13-0857](archiv/26-11-13-0857.html) – Dunkelkammer: rotes Licht erst mit der Lampe
-- [26-11-12-2001](archiv/26-11-12-2001.html) – Gegenstände verändern Räume: sieben Szenen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -145,6 +145,9 @@ Die Räume zeigen jetzt auch diese Veränderungen, sobald das Spiel sie beschrei
 
 ### 23. Das Bild ist nur noch Illustration (13. November 2026)
 Damit der Charakter des Textadventures erhalten bleibt, lässt sich im Bild nichts mehr anklicken. Fährt man mit der Maus darüber, erscheinen keine Namen mehr, und der Mauszeiger verrät nicht mehr, wo etwas liegt. Die Einstellung „Namen im Bild“ ist entfernt. Die Leiste „Hier abgelegt“ unter dem Bild zeigt weiterhin, was man selbst dort abgelegt hat, öffnet aber kein Befehlsmenü mehr. Was im Raum ist und was man damit tut, findet man allein über den Text heraus.
+
+### 24. Die letzten Räume und sofortige Änderungen (13. November 2026)
+Auch die vier Räume abseits der Komplettlösung (Stream, Tree Planting, Up the Beanstalk, Heavenly Place) sind jetzt auf Gegenstände durchprobiert. In keinem ändert eine Handlung das Aussehen. Zwei Veränderungen meldet das Spiel nur in der Antwort auf eine Handlung: die Lücke in der Hecke des Croquet Lawn und den aufbrechenden Eingang der Spirit World. Sie erscheinen jetzt sofort im Bild, nicht erst nach dem nächsten Umsehen. Dafür übernimmt die gespeicherte Raumbeschreibung den Satz, mit dem das Spiel die Veränderung später selbst beschreibt.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
