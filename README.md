@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-1926 – Bild sofort beim Fortsetzen
+26-11-13-1931 – Musik auf dem Handy ohne Knarzen
 
 ## Ältere Versionen
 
+- [26-11-13-1926](archiv/26-11-13-1926.html) – Bild sofort beim Fortsetzen
 - [26-11-13-1923](archiv/26-11-13-1923.html) – Übersetzung zeilen- und satzweise
 - [26-11-13-1921](archiv/26-11-13-1921.html) – Pause nach Überschriften beim Vorlesen
-- [26-11-13-1815](archiv/26-11-13-1815.html) – Rückmeldung über GitHub-Issues
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -236,6 +236,11 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 
 ### 38. Bild beim Fortsetzen (13. November 2026)
 - Nach „Weiterspielen“ blieb das Bild leer, bis man den Raum wechselte. Curses zeichnete beim Fortsetzen nur die zweite Zeile der Statuszeile neu, und ohne Raumnamen wusste die Seite nicht, welcher Raum gerade dran ist. Der automatische Spielstand speichert die Statuszeile jetzt mit. Bei älteren Spielständen nimmt die Seite den zuletzt gespeicherten Raum.
+
+### 39. Musik auf dem Handy (13. November 2026)
+- Auf Smartphones knarzte und schepperte die Musik in mehreren Browsern. Der Browser bekommt jetzt größere Puffer für die Tonausgabe, was gegen Aussetzer und Knistern hilft.
+- Auf Handys wird außerdem leichter gemischt, mit etwa 60 % weniger Rechenaufwand: Der Hall ist kürzer (1,8 statt 5,5 Sekunden), die Flächenklänge haben weniger Oszillatoren, und tiefe Töne unter etwa 120 Hz, die kleine Lautsprecher nur rasseln lassen, werden weggefiltert.
+- Auf allen Geräten verhindert ein Begrenzer am Ende der Kette, dass Musik und Geräusche zusammen übersteuern.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

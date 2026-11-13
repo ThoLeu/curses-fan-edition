@@ -373,7 +373,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
   <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
   <div class="side">
     <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
-    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1815</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">26-11-13-1926</div>
     <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
     <div id="resumeCard" hidden>
       <div class="rpic" id="resumePic"></div>
@@ -414,7 +414,7 @@ body.demo #exitBar,body.demo #acBox{display:none!important}
 
 <section id="game" hidden>
   <header>
-    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1815</span></div>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">26-11-13-1926</span></div>
     <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
     <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
     <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
@@ -6402,7 +6402,7 @@ function slotKey(n) { return 'zp:save:' + S.serial + ':' + n; }
 function wipeRun(serial) {
   for (const k of ['auto', 'meta', 'map', 'cur', 'rev', 'words', 'heldids', 'seen', 'notes', 'desc']) LS.del('zp:' + k + ':' + serial);
   S.descs = null;
-  S.map = { rooms: {}, edges: [] }; S.cur = null; S.revealed = null; S.words = null; S.wordsLoc = null; S.heldIds = null;
+  S.map = { rooms: {}, edges: [] }; S.cur = null; S.resumeRoom = null; S.revealed = null; S.words = null; S.wordsLoc = null; S.heldIds = null;
   S.lastStatus = null; S.lastRegion = null; S.lastTagKeys = null; S.lastText = ''; S.turnText = ''; S.sheet = null; shownKey = null;
   const ri = document.getElementById('roomItems'); if (ri) { ri.innerHTML = ''; ri.hidden = true; ri.dataset.sig = ''; }
   const pic = document.getElementById('pic'); if (pic) pic.innerHTML = '';
@@ -6442,8 +6442,8 @@ function startGame(bytes, resume, opts) {
       const snap = S.zm.deserialize(o.state);
       S.zm.applySnapshot(snap);
       S.zm.pendingRead = o.pending; S.zm.state = 'input';
-      S.zm.upperLines = o.upperLines || 1; S.zm.upper = [];
-      resumed = true;
+      S.zm.upperLines = o.upperLines || 1; S.zm.upper = Array.isArray(o.upper) ? o.upper : [];
+      resumed = true; S.resumeRoom = S.cur;
       appendSys(T('Spiel fortgesetzt.'));
       S.lastCmd = 'look';
       S.zm.provideInput('look');
@@ -6508,7 +6508,7 @@ function autosave() {
   if (S.demo) return;
   try {
     const zm = S.zm;
-    LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines }));
+    LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines, upper: zm.upper }));
     const line = zm.upperText().map(r => r.map(c => c.ch).join('')).join(' ');
     const sc = line.match(/Score:\s*(-?\d+)/i), tu = line.match(/(?:Turns|Moves):\s*(\d+)/i);
     LS.set('zp:meta:' + S.serial, JSON.stringify({ room: S.cur, region: S.curRegion && S.curRegion !== 'Ohne Region' ? S.curRegion : null, score: sc ? +sc[1] : null, turns: tu ? +tu[1] : null, time: Date.now() }));
@@ -6713,7 +6713,9 @@ function statusRoom() {
   if (!rows.length) return null;
   const line = rows[0].map(c => c.ch).join('');
   const name = line.trim().split(/\s{2,}/)[0];
-  if (!name || /^score|^moves|^turns/i.test(name)) return null;
+  // right after resuming, Curses may redraw only the second status line: use the room saved with the game
+  if (!name || /^score|^moves|^turns|^\(/i.test(name)) return S.resumeRoom || null;
+  S.resumeRoom = null;
   return name.trim();
 }
 function statusRegion() {
@@ -7112,13 +7114,21 @@ function blockText(block) {
   return s.split('\n').filter(l => l.trim() !== '>' ).join('\n')
     .replace(/^\s*>\s*$/gm, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
+// Lines without closing punctuation (a room name, a title) are spoken as utterances of their own,
+// with a full stop, so that the voice pauses before the text goes on.
 function chunkText(text) {
-  const parts = text.split(/\n\s*\n|(?<=[.!?…:;])\s+/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const out = []; let cur = '';
-  for (const p of parts) {
-    if ((cur + ' ' + p).length > 220 && cur) { out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p;
+  const flush = () => { if (cur) { out.push(cur); cur = ''; } };
+  for (const para of text.split(/\n\s*\n/)) {
+    for (const line of para.split('\n')) {
+      const l = line.replace(/\s+/g, ' ').trim(); if (!l) continue;
+      if (l.length <= 80 && !/[.!?…:;,"'”’)\]]$/.test(l)) { flush(); out.push(l + '.'); continue; }
+      for (const p of l.split(/(?<=[.!?…:;])\s+/).filter(Boolean)) {
+        if ((cur + ' ' + p).length > 220 && cur) { out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p;
+      }
+    }
+    flush();
   }
-  if (cur) out.push(cur);
   return out;
 }
 function pickVoice() {
@@ -8002,10 +8012,22 @@ function renderTr() {
 function trTranslate(b) {
   TR.busy = TR.busy.then(async () => {
     try {
-      const parts = b.text.split(/\n\s*\n/);
-      const res = [];
-      for (const part of parts) res.push(part.trim() ? await TR.translator.translate(part) : '');
-      b.out = res.join('\n\n');
+      // The browser's translator loses line breaks and can drop whole sentences from a long piece.
+      // So every line goes on its own (a room name stays a heading), and a long line is sent in
+      // pieces of a few sentences; the pieces are joined again in the original layout.
+      TR.cache = TR.cache || new Map();
+      const tr = async x => { if (TR.cache.has(x)) return TR.cache.get(x); const y = await TR.translator.translate(x); if (TR.cache.size > 2000) TR.cache.clear(); TR.cache.set(x, y); return y; };
+      const lines = [];
+      for (const line of b.text.split('\n')) {
+        if (!line.trim()) { lines.push(''); continue; }
+        const sents = line.trim().split(/(?<=[.!?…])\s+(?=["'“‘(]?[A-Z0-9])/);
+        const pieces = []; let cur = '';
+        for (const x of sents) { if (cur && (cur + ' ' + x).length > 160) { pieces.push(cur); cur = x; } else cur = cur ? cur + ' ' + x : x; }
+        if (cur) pieces.push(cur);
+        const outp = []; for (const x of pieces) outp.push(await tr(x));
+        lines.push(outp.join(' '));
+      }
+      b.out = lines.join('\n').replace(/\n{3,}/g, '\n\n');
     } catch (e) { $('#trStatus').textContent = T('Übersetzung fehlgeschlagen'); }
     renderTr();
   });
