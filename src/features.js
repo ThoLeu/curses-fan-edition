@@ -410,12 +410,33 @@ function importBundle(text) {
   if (o.type !== 'zspieler-save') return T('Das ist kein Spielstand aus dem Z-Spieler.');
   const S = Z().S;
   if (o.story !== S.serial) return T('Dieser Spielstand gehört zu einer anderen Story-Datei') + ' (' + o.story + ').';
+  // the save itself is checked before anything is stored
+  if (typeof o.state !== 'string') return T('Der Spielstand ist beschädigt.');
+  try { S.zm.deserialize(o.state); } catch (e) { return T('Der Spielstand ist beschädigt.'); }
   const id = Date.now().toString(36);
   LS.set(dataKey(id), o.state);
-  const l = saveList(); l.unshift({ id, name: (o.name || 'Import') + ' ' + T('(importiert)'), time: o.time || '', room: o.room || '' }); LS.set(idxKey(), JSON.stringify(l));
+  const l = saveList(); l.unshift({ id, name: String(o.name || 'Import').slice(0, 80) + ' ' + T('(importiert)'), time: String(o.time || '').slice(0, 40), room: String(o.room || '').slice(0, 80) }); LS.set(idxKey(), JSON.stringify(l));
   // merge map and notes
-  if (o.map && o.map.rooms) { for (const k in o.map.rooms) if (!S.map.rooms[k]) S.map.rooms[k] = o.map.rooms[k]; for (const e of o.map.edges || []) if (!S.map.edges.some(x => x.a === e.a && x.b === e.b)) S.map.edges.push(e); LS.set('zp:map:' + S.serial, JSON.stringify(S.map)); Z().renderMap(); }
-  if (o.notes) { const n = notes(); for (const k in o.notes.rooms || {}) if (!n.rooms[k]) n.rooms[k] = o.notes.rooms[k]; if (o.notes.general && !n.general.includes(o.notes.general)) n.general = (n.general ? n.general + '\n\n' : '') + o.notes.general; saveNotes(); }
+  // map data from a file is taken only in the expected shape: names as text, places as numbers, known kinds
+  const str = x => typeof x === 'string' && x.length > 0 && x.length < 80;
+  const num = x => typeof x === 'number' && isFinite(x) && Math.abs(x) < 1e5;
+  if (o.map && o.map.rooms && typeof o.map.rooms === 'object') {
+    for (const k in o.map.rooms) {
+      const r = o.map.rooms[k]; if (!str(k) || !r || typeof r !== 'object' || S.map.rooms[k]) continue;
+      const c = { x: num(r.x) ? r.x : 0, y: num(r.y) ? r.y : 0 };
+      if (typeof r.cat === 'string' && /^[a-z0-9_-]{1,24}$/i.test(r.cat)) c.cat = r.cat;
+      if (str(r.region)) c.region = r.region;
+      for (const f of ['dl', 'order', 'visits']) if (num(r[f])) c[f] = r[f];
+      if (r.pinned === true) c.pinned = true;
+      S.map.rooms[k] = c;
+    }
+    for (const e of Array.isArray(o.map.edges) ? o.map.edges : []) {
+      if (!e || !str(e.a) || !str(e.b) || (e.dir != null && !/^(n|s|e|w|ne|nw|se|sw|u|d|in|out)$/.test(e.dir))) continue;
+      if (!S.map.edges.some(x => x.a === e.a && x.b === e.b)) S.map.edges.push({ a: e.a, b: e.b, dir: e.dir || null });
+    }
+    LS.set('zp:map:' + S.serial, JSON.stringify(S.map)); Z().renderMap();
+  }
+  if (o.notes && typeof o.notes === 'object') { const n = notes(); for (const k in o.notes.rooms || {}) if (!n.rooms[k] && typeof o.notes.rooms[k] === 'string') n.rooms[k] = o.notes.rooms[k]; if (typeof o.notes.general === 'string' && o.notes.general && !n.general.includes(o.notes.general)) n.general = (n.general ? n.general + '\n\n' : '') + o.notes.general; saveNotes(); }
   renderSaves();
   return null;
 }
@@ -448,7 +469,7 @@ function initSaves() {
   $('#xferCopy').onclick = async () => { const t = $('#xferText'); try { await navigator.clipboard.writeText(t.value); $('#xferCopy').textContent = T('Kopiert ✓'); } catch (e) { t.select(); document.execCommand && document.execCommand('copy'); $('#xferCopy').textContent = T('Markiert, mit Strg+C kopieren'); } setTimeout(() => $('#xferCopy').textContent = T('Kopieren'), 2200); };
   $('#impBtn').onclick = () => { const err = importBundle($('#impText').value.trim()); $('#impMsg').textContent = err || T('Importiert. Der Spielstand steht oben in der Liste.'); if (!err) $('#impText').value = ''; };
   $('#impFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { const err = importBundle(String(r.result).trim()); $('#impMsg').textContent = err || T('Importiert. Der Spielstand steht oben in der Liste.'); }; r.readAsText(f); e.target.value = ''; });
-  $('#trBtn').onclick = () => offerText(T('Transkript'), transcriptText(), 'curses-transkript.txt');
+  $('#transcriptBtn').onclick = () => offerText(T('Transkript'), transcriptText(), 'curses-transkript.txt');
 }
 
 

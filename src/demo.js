@@ -93,6 +93,14 @@ const SPEED = { slow: 3200, normal: 1500, fast: 550, turbo: 90 };
 let D = null;
 function stash(serial) { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.includes(serial)) o[k] = localStorage.getItem(k); } return o; }
 function unstash(serial, o) { const del = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.includes(serial)) del.push(k); } del.forEach(k => localStorage.removeItem(k)); for (const k in o) localStorage.setItem(k, o[k]); }
+// The player's own data is also kept in localStorage while a demo runs, so a tab closed or reloaded
+// mid-demo cannot lose it: on the next page load it is put back before anything else reads it.
+const RESCUE = 'zp:demoRescue';
+try {
+  const r = JSON.parse(localStorage.getItem(RESCUE) || 'null');
+  if (r && r.serial && r.saved) { unstash(r.serial, r.saved); }
+  localStorage.removeItem(RESCUE);
+} catch (e) {}
 function bar() {
   const b = $('#demoBar'); if (!D) { b.hidden = true; return; }
   b.hidden = false;
@@ -138,6 +146,7 @@ function stop() {
   D = null; S.demo = false; bar();
   document.body.classList.remove('demo');
   unstash(serial, keep);
+  try { localStorage.removeItem(RESCUE); } catch (e) {}
   $('#cmd').readOnly = false;
   Z.startGame(S.bytes, hadAuto);
 }
@@ -145,6 +154,8 @@ function begin(res) {
   const Z = window.__zp, S = Z.S;
   const serial = S.serial;
   D = { cmds: res.cmds, sections: res.sections, i: 0, paused: false, ms: SPEED[$('#demoSpeed').value] || SPEED.normal, serial, saved: stash(serial), hadAuto: !!localStorage.getItem('zp:auto:' + serial) };
+  try { localStorage.setItem(RESCUE, JSON.stringify({ serial, saved: D.saved })); }
+  catch (e) { D = null; Z.appendSys(T('Für die Vorführung ist im Browserspeicher nicht genug Platz, um deinen Spielstand sicher aufzuheben. Lösche alte Spielstände und versuche es noch einmal.')); return; }
   $('#demoPlay').disabled = false; $('#demoStep').disabled = false;
   S.demo = true; document.body.classList.add('demo');
   Z.startGame(S.bytes, false, { seed: res.seed });

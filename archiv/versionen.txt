@@ -1,4 +1,4 @@
+26-11-14-1822	Funde der unabhängigen Prüfung behoben
 26-11-14-1808	Quellen im Repository, weniger Spieltext
 26-11-13-2115	Ebenen und Plätze in allen Bildern geprüft
 26-11-13-2106	Lair-Pflanzen vorn, saubere Statuszeile
-26-11-13-2058	Wege-Knöpfe mit englischen Richtungen

@@ -265,7 +265,10 @@ function autosave() {
   if (S.demo) return;
   try {
     const zm = S.zm;
-    LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines }));
+    const ok = LS.set('zp:auto:' + S.serial, JSON.stringify({ state: zm.serialize(), pending: zm.pendingRead, upperLines: zm.upperLines }));
+    // a full browser storage must not go unnoticed: say so once, and again only after it worked in between
+    if (!ok && !S.autoFailWarned) { S.autoFailWarned = true; appendSys(T('Automatisches Speichern ist fehlgeschlagen: Der Browserspeicher ist voll. Lösche alte Spielstände unter „Spielstände“, sonst geht beim Schließen der Fortschritt seit dem letzten Speichern verloren.')); }
+    else if (ok) S.autoFailWarned = false;
     const line = zm.upperText().map(r => r.map(c => c.ch).join('')).join(' ');
     const sc = line.match(/Score:\s*(-?\d+)/i), tu = line.match(/(?:Turns|Moves):\s*(\d+)/i);
     LS.set('zp:meta:' + S.serial, JSON.stringify({ room: S.cur, region: S.curRegion && S.curRegion !== 'Ohne Region' ? S.curRegion : null, score: sc ? +sc[1] : null, turns: tu ? +tu[1] : null, time: Date.now() }));
@@ -335,12 +338,19 @@ function sendCommand(cmd, src) {
   const fromTr = src === 'tr', trOpen = !!prefs.trCol;
   const prep = S.parser.prepare(cmd, fromTr ? { force: true } : { german: prefs.germanInput !== false && !trOpen });
   const tries = [prep];
-  const snap = { s: zm.snapshot(), pr: zm.pendingRead, u: zm.undoStack.length, upper: JSON.stringify(zm.upper), ul: zm.upperLines, cur: Object.assign({}, zm.cursor), win: zm.curWin, style: zm.style };
-  const restore = () => { zm.applySnapshot(snap.s); zm.pendingRead = snap.pr; zm.state = 'input'; zm.undoStack.length = snap.u; zm.upper = JSON.parse(snap.upper); zm.upperLines = snap.ul; zm.cursor = Object.assign({}, snap.cur); zm.curWin = snap.win; zm.style = snap.style; zm.takeOutput(); };
+  // everything a try could change is kept, so that a failed try leaves no trace (the undo list is copied,
+  // not cut back, because at its limit the oldest entry would otherwise be lost)
+  const snap = { s: zm.snapshot(), pr: zm.pendingRead, u: zm.undoStack.slice(), upper: JSON.stringify(zm.upper), ul: zm.upperLines, cur: Object.assign({}, zm.cursor), win: zm.curWin, style: zm.style,
+    s3: JSON.stringify(zm.streams3), s1: zm.stream1, sh: zm.statusH, font: zm.font, rng: JSON.stringify(zm.rngS) };
+  const restore = () => { zm.applySnapshot(snap.s); zm.pendingRead = snap.pr; zm.state = 'input'; zm.undoStack = snap.u.slice(); zm.upper = JSON.parse(snap.upper); zm.upperLines = snap.ul; zm.cursor = Object.assign({}, snap.cur); zm.curWin = snap.win; zm.style = snap.style;
+    zm.streams3 = JSON.parse(snap.s3); zm.stream1 = snap.s1; zm.statusH = snap.sh; zm.font = snap.font; if (snap.rng !== undefined) zm.rngS = JSON.parse(snap.rng); zm.takeOutput(); };
+  // a try must not clear the real screen: the game's io is swapped for a silent one while trying
+  const realIo = zm.io; let cleared = false; zm.io = Object.assign({}, realIo, { onClear: () => { cleared = true; } });
   const severity = o => /That's not a verb I recognise|I didn't understand that sentence/.test(o) ? 3 : ZParse.PARSER_ERR.test(o) ? 2 : 0;
   let chosen = null, best = null;
   for (let k = 0; k < 8 && k < tries.length; k++) {
     const tr = tries[k];
+    cleared = false;
     zm.provideInput(tr.cmd);
     const st = zm.run();
     const out = zm.takeOutput();
@@ -351,6 +361,9 @@ function sendCommand(cmd, src) {
     if (k === 0) tries.push(...S.parser.alternatives(tr.cmd, { noDe: !fromTr && trOpen }));
     restore();
   }
+  zm.io = realIo;
+  // the try that is kept may really have cleared the screen: do that now
+  if (chosen && cleared && realIo.onClear) realIo.onClear();
   if (!chosen) {
     // nothing was understood: play the most helpful version (a missing object beats an unknown verb)
     const tr = best && best.sev < 3 ? best.tr : prep;
@@ -460,7 +473,8 @@ function renderUpper() {
   }
   status.classList.toggle('empty', !rows.length || big);
 }
-function esc(s) { return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+// also for attributes: quotes are escaped too
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 // ---------- room tracking ----------
 function statusRoom() {
@@ -1122,7 +1136,7 @@ function renderMap() {
   for (const n of names) {
     const [x, y] = P(n), cur = n === S.cur;
     const label = n.length > 18 ? n.slice(0, 17) + '…' : n;
-    const cat = rooms[n].cat || 'interior';
+    const cat = /^[a-z0-9_-]{1,24}$/i.test(rooms[n].cat || '') ? rooms[n].cat : 'interior';
     const hasNote = S.notes && S.notes.rooms && S.notes.rooms[n] && S.notes.rooms[n].trim();
     h += `<g class="node${cur ? ' cur' : ''} c-${cat}" data-n="${esc(n)}"><title>${esc(n)}${hasNote ? ' – ' + esc(S.notes.rooms[n].slice(0, 120)) : ''}
 ${esc(T('Ziehen zum Verschieben'))}</title><rect x="${x - 56}" y="${y - 16}" width="112" height="32" rx="7"/><text x="${x}" y="${y + 4}" text-anchor="middle">${esc(label)}</text>${hasNote ? `<circle cx="${x + 52}" cy="${y - 13}" r="7" class="noteDot"/><text x="${x + 52}" y="${y - 9.5}" text-anchor="middle" class="noteDotT">✎</text>` : ''}</g>`;

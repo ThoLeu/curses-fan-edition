@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-14-1808 – Quellen im Repository, weniger Spieltext
+26-11-14-1822 – Funde der unabhängigen Prüfung behoben
 
 ## Ältere Versionen
 
+- [26-11-14-1808](archiv/26-11-14-1808.html) – Quellen im Repository, weniger Spieltext
 - [26-11-13-2115](archiv/26-11-13-2115.html) – Ebenen und Plätze in allen Bildern geprüft
 - [26-11-13-2106](archiv/26-11-13-2106.html) – Lair-Pflanzen vorn, saubere Statuszeile
-- [26-11-13-2058](archiv/26-11-13-2058.html) – Wege-Knöpfe mit englischen Richtungen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -260,6 +260,19 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Der Ordner `src/` enthält jetzt alle 21 Dateien, aus denen die Seite gebaut wird: Interpreter, Parser, Bilder, Figuren, Musik, Oberfläche, Vorlage und Bauskript. `node build.js` erzeugt daraus ohne weitere Abhängigkeiten dieselbe `index.html`. Die Testwerkzeuge mit der Komplettlösung und die Spieldatei sind nicht dabei.
 - Vorher wurde jede Datei geprüft: Es gibt keine persönlichen Daten, keine Pfade aus der Arbeitsumgebung und nichts aus der Rekonstruktion des Quelltexts. Nur ein Kommentar verweist auf Garvins öffentliche Fehlerliste.
 - Dabei fiel auf, dass die Seite zum Erkennen von Ereignissen 88 Wortfolgen aus dem Spiel mit fünf oder mehr Wörtern enthielt, einige davon ganze Sätze. Die Ereignisliste übernimmt den Satz jetzt zur Laufzeit aus dem gerade gelesenen Text und speichert nur noch ein kurzes Suchmuster. Alle Wortfolgen mit sechs und mehr Wörtern sind auf wenige kennzeichnende Wörter gekürzt. Die 150 Bilder der Komplettlösung sind danach unverändert.
+
+### 44. Unabhängige Prüfung der Quellen (14. November 2026)
+Ein eigener Agent ohne Kenntnis des bisherigen Verlaufs hat die Quellen geprüft. Er fand 2 schwere, 5 mittlere und 6 leichte Probleme. Alle schweren und mittleren und drei der leichten sind behoben und einzeln getestet.
+- **Einschleusbarer Code über die Karte:** Eine Hilfsfunktion maskierte Anführungszeichen nicht, und die Raumkategorie ging ungeprüft in die Grafik. Ein präparierter Spielstand zum Importieren hätte so Code in die Seite bringen können. Jetzt werden Anführungszeichen maskiert, Kategorien nur in bekannter Form angenommen und importierte Kartendaten auf Texte und Zahlen geprüft.
+- **Vorführung und eigener Spielstand:** Während der Vorführung lag der eigene Spielstand nur im Arbeitsspeicher. Jetzt liegt er auch im Browserspeicher und wird beim nächsten Öffnen zurückgespielt, falls der Tab mitten in der Vorführung geschlossen wurde.
+- **Kaputte Spielstände:** Spielstände werden vor dem Laden geprüft (Größe, Programmzähler, Stapel, Aufrufrahmen) und sonst mit „Der Spielstand ist beschädigt“ abgelehnt, statt das Spiel abstürzen zu lassen.
+- **„Transkript anzeigen“** im Spielstände-Fenster funktioniert wieder. Der Knopf hatte dieselbe Kennung wie der Übersetzungsknopf.
+- **Abgeschaltete Musik** wird jetzt wirklich angehalten, statt stumm weiterzurechnen. Sind auch die Geräusche aus, ruht die Tonausgabe ganz.
+- **Ältere Spiele (Version 3 und 4):** Der Befehl `pop` wurde als `catch` gedeutet, und Gegenstandsnamen wurden im Format von Version 5 gelesen. Beides ist behoben und an einer frühen v3-Fassung von Curses getestet. Die Testdatei liegt nicht im Repository.
+- **Neustart** leert jetzt die Undo-Liste, Undo führt also nicht mehr ins alte Spiel zurück.
+- **Voller Browserspeicher:** Schlägt das automatische Speichern fehl, gibt es jetzt einen Hinweis.
+- **Schlauer Parser:** Verworfene Umformulierungen hinterlassen keine Spuren mehr, weder in der Undo-Liste noch bei Ausgabeströmen, Zufall oder Bildschirm.
+- Offen gelassen: Daten früher gespielter anderer Spiele bleiben im Speicher, und die Erkennung von Parser-Fehlern über Textmuster bleibt naturgemäß etwas unscharf.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.

@@ -97,7 +97,14 @@ class Music {
     if (!this.ctx) return false;
     this.enabled = on;
     if (on) { this.ctx.resume(); this.master.gain.setTargetAtTime(this.volume * (this.ducked ? .25 : 1), this.ctx.currentTime, .6); if (this.moodName && !this.current) this.startMood(this.moodName, this.moodSeed); }
-    else { this.master.gain.setTargetAtTime(0, this.ctx.currentTime, .4); }
+    else {
+      // switched off: fade out, then really stop the voices and the scheduler (saves battery on phones)
+      this.master.gain.setTargetAtTime(0, this.ctx.currentTime, .4);
+      const old = this.current; this.current = null;
+      if (old) { clearInterval(old.timer); setTimeout(() => { try { old.stopAll(); old.bus.disconnect(); } catch (e) {} }, 2500); }
+      // with sound effects off as well, nothing needs the audio engine at all
+      if (!this.sfxVol) setTimeout(() => { if (!this.enabled && !this.sfxVol && this.ctx.state === 'running') this.ctx.suspend(); }, 3000);
+    }
     return true;
   }
   duck(on) { this.ducked = on; if (this.ctx && this.enabled) this.master.gain.setTargetAtTime(this.volume * (on ? .25 : 1), this.ctx.currentTime, .3); }
@@ -108,7 +115,7 @@ class Music {
     if (this.ctx.state === 'suspended') this.ctx.resume();
     if (!this.sfxBus) { this.sfxBus = this.ctx.createGain(); this.sfxBus.gain.value = this.sfxVol ?? .5; this.sfxBus.connect(this.limiter || this.ctx.destination); this.sfxBus.connect(this.reverb); }
   }
-  updateSfx() { if (this.sfxBus) this.sfxBus.gain.setTargetAtTime(this.sfxVol ?? .5, this.ctx.currentTime, .1); if (!this.sfxVol) this.ambience(null); }
+  updateSfx() { if (this.sfxVol && this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); if (this.sfxBus) this.sfxBus.gain.setTargetAtTime(this.sfxVol ?? .5, this.ctx.currentTime, .1); if (!this.sfxVol) this.ambience(null); }
   noiseHit(t, dur, freq, q, vol, type) {
     const ctx = this.ctx, s = ctx.createBufferSource(); s.buffer = this.noiseBuf;
     const f = ctx.createBiquadFilter(); f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q;

@@ -38,6 +38,8 @@ class ZMachine {
     this.packMul = this.version <= 3 ? 2 : 4;
     this.stack = [];
     this.frames = [{ retPC: 0, locals: [], store: -1, argc: 0, base: 0 }];
+    // a restart is a fresh game: nothing to undo back into the old one
+    this.undoStack = []; this.statusH = 0; this.font = 1;
     this.streams3 = [];
     this.stream1 = true;
     this.upperLines = 0;
@@ -285,10 +287,10 @@ class ZMachine {
     try {
       let a = this.propTable(o); a += 1 + 2 * this.m[a];
       while (this.m[a]) {
-        const sz = this.m[a]; let num, len, hdr;
-        if (sz & 0x80) { num = sz & 63; len = (this.m[a + 1] & 63) || 64; hdr = 2; } else { num = sz & 63; len = sz & 64 ? 2 : 1; hdr = 1; }
+        // the size byte is read the way the story's version writes it (v3 differs from v4+)
+        const P = this.propInfo(a); if (!P) break; const num = P.num, len = P.len, hdr = P.data - a;
         if (num === 1) { const w = []; for (let i = 0; i < len && w.length < 3; i += 2) w.push(this.decode(this.m[a + hdr + i] * 256 + this.m[a + hdr + i + 1])[0]); if (w.length) return w.join(' '); }
-        a += hdr + len;
+        a = P.next;
       }
     } catch (e) {}
     return n;
@@ -299,10 +301,10 @@ class ZMachine {
     try {
       let a = this.propTable(o); a += 1 + 2 * this.m[a];
       while (this.m[a]) {
-        const sz = this.m[a]; let num, len, hdr;
-        if (sz & 0x80) { num = sz & 63; len = (this.m[a + 1] & 63) || 64; hdr = 2; } else { num = sz & 63; len = sz & 64 ? 2 : 1; hdr = 1; }
+        // the size byte is read the way the story's version writes it (v3 differs from v4+)
+        const P = this.propInfo(a); if (!P) break; const num = P.num, len = P.len, hdr = P.data - a;
         if (num === 1) for (let i = 0; i + 1 < len; i += 2) out.push(this.decode(this.m[a + hdr + i] * 256 + this.m[a + hdr + i + 1])[0]);
-        a += hdr + len;
+        a = P.next;
       }
     } catch (e) {}
     return out;
@@ -565,7 +567,23 @@ class ZMachine {
       mem = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) mem[i] = bin.charCodeAt(i);
     }
-    return { mem, stack: o.stack, frames: o.frames, pc: o.pc, store: o.store };
+    const snap = { mem, stack: o.stack, frames: o.frames, pc: o.pc, store: o.store };
+    this.checkSnapshot(snap);
+    return snap;
+  }
+  // a save from outside (an imported file) is checked before it can touch the running game
+  checkSnapshot(s) {
+    const bad = () => { throw new ZError('Spielstand ist beschädigt.'); };
+    const int = (x, lo, hi) => Number.isInteger(x) && x >= lo && x <= hi;
+    if (!(s.mem instanceof Uint8Array) || s.mem.length > this.m.length || s.mem.length < 64) bad();
+    if (!int(s.pc, 0, this.m.length - 1)) bad();
+    if (s.store != null && !int(s.store, -1, 255)) bad();
+    if (!Array.isArray(s.stack) || s.stack.length > 65535 || !s.stack.every(v => int(v, 0, 65535))) bad();
+    if (!Array.isArray(s.frames) || s.frames.length > 4096) bad();
+    for (const f of s.frames) {
+      if (!f || typeof f !== 'object' || !Array.isArray(f.locals) || f.locals.length > 15 || !f.locals.every(v => int(v, 0, 65535))) bad();
+      if (!int(f.retPC, 0, this.m.length) || !int(f.base, 0, s.stack.length) || !int(f.argc || 0, 0, 15) || !(f.store == null || int(f.store, -1, 255))) bad();
+    }
   }
   serialNo() {
     return this.w(2) + '-' + String.fromCharCode(...this.story.slice(0x12, 0x18));
@@ -749,7 +767,7 @@ class ZMachine {
       case 6: { return this.doRestore(this.version <= 3 ? 'branch' : 'store'); }
       case 7: { const w = this.screenWidth; this.restart(); if (w) this.setScreenWidth(w); this.io.onRestart && this.io.onRestart(); return; }
       case 8: return this.ret(this.pop());
-      case 9: return this.storeRes(this.frames.length);
+      case 9: if (this.version < 5) { this.pop(); return; } return this.storeRes(this.frames.length);
       case 10: this.state = 'quit'; return;
       case 11: return this.print('\n');
       case 12: return; // show_status (v3) – status handled by host
