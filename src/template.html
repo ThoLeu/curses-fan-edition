@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curses · an illustrated interpreter</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232a1a3a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23100818%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22url%28%23g%29%22/%3E%3Crect%20x%3D%2217%22%20y%3D%228%22%20width%3D%2230%22%20height%3D%2248%22%20rx%3D%224%22%20fill%3D%22%23f4ead2%22%20stroke%3D%22%23b8902e%22%20stroke-width%3D%222.5%22/%3E%3Crect%20x%3D%2222%22%20y%3D%2213%22%20width%3D%2220%22%20height%3D%2230%22%20fill%3D%22%231a1430%22/%3E%3Ccircle%20cx%3D%2231%22%20cy%3D%2228%22%20r%3D%228%22%20fill%3D%22%23f4ecc8%22/%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%2225%22%20r%3D%227%22%20fill%3D%22%231a1430%22/%3E%3Crect%20x%3D%2222%22%20y%3D%2247%22%20width%3D%2220%22%20height%3D%224%22%20fill%3D%22%23b8902e%22/%3E%3C/svg%3E">
+<style>
+:root{--bg:#16120e;--panel:#211a14;--panel2:#2a2119;--ink:#eadfc6;--dim:#a8997c;--acc:#d2a85a;--acc2:#8fb0a0;--line:#3b2f23;--serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{background:radial-gradient(ellipse at 30% 0%,#2a2018 0%,var(--bg) 60%)}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13.5px;transition:background .2s,border-color .2s}
+button:hover{background:#352a1f;border-color:#5a4632}
+button.on{border-color:var(--acc);color:#ffe7b5;box-shadow:0 0 0 1px rgba(210,168,90,.25) inset}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+select{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+.mono{font-family:var(--mono)}
+/* start screen: title page beside a framed plate */
+#start{min-height:100%;display:grid;grid-template-columns:1.05fr 1fr}
+#start .plate{position:relative;padding:40px;display:flex;align-items:center;justify-content:center;background:#0c0805}
+#start .frame{width:100%;max-width:640px;aspect-ratio:400/260;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px #5a4630,0 0 0 8px #1a140e,0 0 0 9px #6a5236,0 30px 60px rgba(0,0,0,.6)}
+#start .frame svg{width:100%;height:100%;display:block}
+#start .frame .dust i{position:absolute;width:3px;height:3px;border-radius:50%;background:#f6e6b8;animation:mote 9s linear infinite;opacity:0}
+#start .frame{position:relative}
+@keyframes mote{0%{transform:translate(0,0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translate(14px,-70px);opacity:0}}
+#start .cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-style:italic;color:var(--dim);font-size:14px}
+#start .side{padding:46px 44px 30px;background:linear-gradient(90deg,#1a130d,#211910);border-left:1px solid #3a2c1e;overflow:auto}
+#start .kicker{letter-spacing:.32em;text-transform:uppercase;font-size:12px;color:var(--acc2)}
+#start h1{font-weight:normal;font-size:52px;margin:6px 0 2px;letter-spacing:.04em}
+#start h1 em{display:block;color:var(--acc);font-size:.42em;letter-spacing:.12em;margin-top:2px}
+#start .tagline{font-style:italic;color:#d8cba8;font-size:19px;margin:12px 0 20px}
+#start a{color:var(--acc)}
+.steps{list-style:none;margin:0 0 14px;padding:0}
+.steps li{display:flex;gap:12px;align-items:baseline;border-bottom:1px solid #3a2c1e;padding:9px 0;font-size:15.5px}
+.steps li b{display:inline-grid;place-items:center;width:26px;height:26px;border:1.5px solid var(--acc);border-radius:50%;color:var(--acc);font-weight:normal;font-size:14px;flex:none}
+#start .playBox{margin:6px 0 18px}
+#start button.play{display:block;width:100%;font-size:22px;letter-spacing:.06em;padding:16px 20px;border-radius:12px;background:linear-gradient(180deg,#e8c47a,#c89a4a);color:#1a1208;border:0;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#start button.play:hover{filter:brightness(1.07)}#start button.play:disabled{opacity:.7;cursor:wait}
+#start .playNote{margin:8px 2px 0;font-size:13.5px;color:var(--dim)}
+#start .orLine{margin:16px 0 0;font-size:14px;color:#cbbd9c}#start .orLine small{color:var(--dim)}
+#drop{display:block;margin:8px 0 6px;border:2px dashed #7a5f3c;border-radius:12px;padding:12px 18px;cursor:pointer;transition:.2s;background:rgba(0,0,0,.12)}
+#drop.over,#drop:hover{border-color:var(--acc);background:rgba(210,168,90,.06)}
+#drop strong{display:block;font-weight:normal;font-size:16px}
+#drop span{color:var(--dim);font-size:13.5px}
+#drop #detect{display:block;margin-top:8px;font-size:14px;color:#9fd0a8}
+#drop #detect.warn{color:#e8c88a}
+#fileInput{display:none}
+#detectBtns{margin:4px 0 8px}
+#startErr{color:#e89a8a}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.tile{display:flex;flex-direction:column;justify-content:flex-start;text-align:left;background:#1c1510;border:1px solid #4a3a28;border-radius:12px;padding:12px;cursor:pointer}
+.tile:hover{border-color:#6a5236}
+.tile.sel{border-color:var(--acc);box-shadow:0 0 0 1px rgba(210,168,90,.35) inset}
+.tile b{display:block;font-weight:normal;font-size:16.5px}
+.tile small{display:block;color:var(--dim);font-size:13px;line-height:1.4;margin-top:3px}
+.quick{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 0;font-size:14px;color:var(--dim)}
+.quick label{display:flex;gap:6px;align-items:center}
+.quick select{font-size:13.5px;padding:3px 6px}
+button.ghost{background:transparent;border-color:#5a4632}
+.about{margin-top:26px;border-top:1px solid #3a2c1e;padding-top:12px;font-size:13px;color:var(--dim);line-height:1.6}
+.about p{margin:0 0 6px}.about b{font-weight:normal;color:var(--ink)}
+#resumeCard{display:flex;gap:14px;align-items:center;background:#1c1510;border:1px solid var(--acc);border-radius:14px;padding:11px;margin:0 0 16px}
+#resumeCard[hidden]{display:none}
+.rpic{width:170px;aspect-ratio:400/260;border-radius:8px;overflow:hidden;flex:none;border:1px solid #5a4632}
+.rpic svg{width:100%;height:100%;display:block}
+.rk{letter-spacing:.2em;text-transform:uppercase;font-size:11px;color:var(--acc2)}
+#resumeCard h3{margin:2px 0;font-weight:normal;font-size:21px;font-style:italic}
+.rmeta{color:var(--dim);font-size:13.5px;margin-bottom:9px}
+.rbtns{display:flex;gap:8px;flex-wrap:wrap}
+#resumeBtn{background:#4a3820;border-color:#8a6a38;font-size:15px}
+#freshBtn{background:transparent;font-size:13px}
+@media (max-width:900px){
+  #start{grid-template-columns:1fr}
+  #start .plate{padding:18px 18px 34px}
+  #start .cap{bottom:8px}
+  #start .side{border-left:0;border-top:1px solid #3a2c1e;padding:26px 18px}
+  #start h1{font-size:42px}
+  .tiles{grid-template-columns:1fr}
+  #resumeCard{flex-direction:column;align-items:stretch}.rpic{width:100%}
+}
+/* game layout */
+#game{height:100%;display:grid;grid-template-rows:auto 1fr;}
+header{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);background:rgba(20,16,12,.85);flex-wrap:wrap}
+header .t{font-size:17px;margin-right:auto;white-space:nowrap}
+header .t em{color:var(--acc)}
+.ver{font:10px ui-monospace,Menlo,Consolas,monospace;color:var(--dim);opacity:.55;margin-left:9px;letter-spacing:.3px;vertical-align:middle}
+button.linkBtn{background:none;border:0;padding:0;font:inherit;color:var(--acc);text-decoration:underline;cursor:pointer}button.linkBtn:disabled{opacity:.6;cursor:wait}
+.startVer{margin:4px 0 0 2px;text-align:left}
+.grp{display:flex;gap:6px;align-items:center}
+#vol{width:80px;accent-color:var(--acc)}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);min-height:0}
+#left{display:grid;grid-template-rows:auto 1fr auto;min-height:0;border-right:1px solid var(--line)}
+#status{font-family:var(--mono);font-size:13px;line-height:1.35;white-space:pre;overflow:hidden;background:#d8c9a6;color:#20180f;padding:5px 8px;min-height:1.6em}
+#status.empty{background:transparent;padding:0;min-height:0}
+#status .rev{background:none;color:inherit}
+#scroll{overflow-y:auto;padding:18px clamp(14px,4vw,44px) 10px;position:relative}
+#transcript{max-width:72ch;margin:0 auto;font-size:17px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+#transcript .b{font-weight:bold;color:#fff1d0}
+#transcript .i{font-style:italic}
+#transcript .mono{font-size:14.5px}
+#transcript .rev{background:var(--ink);color:var(--bg)}
+.cmdEcho{color:var(--acc);font-style:italic}
+.parseNote{color:var(--acc2);font-size:.82em;font-style:italic}
+#transcript .out{position:relative;border-radius:8px;transition:background .3s}
+#transcript .out.speaking{background:rgba(210,168,90,.07);box-shadow:-10px 0 0 rgba(210,168,90,.07),10px 0 0 rgba(210,168,90,.07)}
+#transcript .say{float:right;margin:2px -6px 0 10px;padding:2px 7px;font-size:13px;line-height:1.3;opacity:.3;background:transparent;border-color:transparent;white-space:normal}
+#transcript .out:hover .say,#transcript .say:focus-visible{opacity:.85;border-color:var(--line)}
+#transcript .out.speaking .say{opacity:1;border-color:var(--acc);background:#3a2c18}
+#trList .trSay{float:right;margin:0 0 0 8px;padding:2px 7px;font-size:13px;line-height:1.3;opacity:.3;background:transparent;border-color:transparent}
+#trList .trBlock:hover .trSay,#trList .trSay:focus-visible{opacity:.85;border-color:var(--line)}
+#trList .trBlock.speaking{background:rgba(210,168,90,.07)}#trList .trBlock.speaking .trSay{opacity:1;border-color:var(--acc);background:#3a2c18}
+#voiceSel,#voiceTrSel{max-width:220px}
+:root{--fs:17px;--tw:72ch}
+#transcript{font-size:var(--fs)!important;max-width:var(--tw)!important}
+.sys,#cmdForm,#keyHint,.exitBar{max-width:var(--tw)!important}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(8,6,4,.7);display:grid;place-items:center;padding:16px}
+#setForm .row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid #2a2219;font-size:15px}
+#setForm .row small{display:block;color:var(--dim);font-size:12.5px}
+#setForm input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;accent-color:var(--acc)}
+*{scrollbar-color:#5a4630 transparent;scrollbar-width:thin}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#5a4630;border-radius:4px}
+#setForm input[type=range]{width:160px;accent-color:var(--acc)}
+#setForm .gr{display:flex;align-items:center;gap:6px}#setForm .gr small{font-size:11.5px;color:var(--dim)}#setForm .gr input{width:120px}
+#sideBox{display:grid;grid-template-rows:auto 1fr;min-height:0;margin:6px 12px 12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#15110d}
+#sideTabs{display:flex;border-bottom:1px solid var(--line)}
+#sideTabs button{flex:1;border:0;border-radius:0;background:transparent;padding:8px;color:var(--dim)}
+#sideTabs button.sel{color:var(--ink);background:#221b14;box-shadow:inset 0 -2px 0 var(--acc)}
+#invCount{font-size:11px;color:var(--acc)}
+.sidePane{min-height:0;overflow:auto;display:grid;grid-template-rows:auto 1fr}
+#paneInv,#paneNotes,#paneTr{display:block;padding:10px}
+#paneMap[hidden],#paneInv[hidden],#paneNotes[hidden],#paneTr[hidden]{display:none!important}
+#mapBar{position:relative}
+#mapBar .sp{flex:1}
+#sheetBtn{font-size:13px;padding:3px 10px;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-color:#5a4632}
+#sheetBtn .cnt,#sheetMenu .cnt{font-size:11px;color:var(--acc);margin-left:2px}
+#sheetMenu{position:absolute;top:100%;left:6px;z-index:6;min-width:230px;max-height:320px;overflow:auto;background:#221b14;border:1px solid var(--acc);border-radius:10px;padding:5px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.shRow{display:flex;gap:4px;margin:2px 0}
+.shRow .shGo{flex:1;text-align:left;font-size:13.5px;padding:5px 8px;background:transparent;border-color:transparent}
+.shRow.sel .shGo{background:#33281c;border-color:#5a4632}
+.shRow .shRen{font-size:12px;padding:3px 7px;background:transparent;border-color:transparent;opacity:.6}
+.shRow .shRen:hover{opacity:1;border-color:var(--line)}
+.shIn{flex:1;background:#120e0a;border:1px solid var(--line);border-radius:6px;padding:4px 7px;font-size:13.5px}
+.shOk{font-size:12px;padding:3px 8px}
+.shHint{margin:6px 6px 2px;font-size:11.5px;color:var(--dim);font-style:italic}
+.stub{cursor:pointer}
+.stub rect{fill:#1a2a2a;stroke:#6a9a90;stroke-dasharray:3 2}
+.stub text{fill:#a8d0c8;font:11px var(--serif)}
+.stub:hover rect{fill:#24403c}
+.edge.stubl{stroke:#5a7a74;stroke-dasharray:2 3}
+body[data-theme="paper"] #sheetMenu{background:#fbf4e4}
+.paneHint,.paneEmpty{color:var(--dim);font-size:13px;font-style:italic;margin:2px 0 10px}
+#invList{display:grid;gap:6px}
+.invItem{display:flex;align-items:center;gap:10px;text-align:left;padding:6px 8px;background:#1f1913;border-color:#33291f}
+.invItem.d1{margin-left:22px}.invItem.d2{margin-left:44px}.invItem.d3{margin-left:66px}
+.invItem .ico{width:34px;height:34px;flex:none;background:#2c231a;border-radius:8px;padding:3px;display:block}
+.invItem .ico svg{width:100%;height:100%;display:block}
+.invItem .nm{font-size:14px}
+.invItem .tag{font-size:11px;color:var(--dim);font-style:italic;margin-left:4px}
+.invItem.stale{opacity:.55;border-style:dashed}
+.invItem .fold{width:14px;flex:none;color:var(--dim);font-size:13px;text-align:center;cursor:pointer}
+.invItem.grp .nm{font-style:italic}
+#trCol{display:grid;grid-template-rows:auto 1fr auto;min-height:0;border-right:1px solid var(--line);background:rgba(18,15,11,.55)}
+#trCol[hidden]{display:none!important}
+.trHead{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--line);background:rgba(20,16,12,.85);position:relative}
+.trTitle{font-style:italic;color:var(--acc2);margin-right:auto}
+.trHead select,.trHead button{font-size:12.5px;padding:3px 8px}
+.trStatus{flex-basis:100%;font-size:12px;color:var(--acc2);font-style:italic}
+.trStatus:empty{display:none}
+.trHelp summary{list-style:none;cursor:pointer;width:22px;height:22px;border:1px solid var(--line);border-radius:50%;text-align:center;line-height:20px;font-size:12px;color:var(--dim)}
+.trHelp summary::-webkit-details-marker{display:none}
+.trHelp p{position:absolute;right:10px;top:100%;z-index:5;width:min(320px,90%);margin:4px 0 0;background:#221b14;border:1px solid var(--acc);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#trScroll{overflow-y:auto;padding:18px clamp(12px,2.5vw,30px) 10px}
+#trInputBar{border-top:1px solid var(--line);padding:10px clamp(12px,2.5vw,30px);background:rgba(20,16,12,.8)}
+#trForm{max-width:var(--tw);margin:0 auto;display:flex;gap:8px;align-items:center}
+#trForm label{color:var(--acc2);font-size:13px;white-space:nowrap}
+#trCmd{flex:1;background:#101412;border:1px solid #3d4d44;border-radius:10px;padding:9px 12px;font-size:16px;font-family:var(--serif);color:var(--ink)}
+#trCmd:focus-visible{outline:2px solid var(--acc2)}
+body[data-theme="paper"] #trCmd{background:#fffaf0}body[data-theme="paper"] #trInputBar{background:rgba(240,232,214,.92)}
+.trCmd.de{color:var(--acc2)}
+#trList{max-width:var(--tw);margin:0 auto;font-size:calc(var(--fs) * .94);line-height:1.6;white-space:pre-wrap}
+.trBlock{padding:0 0 0 10px;margin:0 0 16px;border-left:2px solid #3d4d44;transition:background .3s}
+.trBlock.hl{background:rgba(143,176,160,.07)}
+.trCmd{color:var(--acc);font-style:italic;font-size:.9em;display:block;margin-bottom:2px}
+.trText.pending{opacity:.55}
+body.trcol main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(260px,380px)}
+body.trcol #right{min-width:0}
+#tabs .trTab{display:none}
+body.trcol #tabs .trTab{display:inline-block}
+body[data-theme="paper"] #trCol{background:#f3ead6}
+body[data-theme="paper"] .trHead{background:rgba(240,232,214,.92)}
+body[data-theme="paper"] .trHelp p{background:#fbf4e4}
+body.classic #trCol{background:var(--bg)}
+#sideTabs button{font-size:13px;padding:8px 4px}
+.noteL{display:block;font-size:13.5px;color:var(--dim);margin-bottom:10px}
+.noteL b{color:var(--ink);font-weight:normal;font-style:italic}
+.noteL textarea,#xferText,#impText{display:block;width:100%;margin-top:5px;background:#120e0a;border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:8px;font:14px/1.5 var(--serif);resize:vertical}
+#noteOthers h4{font-weight:normal;color:var(--acc);font-size:13px;margin:14px 0 6px}
+.noteO{font-size:13px;padding:6px 0;border-top:1px solid #2a2219}.noteO b{display:block;font-weight:normal;font-style:italic;color:var(--ink)}.noteO span{color:var(--dim)}
+.noteDot{fill:#d2a85a}.noteDotT{fill:#1a130b;font-size:9px}
+#pop{position:fixed;z-index:30;background:#241c14;border:1px solid var(--acc);border-radius:10px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.6);display:flex;flex-wrap:wrap;gap:4px;max-width:280px}
+#pop .popT{flex:1 1 100%;font-style:italic;color:var(--acc);padding:2px 4px 4px;font-size:13.5px}
+#pop button{font-size:13px;padding:4px 9px}
+#pop button.ins{flex:1 1 100%;background:transparent;border-style:dashed;color:var(--dim)}
+#toast{position:fixed;top:56px;left:50%;transform:translate(-50%,-10px);background:#3a2c18;color:#ffe7b5;border:1px solid var(--acc);border-radius:20px;padding:5px 14px;font-size:14px;opacity:0;pointer-events:none;z-index:25}
+#toast.show{animation:toast 2.4s ease}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,-10px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
+.exitBar{margin:0 auto 7px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:12.5px}
+.exitBar:empty{display:none}
+.exL{color:var(--dim);font-style:italic;margin-right:2px}
+.exitBar button{font-size:12.5px;padding:3px 8px}
+.exitBar small{color:var(--dim);font-size:11px}
+#acBox{max-width:var(--tw);margin:0 auto 6px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+#acBox button{font-size:13px;padding:2px 9px;font-family:var(--mono)}
+#acBox button.sel{border-color:var(--acc)}
+.acTip{color:var(--dim);font-size:11.5px;font-style:italic}
+body.wordclick #transcript .out span:not(.cmdEcho){cursor:pointer}
+.saveNew{display:flex;gap:8px;margin:6px 0 12px}
+.saveNew input{flex:1;background:#120e0a;border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.saveRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a2219}
+.saveRow b{display:block;font-weight:normal}.saveRow small{color:var(--dim);font-size:12px}
+.sbtn{display:flex;gap:4px;flex:none}.sbtn button{font-size:12.5px;padding:3px 8px}
+button.danger{border-color:#8a3a2a;color:#f0b0a0}button.danger[data-armed]{background:#6a2418;color:#fff}
+.xferBtns{display:flex;gap:8px;margin:8px 0;align-items:center}
+.saveWhere{margin:10px 0 4px;font-size:.88em;color:var(--dim)}.saveWhere summary{cursor:pointer;color:var(--acc)}.saveWhere p{margin:6px 0}
+.btnlike{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13.5px;color:var(--ink);text-decoration:none}
+/* light paper theme */
+body[data-theme="paper"]{--bg:#efe6d2;--panel:#f6efe0;--panel2:#e8dcc4;--ink:#2a2016;--dim:#6a5a44;--line:#cdbb9a;background:#efe6d2}
+body[data-theme="paper"] #inputBar,body[data-theme="paper"] header{background:rgba(240,232,214,.92)}
+body[data-theme="paper"] #cmd,body[data-theme="paper"] .noteL textarea,body[data-theme="paper"] #xferText,body[data-theme="paper"] #impText,body[data-theme="paper"] .saveNew input{background:#fffaf0;color:var(--ink)}
+body[data-theme="paper"] #transcript .b{color:#1a120a}
+body[data-theme="paper"] #sideBox,body[data-theme="paper"] .hq,body[data-theme="paper"] .invItem{background:#fbf6ea}
+body[data-theme="paper"] .invItem .ico{background:#2e241a}
+body[data-theme="paper"] #sideTabs button.sel{background:#efe4cc}
+body[data-theme="paper"] .hstep p{background:#efe4cc}
+body[data-theme="paper"] #pop{background:#fbf4e4}
+/* classic terminal mode */
+body.classic{--ink:#ffb000;--dim:#b07a00;--acc:#ffb000;--bg:#0a0700;--panel:#0a0700;--panel2:#141000;--line:#3a2a00;--serif:var(--mono);background:#0a0700}
+body.classic[data-ccolor="green"]{--ink:#33ff66;--dim:#1fa040;--acc:#33ff66;--bg:#020a03;--panel:#020a03;--panel2:#061208;--line:#0f3a18;background:#020a03}
+body.classic[data-ccolor="white"]{--ink:#e8e8e8;--dim:#9a9a9a;--acc:#ffffff;--bg:#0a0a0a;--panel:#0a0a0a;--panel2:#161616;--line:#333;background:#0a0a0a}
+body.classic main{grid-template-columns:1fr!important}
+body.classic #right,body.classic #exitBar,body.classic #acBox,body.classic #musicBtn,body.classic #tabs,body.classic .say{display:none!important}
+body.classic #status{background:var(--ink);color:var(--bg)}
+body.classic #transcript,body.classic #cmd{font-family:var(--mono);text-shadow:0 0 6px currentColor}
+body.classic #transcript .b{color:var(--ink)}
+body.classic #cmd{background:transparent;border-color:var(--line);color:var(--ink)}
+body.classic #scroll{background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+body.classic header{background:var(--bg)}
+body.classic button{background:var(--panel2);color:var(--ink);font-family:var(--mono)}
+body.classic .cmdEcho{color:var(--ink);font-style:normal}
+
+#helpModal{position:fixed;inset:0;z-index:20;background:rgba(8,6,4,.7);display:grid;place-items:center;padding:16px}
+.hm-card{width:min(680px,100%);max-height:min(86vh,900px);display:grid;grid-template-rows:auto 1fr;background:var(--panel);border:1px solid #5a4632;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.hm-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.hm-head h2{margin:0;font-weight:normal;font-size:22px}
+.hm-body{overflow:auto;padding:6px 18px 18px}
+.hm-intro{color:var(--dim);line-height:1.5;font-size:14.5px}
+.hm-body h3{font-weight:normal;color:var(--acc);font-size:16px;margin:20px 0 8px;letter-spacing:.4px;text-transform:uppercase}
+.hq{border:1px solid var(--line);border-radius:10px;margin:8px 0;background:#1b1611}
+.hq summary{cursor:pointer;padding:10px 12px;font-size:15.5px;list-style:none}
+.hq summary::-webkit-details-marker{display:none}
+.hq summary::before{content:"▸ ";color:var(--acc)}
+.hq[open] summary::before{content:"▾ "}
+.hq .steps{padding:0 12px 12px}
+.hstep{margin:6px 0}
+.hstep button{font-size:12.5px;padding:3px 9px}
+.hstep p{margin:6px 0 0;line-height:1.55;font-size:15px;background:#251d15;border-left:3px solid var(--acc);padding:7px 10px;border-radius:0 6px 6px 0}
+.hm-links{padding-left:18px;line-height:1.6;font-size:14.5px;color:var(--dim)}
+.hm-links a{color:var(--acc)}
+
+.sys{max-width:72ch;margin:10px auto;color:var(--acc2);font-size:14px;font-style:italic;border-left:2px solid var(--acc2);padding-left:10px}
+#overlay{position:sticky;top:0;z-index:3;width:fit-content;max-width:100%;margin:0 auto 14px;background:#0f0c09;border:1px solid var(--acc);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-size:13px;line-height:1.45;white-space:pre;overflow-x:auto;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#overlay .rev{background:var(--acc);color:#1a130b}
+#inputBar{border-top:1px solid var(--line);padding:10px clamp(12px,4vw,44px);background:rgba(20,16,12,.8)}
+#cmdForm{max-width:72ch;margin:0 auto;display:flex;gap:8px;align-items:center}
+#cmdForm label{color:var(--acc);font-size:20px}
+#cmd{flex:1;background:#120e0a;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:16px;font-family:var(--serif)}
+#cmd:disabled{opacity:.6}
+#keyHint{max-width:72ch;margin:8px auto 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center;color:var(--dim);font-size:13px}
+#keyHint button{padding:4px 9px;font-size:12.5px;font-family:var(--mono)}
+#right{display:grid;grid-template-rows:auto auto 1fr;min-height:0;background:var(--panel)}
+#picWrap{padding:12px 12px 0;position:relative}
+#closeUp{position:absolute;inset:12px 12px auto 12px;aspect-ratio:400/260;display:flex;align-items:center;justify-content:center;background:rgba(8,6,10,.9);border-radius:8px;cursor:pointer;z-index:5}
+#closeUp[hidden]{display:none}
+#closeUp svg{height:92%;max-width:92%}
+#closeUp.wide svg{width:88%;height:auto}
+#closeUp .cuX{position:absolute;top:6px;right:10px;color:#e8dcc0;font:18px Georgia,serif;opacity:.8}
+@keyframes cuIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+#roomItems{display:flex;flex-wrap:wrap;gap:5px;padding:7px 2px 0;align-items:center}
+#roomItems::before{content:attr(data-label);font-size:12px;font-style:italic;color:var(--dim);margin-right:2px}
+#roomItems[hidden]{display:none}
+.riItem{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 5px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:inherit;font-size:12px;cursor:default;max-width:14em}
+.riItem .ico{width:18px;height:18px;display:inline-flex}.riItem .ico svg{width:18px;height:18px}.riItem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pic{position:relative;aspect-ratio:400/260;border-radius:10px;overflow:hidden;background:#0d0a08;box-shadow:0 0 0 1px #4a3a28,0 0 0 5px #1a140e,0 0 0 6px #5a4630,0 10px 24px rgba(0,0,0,.5)}
+#pic .layer{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
+#pic .layer.on{opacity:1}
+#pic .layer{transition:opacity 1.1s ease,filter 2.6s ease}
+#pic.ended .layer{filter:grayscale(.85) brightness(.42) contrast(.9)}
+#endScene{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity 2.2s ease 0.6s}
+#endScene.on{opacity:1}
+#endScene[hidden]{display:none}
+#endScene svg{width:100%;height:100%;display:block}
+#pic svg *{pointer-events:none}
+#pic svg{width:100%;height:100%;display:block}
+#mapSvg{touch-action:none}#mapSvg .node{cursor:grab}#mapSvg.dragging,#mapSvg.dragging .node{cursor:grabbing}
+#pic .zu{pointer-events:none}
+#demoBar{border:1px solid var(--line);border-radius:10px;padding:7px 10px;margin:0 auto 8px;max-width:46em;background:var(--panel2)}
+.demoTop{display:flex;gap:10px;align-items:baseline;font-size:13px}.demoTag{color:var(--accent,#e8c47a);flex:none}#demoSec{flex:1;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#demoPos{flex:none;font-family:var(--mono);font-size:12px;color:var(--dim)}
+.demoTrack{height:4px;background:var(--line);border-radius:2px;margin:6px 0;overflow:hidden}#demoProg{height:100%;width:0;background:var(--accent,#e8c47a);transition:width .3s}
+.demoCtl{display:flex;gap:6px;align-items:center}.demoCtl button,.demoCtl select{font-size:13px;padding:3px 10px}#demoStop{margin-left:auto}
+body.demo #exitBar,body.demo #acBox{display:none!important}
+.centerLine{display:block;text-align:center}
+.quoteBox{display:block;margin:.6em auto .9em;padding:.7em 1.1em;max-width:34em;border:1px solid var(--line);border-left:3px solid var(--accent,#c8a060);background:rgba(255,255,255,.03);font-style:italic;white-space:pre-wrap;width:fit-content}
+#cap{display:flex;align-items:baseline;gap:8px;padding:12px 4px 6px}
+#roomName{font-size:20px;font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#moodChip{font-size:12px;color:var(--acc2);border:1px solid #3d4d44;border-radius:20px;padding:2px 9px;white-space:nowrap}
+#mapBox{display:grid;grid-template-rows:auto 1fr;min-height:0;margin:6px 12px 12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#15110d}
+#mapBar{display:flex;align-items:center;gap:5px;padding:6px 8px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim)}
+#mapBar b{font-weight:normal;color:var(--ink);margin-right:auto;letter-spacing:.5px}
+#mapBar button{padding:2px 8px;font-size:12.5px}
+#mapSvg{width:100%;height:100%;min-height:180px;display:block;touch-action:none;cursor:grab;background-image:radial-gradient(#2a2119 1px,transparent 1px);background-size:18px 18px}
+#mapSvg:active{cursor:grabbing}
+.edge{stroke:#7a6448;stroke-width:2.2}
+.edge.dash{stroke-dasharray:5 5;stroke:#5e4e3a}
+.edge.vert{stroke:#7f9aa8}
+.elab rect{fill:#1d1712;stroke:#5a4a36}
+.elab text{fill:#cdbb98;font:11px var(--serif)}
+.node rect{fill:#2e241a;stroke:#6a5236;stroke-width:1.5}
+.node text{fill:#e6d6b4;font:11.5px var(--serif);pointer-events:none}
+.node.cur rect{fill:#5a4220;stroke:#f0c46a;stroke-width:2.5;filter:drop-shadow(0 0 6px rgba(240,196,106,.55))}
+.node.cur text{fill:#fff3d6}
+.node.c-garden rect{fill:#26301f}.node.c-water rect{fill:#1f2b33}.node.c-cellar rect,.node.c-cave rect{fill:#221d1a}.node.c-classical rect,.node.c-egypt rect{fill:#3a3020}.node.c-church rect{fill:#2b2433}.node.c-otherworld rect,.node.c-heights rect{fill:#26233a}.node.c-city rect{fill:#30222a}.node.c-camp rect{fill:#33231a}
+.node.cur rect{fill:#5a4220}
+.mapEmpty{fill:var(--dim);font:13px var(--serif);font-style:italic}
+#tabs{display:none}
+@media (max-width:1180px){
+  body.trcol main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 250px}
+  body.trcol #picWrap{padding:8px 8px 0}
+}
+@media (max-width:820px){
+  body.trcol main{grid-template-columns:1fr}
+  body.trcol #trCol{display:none}
+  body.trcol[data-tab="tr"] #trCol{display:grid}
+  body.trcol[data-tab="tr"] #left{display:none}
+  main{grid-template-columns:1fr;grid-template-rows:1fr}
+  #left{border-right:0}
+  #right{display:none}
+  body[data-tab="world"] #left{display:none}
+  body[data-tab="world"] #right{display:grid}
+  #tabs{display:flex;gap:6px}
+  #tabs button.sel{border-color:var(--acc)}
+  header .t{font-size:15px}
+  .hideSm{display:none}
+  #transcript{font-size:16px}
+  #status{font-size:10.5px}
+  #overlay{font-size:10.5px;padding:8px}
+}
+@media (max-width:480px){
+  #status{font-size:9.4px;padding:5px 4px}
+  /* the buttons in one row that scrolls sideways, below the title */
+  header{display:grid;grid-auto-flow:column;grid-template-rows:auto auto;justify-content:start;overflow-x:auto;overflow-y:hidden;gap:6px 6px;padding:6px 10px;scrollbar-width:none}
+  header::-webkit-scrollbar{display:none}
+  header .t{grid-row:1;grid-column:1/span 12}
+  header .grp{grid-row:2;gap:5px}
+  header button{font-size:13px;padding:5px 8px;white-space:nowrap}
+}
+</style>
+</head>
+<body data-tab="text" translate="no" class="notranslate">
+<section id="start">
+  <div class="plate"><div class="frame" id="startPic"></div><div class="cap" id="startCap">Der Dachboden von Meldrew Hall</div></div>
+  <div class="side">
+    <div class="kicker">Ein Textadventure von Graham Nelson · 1993</div>
+    <h1>Curses<em>an illustrated interpreter</em></h1><div class="ver startVer" title="Version">__BUILDSTAMP__</div>
+    <p class="tagline">Ein Dachboden, eine verlorene Karte von Paris und ein Familienfluch.</p>
+    <div id="resumeCard" hidden>
+      <div class="rpic" id="resumePic"></div>
+      <div class="rinfo"><div class="rk">Weiterspielen</div><h3 id="resumeRoom"></h3><div class="rmeta" id="resumeMeta"></div>
+        <div class="rbtns"><button id="resumeBtn">▶ Weiterspielen</button><button id="freshBtn">Neues Spiel</button></div></div>
+    </div>
+    <div class="playBox" id="playBox">
+      <button type="button" id="playBtn" class="play">▶ Spielen</button>
+      <p class="playNote">Lädt <i>curses.z5</i> kostenlos aus dem <a href="https://ifarchive.org/if-archive/games/zcode/" target="_blank" rel="noopener">IF Archive</a> · <a href="https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt" target="_blank" rel="noopener">README des Autors</a></p>
+    </div>
+    <p class="orLine" id="orLine">oder mit eigener Datei <small>(<a href="https://ifarchive.org/if-archive/games/zcode/curses.z5" target="_blank" rel="noopener">curses.z5 herunterladen</a>)</small></p>
+    <label id="drop" for="fileInput">
+      <strong id="dropTitle">curses.z5 hier ablegen</strong>
+      <span>oder klicken, um die Datei auszuwählen</span>
+      <span id="detect" hidden></span>
+    </label>
+    <input type="file" id="fileInput" accept=".z3,.z4,.z5,.dat,.zblorb">
+    <div id="detectBtns" hidden><button id="startAnyway">Trotzdem spielen</button></div>
+    <p id="startErr" hidden></p>
+    <p class="orLine">Spielweise</p>
+    <div class="tiles" id="styleTiles">
+      <button class="tile" data-style="illustrated"><b>Illustriert</b><small>Raumbilder, Musik, Karte und Inventar.</small></button>
+      <button class="tile" data-style="classic"><b>Klassisch</b><small>Wie 1993: nur Text, Leuchtschrift, keine Hilfen.</small></button>
+      <button class="tile" data-style="helpers"><b>Mit Hilfen</b><small>Übersetzungsspalte, deutsche Befehle, Hinweise.</small></button>
+    </div>
+    <div class="quick">
+      <label>Sprache <select id="startLang"><option value="de">Deutsch</option><option value="en">English</option></select></label>
+      <label><input type="checkbox" id="startTr"> Übersetzungsspalte</label>
+      <button id="previewBtn" class="ghost">♫ Stimmung anhören</button>
+    </div>
+    <div class="about">
+      <p><b>Über das Spiel:</b> <i>Curses</i> von Graham Nelson (1993) ist Freeware und eines der Spiele, mit denen die Programmiersprache Inform bekannt wurde. <a href="https://ifdb.org/viewgame?id=plvzam05bmz3enh8" target="_blank" rel="noopener">IFDB</a> · <a href="https://ifarchive.org/if-archive/games/zcode/" target="_blank" rel="noopener">IF Archive</a> · <a href="https://ifarchive.org/if-archive/games/zcode/curses_rel16.txt" target="_blank" rel="noopener">README des Autors</a></p>
+      <p>Ein inoffizieller Fan-Spieler, nicht von Graham Nelson. Das Spiel bleibt sein Werk: Du lädst deine eigene Kopie, diese Seite enthält keinen Text daraus. Andere Z-Code-Spiele (Version 3 bis 5) laufen auch, nur ohne die Curses-Extras.</p>
+      <p>Fehler gefunden oder eine Idee? <a href="https://github.com/ThoLeu/curses-fan-edition/issues/new/choose" target="_blank" rel="noopener">Rückmeldung auf GitHub</a> (mit einem kostenlosen GitHub-Konto).</p>
+    </div>
+  </div>
+</section>
+
+<section id="game" hidden>
+  <header>
+    <div class="t">Curses <em>· an illustrated interpreter</em><span class="ver" title="Version">__BUILDSTAMP__</span></div>
+    <div id="tabs" class="grp"><button data-tab="text" class="sel">Text</button><button data-tab="tr" class="trTab">Übersetzung</button><button data-tab="world">Bild &amp; Karte</button></div>
+    <div class="grp"><button id="trBtn" aria-pressed="false" title="Spieltext in einer eigenen Spalte übersetzen lassen">🌐 Übersetzung</button></div>
+    <div class="grp ttsOnly"><button id="sayBtn" title="Letzte Antwort des Spiels vorlesen">🔊 Vorlesen</button></div>
+    <div class="grp"><button id="musicBtn" aria-pressed="false">♫ Musik aus</button></div>
+    <div class="grp"><button id="undoBtn" title="Letzten Zug zurücknehmen (UNDO)">↶ Undo</button><button id="savesBtn" title="Spielstände, Export, Import, Transkript">💾 Spielstände</button></div>
+    <div class="grp"><button id="helpBtn" title="Optionale Hinweise, schrittweise aufdeckbar">💡 Hilfe</button><button id="setBtn" title="Einstellungen" aria-label="Einstellungen">⚙</button></div>
+  </header>
+  <main>
+    <div id="left">
+      <div id="status" class="empty"></div>
+      <div id="scroll"><pre id="overlay" hidden></pre><div id="transcript" aria-live="polite"></div></div>
+      <div id="inputBar">
+        <div id="demoBar" hidden>
+          <div class="demoTop"><span class="demoTag">▶ Komplettlösung</span><span id="demoSec"></span><span id="demoPos"></span></div>
+          <div class="demoTrack"><div id="demoProg"></div></div>
+          <div class="demoCtl"><button id="demoPlay" title="Pause">⏸</button><button id="demoStep" title="Ein Zug weiter">⏭</button>
+            <select id="demoSpeed" aria-label="Tempo"><option value="slow">Gemächlich</option><option value="normal" selected>Normal</option><option value="fast">Schnell</option><option value="turbo">Turbo</option></select>
+            <button id="demoStop">■ Beenden</button></div>
+        </div>
+        <div id="exitBar" class="exitBar"></div>
+        <div id="acBox" hidden></div>
+        <form id="cmdForm" autocomplete="off"><label for="cmd">›</label><input id="cmd" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Was tust du?"></form>
+        <div id="keyHint" hidden>Das Spiel wartet auf einen Tastendruck:
+          <button data-key="32">Leertaste</button><button data-key="13">Enter</button><button data-key="110">N</button><button data-key="112">P</button><button data-key="113">Q</button><button data-key="27">Esc</button>
+        </div>
+      </div>
+    </div>
+    <section id="trCol" hidden>
+      <div class="trHead">
+        <span class="trTitle">Übersetzung</span>
+        <select id="trTarget" aria-label="Zielsprache"><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pl">Polski</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="uk">Українська</option><option value="ru">Русский</option></select>
+        <button id="trAutoBtn">Automatisch übersetzen</button>
+        <button id="trSayBtn" title="Letzte Übersetzung vorlesen">🔊 Vorlesen</button>
+        <span id="trStatus" class="trStatus"></span>
+        <details class="trHelp"><summary title="Wie übersetze ich?">?</summary><p>Falls dein Browser keine eingebaute Übersetzung anbietet: Nutze seine Übersetzen-Funktion, zum Beispiel per Rechtsklick → „Übersetzen“. Übersetzt wird dann nur diese Spalte, das Original bleibt englisch.</p></details>
+      </div>
+      <div id="trScroll"><div id="trList" translate="yes" lang="en"></div></div>
+      <div id="trInputBar"><form id="trForm" autocomplete="off"><label for="trCmd" title="Deutsche Eingabe">DE ›</label><input id="trCmd" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Was tust du? (auf Deutsch)"></form></div>
+    </section>
+    <aside id="right">
+      <div id="picWrap"><div id="pic"><div id="endScene" hidden></div></div><div id="closeUp" hidden title=""></div></div>
+      <div id="cap" style="padding-left:16px;padding-right:16px"><span id="roomName">…</span><span id="moodChip">♪</span></div>
+      <div id="sideBox">
+        <div id="sideTabs"><button data-pane="paneMap" class="sel">Karte</button><button data-pane="paneInv">Inventar <span id="invCount"></span></button><button data-pane="paneNotes">Notizen</button></div>
+        <div id="paneMap" class="sidePane">
+          <div id="mapBar"><button id="sheetBtn" title="Karte wählen">Karte ▾</button><div id="sheetMenu" hidden></div><span class="sp"></span><button id="mapZoomOut" aria-label="Herauszoomen">−</button><button id="mapZoomIn" aria-label="Hineinzoomen">+</button><button id="mapCenter">Zentrieren</button><button id="mapReset">Karte leeren</button></div>
+          <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div id="paneInv" class="sidePane" hidden><p class="paneHint">Tippe auf einen Gegenstand für passende Aktionen.</p><div id="invList"></div></div>
+        <div id="paneNotes" class="sidePane" hidden>
+          <label class="noteL">Zu diesem Raum: <b id="noteRoomName">–</b><textarea id="noteRoom" rows="4" placeholder="Was ist dir hier aufgefallen?"></textarea></label>
+          <label class="noteL">Allgemeine Notizen<textarea id="noteGeneral" rows="5" placeholder="Rätsel, Ideen, Inschriften …"></textarea></label>
+          <div id="noteOthers"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</section>
+
+
+<div id="pop" hidden></div>
+<div id="toast" aria-live="polite"></div>
+<div id="setModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="hm-card">
+    <div class="hm-head"><h2 id="setTitle">Einstellungen</h2><button id="setClose" aria-label="Schließen">✕</button></div>
+    <div class="hm-body" id="setForm">
+      <h3>Sprache &amp; Eingabe</h3>
+      <label class="row"><span>Sprache <small>Oberfläche, Hilfe und Hinweise</small></span><select data-p="lang"><option value="de">Deutsch</option><option value="en">English</option></select></label>
+      <label class="row"><span>Schlauer Parser <small>versteht Tippfehler und andere Formulierungen, ohne Züge zu verbrauchen</small></span><input type="checkbox" data-p="smartParser"></label>
+      <label class="row"><span>Deutsche Befehle verstehen <small>zum Beispiel „nimm das Buch“ oder „geh nach Norden“</small></span><input type="checkbox" data-p="germanInput"></label>
+      <h3>Darstellung</h3>
+      <label class="row"><span>Schriftgröße <small id="fsVal"></small></span><input type="range" min="13" max="24" step="1" data-p="fontSize"></label>
+      <label class="row"><span>Zeilenbreite</span><select data-p="width"><option value="schmal">schmal</option><option value="mittel">mittel</option><option value="breit">breit</option></select></label>
+      <label class="row"><span>Farbschema</span><select data-p="theme"><option value="dark">Dunkel (Pergament)</option><option value="paper">Hell (Papier)</option></select></label>
+      <label class="row"><span>Klassischer Modus <small>wie ein Terminal von 1993, ohne Bilder, Musik und Hilfen</small></span><input type="checkbox" data-p="classic"></label>
+      <label class="row"><span>Terminalfarbe</span><select data-p="classicColor"><option value="amber">Bernstein</option><option value="green">Grün</option><option value="white">Weiß</option></select></label>
+      <h3>Eingabehilfen</h3>
+      <label class="row"><span>Wörter antippen <small>ein Klick auf ein Wort im Text schlägt Befehle vor</small></span><input type="checkbox" data-p="wordClick"></label>
+      <label class="row"><span>Bekannte Wege als Knöpfe</span><input type="checkbox" data-p="exits"></label>
+      <label class="row"><span>Autovervollständigung <small>nur Wörter, die schon im Text vorkamen</small></span><input type="checkbox" data-p="autocomplete"></label>
+      <label class="row"><span>Punkteanzeige <small>kurzes „+5“, wenn der Punktestand steigt</small></span><input type="checkbox" data-p="scoreToast"></label>
+      <h3>Klang</h3>
+      
+      <label class="row"><span>Musik-Lautstärke</span><input id="vol" type="range" min="0" max="1" step="0.05" aria-label="Lautstärke"></label>
+      <label class="row"><span>Geräusche <small>Luken, Gegenstände, Regen, Glocken, Brandung</small></span><input type="checkbox" data-p="sfx"></label>
+      <label class="row"><span>Geräusch-Lautstärke</span><input type="range" min="0" max="1" step="0.05" data-p="sfxVol"></label>
+      <div class="ttsOnly">
+        <label class="row"><span>Vorlese-Stimme <small>für den englischen Spieltext</small></span><select id="voiceSel" aria-label="Stimme"></select></label>
+        <label class="row"><span>Stimme für die Übersetzung <small>passend zur Zielsprache der Übersetzungsspalte</small></span><select id="voiceTrSel" aria-label="Stimme für die Übersetzung"></select></label>
+        <label class="row"><span>Hinweise in [eckigen Klammern] vorlesen <small>zum Beispiel „[Your score has just gone up …]“</small></span><input type="checkbox" data-p="sayBrackets"></label>
+        <label class="row"><span>Sprechtempo</span><select id="rateSel" aria-label="Sprechtempo"><option value="0.8">0,8×</option><option value="1">1×</option><option value="1.2">1,2×</option><option value="1.4">1,4×</option></select></label>
+      </div>
+      <h3>Spiel</h3>
+      <div class="row"><span>Von vorn beginnen oder andere Story-Datei laden</span><span><button id="restartBtn">Neu starten</button> <button id="changeStory">Datei…</button></span></div>
+      <div class="row"><span>Alles zurücksetzen <small>löscht in diesem Browser alle Einstellungen, Spielstände, Karte, Notizen und die gespeicherte Spieldatei – danach startet die Seite wie beim ersten Besuch</small></span><span><button id="resetAllBtn" class="danger">Alles zurücksetzen</button></span></div>
+    </div>
+  </div>
+</div>
+<div id="saveModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+  <div class="hm-card">
+    <div class="hm-head"><h2 id="saveTitle">Spielstände</h2><button id="saveClose" aria-label="Schließen">✕</button></div>
+    <div class="hm-body">
+      <p id="saveMsg" class="hm-intro"></p>
+      <div class="saveNew"><input id="saveName" placeholder="Name des Spielstands"><button id="saveNow">Jetzt speichern</button></div>
+      <div id="saveList"></div>
+      <details class="saveWhere"><summary>Wo werden die Spielstände gespeichert?</summary><p>Nur hier im Browser, auf diesem Gerät (im lokalen Speicher des Browsers) – nichts geht an einen Server. Dazu gehören auch der automatische Spielstand nach jedem Zug, die Karte und deine Notizen.</p><p>Jede Adresse hat ihren eigenen Speicher: Auf GitHub Pages, in der Ansicht bei Claude und in einer heruntergeladenen Datei siehst du jeweils andere Spielstände, ebenso in einem anderen Browser oder auf einem anderen Gerät.</p><p>Verloren gehen sie, wenn du die Browserdaten für die Seite löschst; in einem privaten Fenster bleiben sie nur bis zum Schließen. Zum Sichern oder Mitnehmen: einen Spielstand exportieren und den Text oder die Datei aufheben.</p></details>
+      <div id="xferBox" hidden>
+        <h3 id="xferTitle">Export</h3>
+        <textarea id="xferText" rows="5" readonly></textarea>
+        <div class="xferBtns"><button id="xferCopy">Kopieren</button><a id="xferDl" class="btnlike" hidden>Als Datei speichern</a></div>
+        <p class="hm-intro">Auf einem anderen Gerät: Spielstände öffnen und den Text unten bei „Importieren“ einfügen.</p>
+      </div>
+      <h3>Importieren</h3>
+      <textarea id="impText" rows="3" placeholder="Exportierten Spielstand hier einfügen"></textarea>
+      <div class="xferBtns"><button id="impBtn">Importieren</button><label class="btnlike">Datei wählen<input type="file" id="impFile" accept=".txt,.json" hidden></label></div>
+      <p id="impMsg" class="hm-intro"></p>
+      <h3>Transkript</h3>
+      <p class="hm-intro">Das bisherige Spielprotokoll als Text, zum Nachlesen oder Aufheben.</p>
+      <div class="xferBtns"><button id="trBtn">Transkript anzeigen</button></div>
+    </div>
+  </div>
+</div>
+<div id="helpModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="hm-card">
+    <div class="hm-head"><h2 id="helpTitle">Hilfe</h2><button id="helpClose" aria-label="Hilfe schließen">✕</button></div>
+    <div class="hm-body">
+      <p class="hm-intro">Hier verrät nichts mehr, als du willst. Jede Frage hat mehrere Stufen: Klick auf <b>Stufe 1</b> für einen sanften Schubs, die nächsten Stufen werden deutlicher. Die Hinweise sind auf Deutsch, Befehle stehen in der englischen Form, die das Spiel versteht.</p>
+      <div id="hintList"></div>
+      <h3>Komplettlösung vorführen</h3>
+      <p class="hm-intro">Lass dir das ganze Spiel vorspielen: Wähle die Textdatei der Komplettlösung (zum Beispiel <code>curses_walkthrough.txt</code>), dann startet ein eigenes Vorführ-Spiel, das sich Zug für Zug selbst spielt, mit Bildern, Karte und Musik. Tempo, Pause und Einzelschritte stellst du unten ein. Dein eigener Spielstand bleibt dabei unberührt.</p>
+      <label class="btnlike">Komplettlösung wählen …<input type="file" id="demoFile" accept=".txt,text/plain" hidden></label>
+      <p id="demoMsg" class="hm-intro"></p>
+      <h3>Mehr Hilfe</h3>
+      <ul class="hm-links">
+        <li><a href="https://intfiction.org/t/invisiclues-for-curses-complete/65984" target="_blank" rel="noopener">InvisiClues für Curses</a> von Brian Rushton (intfiction.org): ausführliche, gestufte Hinweise für das ganze Spiel, auf Englisch.</li>
+        <li><a href="http://plover.net/~davidw/sol/c/curse93.html" target="_blank" rel="noopener">Komplettlösung mit Karten</a> von David Welbourn: vollständige Lösung für Release 16. Achtung, Spoiler.</li>
+        <li><a href="https://ifdb.org/viewgame?id=plvzam05bmz3enh8" target="_blank" rel="noopener">Curses bei der IFDB</a>: Infos, Rezensionen und weitere Lösungen.</li>
+        <li>Im Spiel selbst: <code>help</code> öffnet Graham Nelsons eigenes Infomenü mit Anleitung und Befehlsübersicht.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>/*I18N*/</script>
+<script>/*ZMACHINE*/</script>
+<script>/*PARSER*/</script>
+<script>/*BESPOKE*/</script>
+<script>/*BESPOKE2*/</script>
+<script>/*BESPOKE3*/</script>
+<script>/*GENTEXT*/</script>
+<script>/*GENERIC*/</script>
+<script>/*GENPARTS*/</script>
+<script>/*GENLAND*/</script>
+<script>/*CLOSEUP*/</script>
+<script>/*ENDINGS*/</script>
+<script>/*ART*/</script>
+<script>/*ICONS*/</script>
+<script>/*PEOPLE*/</script>
+<script>/*MUSIC*/</script>
+<script>/*APP*/</script>
+<script>/*FEATURES*/</script>
+<script>/*DEMO*/</script>
+</body>
+</html>

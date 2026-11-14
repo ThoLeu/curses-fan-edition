@@ -12,13 +12,13 @@ Du brauchst deine eigene Spieldatei `curses.z5`. Sie ist nicht in diesem Reposit
 
 ## Aktuelle Version
 
-26-11-13-2115 – Ebenen und Plätze in allen Bildern geprüft
+26-11-14-1808 – Quellen im Repository, weniger Spieltext
 
 ## Ältere Versionen
 
+- [26-11-13-2115](archiv/26-11-13-2115.html) – Ebenen und Plätze in allen Bildern geprüft
 - [26-11-13-2106](archiv/26-11-13-2106.html) – Lair-Pflanzen vorn, saubere Statuszeile
 - [26-11-13-2058](archiv/26-11-13-2058.html) – Wege-Knöpfe mit englischen Richtungen
-- [26-11-13-1931](archiv/26-11-13-1931.html) – Musik auf dem Handy ohne Knarzen
 
 <!-- verlauf -->
 ## Entwicklungsverlauf
@@ -255,6 +255,11 @@ Aus den Bedingungen im Quelltext ließen sich gezielt Zustände herstellen, die 
 - Der Baukasten zeichnet Dinge auf dem Boden jetzt nach ihrer Tiefe: weiter hinten zuerst, weiter vorn zuletzt, und immer vor Wänden, Durchgängen und Treppen. Bisher galt die Reihenfolge, in der der Text sie nennt. Was auf einem Möbelstück steht, kommt direkt nach diesem.
 - Findet ein Bild an der Seitenwand keinen freien Platz, hängt es nicht mehr einfach über einer Tür. Es sucht schmalere Plätze, die andere Seitenwand und dann die Rückwand. Hohe Fenster weichen ihm aus. Das betraf zum Beispiel das Stillleben im Hall of Exhibits.
 - An Bord der Phlebas gab es zwei Steuerräder: eins am Ruder und eins in der Hand des hohlen Mannes. Jetzt gibt es nur noch das Ruder, und er steht daneben.
+
+### 43. Quellen im Repository (14. November 2026)
+- Der Ordner `src/` enthält jetzt alle 21 Dateien, aus denen die Seite gebaut wird: Interpreter, Parser, Bilder, Figuren, Musik, Oberfläche, Vorlage und Bauskript. `node build.js` erzeugt daraus ohne weitere Abhängigkeiten dieselbe `index.html`. Die Testwerkzeuge mit der Komplettlösung und die Spieldatei sind nicht dabei.
+- Vorher wurde jede Datei geprüft: Es gibt keine persönlichen Daten, keine Pfade aus der Arbeitsumgebung und nichts aus der Rekonstruktion des Quelltexts. Nur ein Kommentar verweist auf Garvins öffentliche Fehlerliste.
+- Dabei fiel auf, dass die Seite zum Erkennen von Ereignissen 88 Wortfolgen aus dem Spiel mit fünf oder mehr Wörtern enthielt, einige davon ganze Sätze. Die Ereignisliste übernimmt den Satz jetzt zur Laufzeit aus dem gerade gelesenen Text und speichert nur noch ein kurzes Suchmuster. Alle Wortfolgen mit sechs und mehr Wörtern sind auf wenige kennzeichnende Wörter gekürzt. Die 150 Bilder der Komplettlösung sind danach unverändert.
 
 ### Offen
 - Einzelne aus der Beschreibung zusammengesetzte Räume bei Bedarf von Hand nachzeichnen.
